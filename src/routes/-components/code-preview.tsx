@@ -45,7 +45,7 @@ function TypeWriter({ code, speed = 20 }: { code: string; speed?: number }) {
       ref={codeRef}
       className="p-4 text-sm overflow-x-auto h-[300px] overflow-y-auto"
     >
-      <code className="language-typescript font-mono text-theme-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.5)] whitespace-pre">
+      <code className="language-typescript font-mono text-theme-400 drop-shadow-[0_0_10px_rgb(var(--color-theme-500-rgb)/0.5)] whitespace-pre">
         {displayedCode}
         {currentIndex < code.length && isVisible && (
           <span className="animate-pulse">|</span>
@@ -57,7 +57,7 @@ function TypeWriter({ code, speed = 20 }: { code: string; speed?: number }) {
 
 export function CodePreviewSection() {
   return (
-    <section className="py-16 px-6 bg-gray-900">
+    <section className="py-16 px-6 bg-background">
       <div className="max-w-7xl mx-auto space-y-24">
         {/* First Snippet - Left Text, Right Code */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
@@ -66,7 +66,7 @@ export function CodePreviewSection() {
               Learn Through Practice
             </h2>
             <div className="space-y-4">
-              <p className="text-gray-300 text-lg">
+              <p className="text-muted-foreground text-lg">
                 Each challenge is designed to help you master React concepts
                 through hands-on practice. You'll learn how to break down
                 complex problems and implement solutions step by step.
@@ -74,21 +74,21 @@ export function CodePreviewSection() {
               <ul className="space-y-3">
                 <li className="flex items-start gap-3">
                   <span className="text-theme-400 mt-1">🎯</span>
-                  <span className="text-gray-300">
+                  <span className="text-muted-foreground">
                     Solve real-world coding problems that you'll encounter in
                     your React journey
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-theme-400 mt-1">✨</span>
-                  <span className="text-gray-300">
+                  <span className="text-muted-foreground">
                     Learn how to think like a developer by breaking down complex
                     problems
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-theme-400 mt-1">🔄</span>
-                  <span className="text-gray-300">
+                  <span className="text-muted-foreground">
                     Build a portfolio of 20 unique React projects to showcase
                     your skills
                   </span>
@@ -96,8 +96,8 @@ export function CodePreviewSection() {
               </ul>
             </div>
           </div>
-          <div className="bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden border border-theme-400/20 shadow-[0_0_15px_rgba(74,222,128,0.15)]">
-            <div className="flex items-center space-x-2 px-4 py-2 bg-gray-800/50 border-b border-theme-400/20">
+          <div className="bg-card/80 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden border border-theme-400/20 shadow-[0_0_15px_rgb(var(--color-theme-500-rgb)/0.15)]">
+            <div className="flex items-center space-x-2 px-4 py-2 bg-card/50 border-b border-theme-400/20">
               <div className="w-3 h-3 rounded-full bg-red-500"></div>
               <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
               <div className="w-3 h-3 rounded-full bg-green-500"></div>
@@ -132,7 +132,7 @@ export function CodePreviewSection() {
               Understand React Fundamentals
             </h2>
             <div className="space-y-4">
-              <p className="text-gray-300 text-lg">
+              <p className="text-muted-foreground text-lg">
                 Master the core building blocks of React. Learn how components
                 work, how to handle user interactions, and how to manage state
                 in your applications.
@@ -140,27 +140,27 @@ export function CodePreviewSection() {
               <ul className="space-y-3">
                 <li className="flex items-start gap-3">
                   <span className="text-theme-400 mt-1">🚀</span>
-                  <span className="text-gray-300">
+                  <span className="text-muted-foreground">
                     Learn how to create components and handle user events
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-theme-400 mt-1">💡</span>
-                  <span className="text-gray-300">
+                  <span className="text-muted-foreground">
                     Understand how state works and when to use it
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-theme-400 mt-1">📝</span>
-                  <span className="text-gray-300">
+                  <span className="text-muted-foreground">
                     Practice using props to make reusable components
                   </span>
                 </li>
               </ul>
             </div>
           </div>
-          <div className="md:order-1 bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden border border-theme-400/20 shadow-[0_0_15px_rgba(74,222,128,0.15)]">
-            <div className="flex items-center space-x-2 px-4 py-2 bg-gray-800/50 border-b border-theme-400/20">
+          <div className="md:order-1 bg-card/80 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden border border-theme-400/20 shadow-[0_0_15px_rgb(var(--color-theme-500-rgb)/0.15)]">
+            <div className="flex items-center space-x-2 px-4 py-2 bg-card/50 border-b border-theme-400/20">
               <div className="w-3 h-3 rounded-full bg-red-500"></div>
               <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
               <div className="w-3 h-3 rounded-full bg-green-500"></div>
@@ -203,7 +203,7 @@ function Counter() {
               Learn to Problem Solve
             </h2>
             <div className="space-y-4">
-              <p className="text-gray-300 text-lg">
+              <p className="text-muted-foreground text-lg">
                 Master the art of breaking down complex React challenges. We'll
                 start each challenge with whiteboarding, identify the right
                 state management approach, and implement step-by-step solutions.
@@ -211,21 +211,21 @@ function Counter() {
               <ul className="space-y-3">
                 <li className="flex items-start gap-3">
                   <span className="text-theme-400 mt-1">🤔</span>
-                  <span className="text-gray-300">
+                  <span className="text-muted-foreground">
                     Learn how to break down complex problems into manageable
                     pieces using whiteboarding
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-theme-400 mt-1">💭</span>
-                  <span className="text-gray-300">
+                  <span className="text-muted-foreground">
                     Identify what state you need and where it should live in
                     your application
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-theme-400 mt-1">⚡</span>
-                  <span className="text-gray-300">
+                  <span className="text-muted-foreground">
                     Turn your whiteboard solutions into working React code with
                     confidence
                   </span>
@@ -233,8 +233,8 @@ function Counter() {
               </ul>
             </div>
           </div>
-          <div className="bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden border border-theme-400/20 shadow-[0_0_15px_rgba(74,222,128,0.15)]">
-            <div className="flex items-center space-x-2 px-4 py-2 bg-gray-800/50 border-b border-theme-400/20">
+          <div className="bg-card/80 backdrop-blur-sm rounded-lg shadow-lg overflow-hidden border border-theme-400/20 shadow-[0_0_15px_rgb(var(--color-theme-500-rgb)/0.15)]">
+            <div className="flex items-center space-x-2 px-4 py-2 bg-card/50 border-b border-theme-400/20">
               <div className="w-3 h-3 rounded-full bg-red-500"></div>
               <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
               <div className="w-3 h-3 rounded-full bg-green-500"></div>

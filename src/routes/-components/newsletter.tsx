@@ -11,9 +11,7 @@ declare global {
 }
 
 export const subscribeFn = createServerFn()
-  .validator(
-    z.object({ email: z.string().email(), recaptchaToken: z.string() })
-  )
+  .validator(z.object({ email: z.email(), recaptchaToken: z.string() }))
   .handler(async ({ data }) => {
     const response = await fetch(
       "https://www.google.com/recaptcha/api/siteverify",
@@ -83,7 +81,7 @@ export function NewsletterSection() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="flex-1 px-4 py-2 rounded-lg bg-gray-900 text-white border border-gray-800 focus:outline-none focus:border-theme-500"
+                  className="flex-1 px-4 py-2 rounded-lg bg-background text-foreground border border-border focus:outline-none focus:border-theme-500"
                   required
                 />
                 <Button type="submit" className="h-12" disabled={isLoading}>

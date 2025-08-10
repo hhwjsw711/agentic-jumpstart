@@ -22,14 +22,14 @@ function RouteComponent() {
       {isAdmin ? (
         <Link
           to="/learn/add"
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="mt-4 px-4 py-2 bg-theme-500 text-white rounded hover:bg-theme-600"
         >
           Create a Module
         </Link>
       ) : (
         <Link
           to="/"
-          className="mt-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+          className="mt-4 px-4 py-2 bg-muted text-muted-foreground rounded hover:bg-muted/80"
         >
           Back to Home
         </Link>

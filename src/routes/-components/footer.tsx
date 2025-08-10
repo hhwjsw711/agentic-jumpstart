@@ -5,11 +5,11 @@ export function FooterSection() {
   const firstSegment = useFirstSegment();
 
   return (
-    <footer className="py-12 px-6 bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-4xl mx-auto text-gray-600 dark:text-gray-400">
+    <footer className="py-12 px-6 bg-muted/50 dark:bg-background">
+      <div className="max-w-4xl mx-auto text-muted-foreground">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">
+            <h3 className="font-semibold text-foreground mb-4">
               Learn
             </h3>
             <ul className="space-y-2">
@@ -18,7 +18,7 @@ export function FooterSection() {
                   <Link
                     to="/learn/$slug"
                     params={{ slug: firstSegment.data.slug }}
-                    className="hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+                    className="hover:text-foreground transition-colors"
                   >
                     Get Started
                   </Link>
@@ -28,14 +28,14 @@ export function FooterSection() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">
+            <h3 className="font-semibold text-foreground mb-4">
               Purchase
             </h3>
             <ul className="space-y-2">
               <li>
                 <a
                   href="/purchase"
-                  className="hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+                  className="hover:text-foreground transition-colors"
                 >
                   Buy Now
                 </a>
@@ -44,14 +44,14 @@ export function FooterSection() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">
+            <h3 className="font-semibold text-foreground mb-4">
               Legal
             </h3>
             <ul className="space-y-2">
               <li>
                 <Link
                   to="/terms-of-service"
-                  className="hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+                  className="hover:text-foreground transition-colors"
                 >
                   Terms of Service
                 </Link>
@@ -59,7 +59,7 @@ export function FooterSection() {
               <li>
                 <Link
                   to="/privacy-policy"
-                  className="hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+                  className="hover:text-foreground transition-colors"
                 >
                   Privacy Policy
                 </Link>
@@ -68,14 +68,14 @@ export function FooterSection() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">
+            <h3 className="font-semibold text-foreground mb-4">
               Contact
             </h3>
             <ul className="space-y-2">
               <li>
                 <a
                   href="mailto:webdevcody@gmail.com"
-                  className="hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+                  className="hover:text-foreground transition-colors"
                 >
                   webdevcody@gmail.com
                 </a>
@@ -84,7 +84,7 @@ export function FooterSection() {
           </div>
         </div>
 
-        <div className="text-center pt-8 border-t border-gray-200 dark:border-gray-800">
+        <div className="text-center pt-8 border-t border-border">
           <p>© 2025 Seibert Software Solutions, LLC. All rights reserved.</p>
         </div>
       </div>

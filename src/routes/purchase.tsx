@@ -114,8 +114,8 @@ function RouteComponent() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-gray-900">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(74,222,128,0.05)_0%,transparent_65%)] pointer-events-none" />
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-muted to-background">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgb(var(--color-theme-500-rgb)/0.05)_0%,transparent_65%)] pointer-events-none" />
 
       <div className="container mx-auto py-12 px-4 relative z-10">
         <div className="max-w-4xl mx-auto">
@@ -127,7 +127,7 @@ function RouteComponent() {
             <h1 className="text-5xl font-bold mb-4 text-white bg-clip-text">
               20 Beginner React Challenges
             </h1>
-            <p className="text-xl text-gray-300 mb-4">
+            <p className="text-xl text-muted-foreground mb-4">
               Master React through hands-on problem solving
             </p>
             {/* <div className="flex items-center justify-center gap-2 text-theme-400">
@@ -136,7 +136,7 @@ function RouteComponent() {
                   <Star key={i} className="h-5 w-5 fill-current" />
                 ))}
               </div>
-              <span className="text-gray-300">4.9/5 from 500+ students</span>
+              <span className="text-muted-foreground">4.9/5 from 500+ students</span>
             </div> */}
           </div>
 
@@ -147,7 +147,7 @@ function RouteComponent() {
                   <h2 className="text-3xl font-bold text-white mb-2">
                     Complete Challenge Package
                   </h2>
-                  <p className="text-gray-300">
+                  <p className="text-muted-foreground">
                     Get lifetime access to all challenges and solutions
                   </p>
                 </div>
@@ -166,7 +166,7 @@ function RouteComponent() {
                         <p className="text-white font-medium">
                           {feature.title}
                         </p>
-                        <p className="text-gray-300 text-sm">
+                        <p className="text-muted-foreground text-sm">
                           {feature.description}
                         </p>
                       </div>
@@ -182,14 +182,14 @@ function RouteComponent() {
                         key={testimonial.name}
                         className="p-4 rounded-lg bg-white/5 border border-theme-400/10"
                       >
-                        <p className="text-gray-300 mb-4">
+                        <p className="text-muted-foreground mb-4">
                           "{testimonial.text}"
                         </p>
                         <div>
                           <div className="text-white font-medium">
                             {testimonial.name}
                           </div>
-                          <div className="text-gray-400 text-sm">
+                          <div className="text-muted-foreground/70 text-sm">
                             {testimonial.role} at {testimonial.company}
                           </div>
                         </div>
@@ -200,7 +200,7 @@ function RouteComponent() {
 
                 {/* Guarantee */}
                 <div className="text-center mb-12 p-6 rounded-lg border border-theme-400/20 bg-white/5">
-                  <p className="text-gray-300">
+                  <p className="text-muted-foreground">
                     Try the challenges risk-free. If you're not completely
                     satisfied, get a full refund within 30 days.
                   </p>
@@ -209,7 +209,7 @@ function RouteComponent() {
                 {/* Pricing */}
                 <div className="text-center space-y-6">
                   <div>
-                    <div className="text-gray-400 mb-2">
+                    <div className="text-muted-foreground/70 mb-2">
                       Regular price{" "}
                       <span className="line-through">$299.99</span>
                     </div>
@@ -219,7 +219,7 @@ function RouteComponent() {
                     <div className="text-theme-400 font-medium">
                       Limited Time Offer
                     </div>
-                    <div className="text-gray-300 text-sm mt-1">
+                    <div className="text-muted-foreground text-sm mt-1">
                       One-time payment, lifetime access
                     </div>
                   </div>
@@ -255,7 +255,7 @@ function RouteComponent() {
                       </a>
                     )}
 
-                    <div className="flex items-center gap-2 text-gray-400">
+                    <div className="flex items-center gap-2 text-muted-foreground/70">
                       <Lock className="h-4 w-4" />
                       <span className="text-sm">
                         Secure payment with Stripe

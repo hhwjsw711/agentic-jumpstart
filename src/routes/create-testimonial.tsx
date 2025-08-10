@@ -66,7 +66,7 @@ function SuccessMessage() {
   return (
     <div className="max-w-2xl mx-auto p-6 text-center space-y-6 mt-12">
       <h1 className="text-3xl font-bold">Thank You for Your Testimonial!</h1>
-      <p className="text-gray-500">
+      <p className="text-muted-foreground">
         Your feedback helps others understand the value of our platform.
       </p>
       <div className="flex justify-center gap-4">
@@ -212,7 +212,7 @@ function CreateTestimonial() {
                   "text-2xl p-2 rounded-lg transition-colors",
                   selectedEmojis.includes(emoji)
                     ? "bg-theme-500/20 text-theme-500"
-                    : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                    : "hover:bg-muted dark:hover:bg-muted"
                 )}
               >
                 {emoji}
@@ -220,7 +220,7 @@ function CreateTestimonial() {
             ))}
           </div>
           {selectedEmojis.length > 0 && (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               Selected: {selectedEmojis.join(" ")}
             </p>
           )}

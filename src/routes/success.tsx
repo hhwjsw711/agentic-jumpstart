@@ -23,16 +23,16 @@ function RouteComponent() {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background gradient similar to homepage */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(74,222,128,0.05)_0%,transparent_65%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgb(var(--color-theme-500-rgb)/0.05)_0%,transparent_65%)] pointer-events-none" />
 
       <Confetti width={width} height={height} numberOfPieces={cofettiPieces} />
 
       <div className="max-w-md w-full relative z-10">
-        <div className="bg-gray-800/30 backdrop-blur-sm rounded-lg border border-theme-400/20 shadow-[0_0_15px_rgba(74,222,128,0.1)] p-8">
+        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-theme-400/20 shadow-[0_0_15px_rgb(var(--color-theme-500-rgb)/0.1)] p-8">
           <div className="text-center">
             <div className="mb-6">
               <svg
-                className="mx-auto h-16 w-16 text-theme-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.3)]"
+                className="mx-auto h-16 w-16 text-theme-400 drop-shadow-[0_0_10px_rgb(var(--color-theme-500-rgb)/0.3)]"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -49,7 +49,7 @@ function RouteComponent() {
             <h1 className="text-4xl font-bold text-white mb-4">
               Payment Successful!
             </h1>
-            <p className="text-gray-300 mb-8">
+            <p className="text-muted-foreground mb-8">
               Thank you for your purchase. Your order has been confirmed.
             </p>
             <Button

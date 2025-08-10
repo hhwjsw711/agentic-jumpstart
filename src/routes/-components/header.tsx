@@ -16,7 +16,7 @@ export function Header() {
   return (
     <div className="fixed top-0 left-0 right-0 z-50">
       {/* Sophisticated gradient background matching hero */}
-      <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-gray-900 to-slate-900"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-background via-background to-background"></div>
 
       {/* Subtle theme accent line */}
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-theme-500/30 to-transparent"></div>
@@ -38,7 +38,7 @@ export function Header() {
               <Link to="/" className="flex items-center gap-2 group">
                 <div className="relative">
                   <img
-                    src="/icon.png"
+                    src="/logo.png"
                     alt="Beginner React Challenges"
                     className="size-12 transition-transform duration-300 group-hover:scale-105"
                   />
@@ -46,9 +46,7 @@ export function Header() {
                   <div className="absolute inset-0 rounded-full bg-theme-500/10 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
                 <span className="font-semibold text-sm text-white">
-                  The 20 React
-                  <br />
-                  Challenges Course
+                  Agentic Jumpstart
                 </span>
               </Link>
 
@@ -58,7 +56,7 @@ export function Header() {
                   to="/"
                   className={cn(
                     "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-                    "text-gray-300 hover:text-white hover:bg-white/5"
+                    "text-muted-foreground hover:text-white hover:bg-white/5"
                   )}
                   activeProps={{
                     className: "text-theme-400 bg-theme-500/10 font-semibold",
@@ -70,7 +68,7 @@ export function Header() {
                   to="/purchase"
                   className={cn(
                     "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-                    "text-gray-300 hover:text-white hover:bg-white/5"
+                    "text-muted-foreground hover:text-white hover:bg-white/5"
                   )}
                   activeProps={{
                     className: "text-theme-400 bg-theme-500/10 font-semibold",
@@ -84,7 +82,7 @@ export function Header() {
                     params={{ slug: continueSlug }}
                     className={cn(
                       "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-                      "text-gray-300 hover:text-white hover:bg-white/5",
+                      "text-muted-foreground hover:text-white hover:bg-white/5",
                       routerState.location.pathname.startsWith("/learn")
                         ? "text-theme-400 bg-theme-500/10 font-semibold"
                         : ""
@@ -97,7 +95,7 @@ export function Header() {
                     to="/learn"
                     className={cn(
                       "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
-                      "text-gray-300 hover:text-white hover:bg-white/5",
+                      "text-muted-foreground hover:text-white hover:bg-white/5",
                       routerState.location.pathname.startsWith("/learn")
                         ? "text-theme-400 bg-theme-500/10 font-semibold"
                         : ""
@@ -142,9 +140,9 @@ export function Header() {
                 </SheetTrigger>
                 <SheetContent side="right" className="w-[250px] sm:w-[300px]">
                   {/* Mobile menu with matching gradient background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800"></div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-background"></div>
                   <div className="absolute inset-0 backdrop-blur-md bg-black/20"></div>
-                  <div className="relative z-10 h-full border-l border-gray-700/50">
+                  <div className="relative z-10 h-full border-l border-border/50">
                     <nav className="flex flex-col gap-4 mt-8 px-6">
                       <Link
                         to="/"
@@ -179,7 +177,7 @@ export function Header() {
                         </Link>
                       )}
 
-                      <div className="pt-4 space-y-3 border-t border-gray-700/50 mt-4">
+                      <div className="pt-4 space-y-3 border-t border-border/50 mt-4">
                         {user ? (
                           <a href="/api/logout" className="block">
                             <Button className="w-full">Logout</Button>

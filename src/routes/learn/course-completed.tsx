@@ -35,7 +35,7 @@ function CourseCompleted() {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background gradient similar to homepage */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(74,222,128,0.05)_0%,transparent_65%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgb(var(--color-theme-500-rgb)/0.05)_0%,transparent_65%)] pointer-events-none" />
 
       <Confetti width={width} height={height} numberOfPieces={confettiPieces} />
 
@@ -43,7 +43,7 @@ function CourseCompleted() {
         <div className="text-center space-y-6">
           <div className="mb-6">
             <svg
-              className="mx-auto h-16 w-16 text-theme-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.3)]"
+              className="mx-auto h-16 w-16 text-theme-400 drop-shadow-[0_0_10px_rgb(var(--color-theme-500-rgb)/0.3)]"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -59,15 +59,15 @@ function CourseCompleted() {
           <h1 className="text-5xl sm:text-6xl font-bold text-white">
             Congratulations! <span className="text-theme-400">🎉</span>
           </h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             You've completed the course! We hope you learned a lot and enjoyed
             the experience.
           </p>
         </div>
 
-        <div className="bg-gray-800/30 backdrop-blur-sm rounded-lg border border-theme-400/20 shadow-[0_0_15px_rgba(74,222,128,0.1)] p-6 space-y-4">
+        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-theme-400/20 shadow-[0_0_15px_rgb(var(--color-theme-500-rgb)/0.1)] p-6 space-y-4">
           <h2 className="text-2xl font-semibold text-white">Get in Touch</h2>
-          <p className="text-gray-300">
+          <p className="text-muted-foreground">
             Have questions or feedback? Feel free to reach out to me at{" "}
             <a
               href="mailto:webdevcody@gmail.com"
@@ -78,9 +78,9 @@ function CourseCompleted() {
           </p>
         </div>
 
-        <div className="bg-gray-800/30 backdrop-blur-sm rounded-lg border border-theme-400/20 shadow-[0_0_15px_rgba(74,222,128,0.1)] p-6 space-y-4">
+        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-theme-400/20 shadow-[0_0_15px_rgb(var(--color-theme-500-rgb)/0.1)] p-6 space-y-4">
           <h2 className="text-2xl font-semibold text-white">Stay Updated</h2>
-          <p className="text-gray-300">
+          <p className="text-muted-foreground">
             Sign up for our newsletter to get notified about new courses,
             updates, and exclusive content.
           </p>
@@ -91,7 +91,7 @@ function CourseCompleted() {
                 <h3 className="text-2xl font-semibold text-theme-400 mb-2">
                   Thank you for subscribing!
                 </h3>
-                <p className="text-gray-400">
+                <p className="text-muted-foreground/70">
                   We'll keep you updated with new courses and exclusive content.
                 </p>
               </div>
@@ -99,7 +99,7 @@ function CourseCompleted() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-200">
+                <Label htmlFor="email" className="text-foreground">
                   Email
                 </Label>
                 <Input
@@ -109,7 +109,7 @@ function CourseCompleted() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="bg-gray-900/50 border-theme-400/20 focus:border-theme-400 text-white"
+                  className="bg-background/50 border-theme-400/20 focus:border-theme-400 text-white"
                 />
               </div>
               <Button
@@ -123,7 +123,7 @@ function CourseCompleted() {
           )}
         </div>
 
-        <div className="bg-gray-800/30 backdrop-blur-sm rounded-lg border border-theme-400/20 shadow-[0_0_15px_rgba(74,222,128,0.1)] p-6 space-y-4">
+        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-theme-400/20 shadow-[0_0_15px_rgb(var(--color-theme-500-rgb)/0.1)] p-6 space-y-4">
           <h2 className="text-2xl font-semibold text-white">Connect With Me</h2>
           <div className="flex gap-4 justify-center">
             <Button

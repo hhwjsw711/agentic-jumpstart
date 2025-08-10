@@ -44,7 +44,7 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   useEffect(() => {
     window
       .matchMedia("(prefers-color-scheme: dark)")
-      .addEventListener("change", event => {
+      .addEventListener("change", (event) => {
         if (themeQuery.data === "system") {
           const newColorScheme = event.matches ? "dark" : "light";
           const root = window.document.documentElement;

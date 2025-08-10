@@ -26,26 +26,21 @@ export function HeroSection() {
 
   return (
     <section className="relative h-screen overflow-hidden w-full">
-      {/* Modern gradient background - using theme colors */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-gray-900"></div>
+      {/* Modern AI-themed gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-theme-950/20 to-transparent"></div>
 
-      {/* Subtle pattern overlay */}
-      <div className="absolute inset-0 opacity-5">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `radial-gradient(circle at 25% 25%, #64748b 1px, transparent 1px),
-                           radial-gradient(circle at 75% 75%, #64748b 1px, transparent 1px)`,
-            backgroundSize: "50px 50px",
-          }}
-        ></div>
+      {/* AI circuit pattern overlay */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="circuit-pattern absolute inset-0"></div>
       </div>
 
-      {/* Floating background elements - using theme colors */}
+      {/* AI-themed floating elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-theme-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-theme-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-theme-600/5 rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-theme-500/10 to-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-theme-400/8 rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div className="absolute top-10 right-10 w-32 h-32 bg-theme-300/5 rounded-full blur-2xl animate-float"></div>
       </div>
 
       {/* Content */}
@@ -62,12 +57,12 @@ export function HeroSection() {
                 </div>
 
                 <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-8 text-white leading-tight">
-                  20 <span className="text-gradient">Beginner</span> React
+                  20 <span className="text-gradient-ai">Beginner</span> React
                   <br />
-                  <span className="text-gradient">Challenges</span>
+                  <span className="text-gradient-ai ai-glow">Challenges</span>
                 </h1>
 
-                <p className="text-xl text-slate-300 mb-12 leading-relaxed max-w-xl">
+                <p className="text-xl text-muted-foreground mb-12 leading-relaxed max-w-xl">
                   Master React through hands-on practice with 20 engaging
                   challenges. From building a Connect Four game to crafting a
                   Quote Generator, you'll learn to solve real-world React
@@ -76,7 +71,7 @@ export function HeroSection() {
 
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link to="/purchase">
-                    <Button variant={"secondary"} size="lg">
+                    <Button className="btn-ai" size="lg">
                       <ShoppingCart className="mr-2 h-4 w-4" />
                       Buy Now
                     </Button>
@@ -93,15 +88,15 @@ export function HeroSection() {
                 <div className="flex items-center gap-8 mt-12 pt-8 border-t border-white/10">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-white">20</div>
-                    <div className="text-sm text-slate-400">Challenges</div>
+                    <div className="text-sm text-muted-foreground/70">Challenges</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-white">6+</div>
-                    <div className="text-sm text-slate-400">Hours Content</div>
+                    <div className="text-sm text-muted-foreground/70">Hours Content</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-white">∞</div>
-                    <div className="text-sm text-slate-400">Learning</div>
+                    <div className="text-sm text-muted-foreground/70">Learning</div>
                   </div>
                 </div>
               </div>
@@ -128,8 +123,9 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-900 to-transparent"></div>
+      {/* Bottom gradient fade with theme accent */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-900 via-slate-900/80 to-transparent"></div>
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-theme-500/30 to-transparent"></div>
     </section>
   );
 }

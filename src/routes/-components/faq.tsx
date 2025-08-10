@@ -12,15 +12,15 @@ const FAQItem = ({ question, answer }: FAQItemProps) => {
       <div
         className={cn(
           "w-full flex items-center justify-between p-6 rounded-lg",
-          "bg-gray-800/70 border border-theme-500/20 backdrop-blur-sm",
-          "shadow-[0_0_15px_rgba(34,197,94,0.1)]"
+          "bg-card/70 border border-theme-500/20 backdrop-blur-sm",
+          "shadow-[0_0_15px_rgb(var(--color-theme-500-rgb)/0.1)]"
         )}
       >
         <h3 className="text-xl font-semibold text-left text-theme-400">
           {question}
         </h3>
       </div>
-      <div className="p-6 rounded-b-lg bg-gray-800/30 border-x border-b border-theme-500/20 flex-1">
+      <div className="p-6 rounded-b-lg bg-card/30 border-x border-b border-theme-500/20 flex-1">
         {answer}
       </div>
     </div>
@@ -31,7 +31,7 @@ const faqData: FAQItemProps[] = [
   {
     question: "What are the 20 React challenges?",
     answer: (
-      <p className="text-gray-300">
+      <p className="text-muted-foreground">
         The challenges range from simple to complex, including building a
         Connect Four game, creating a Quote Generator, developing a Todo List,
         and more. Each challenge focuses on different React concepts and
@@ -42,7 +42,7 @@ const faqData: FAQItemProps[] = [
   {
     question: "What skill level is required for these challenges?",
     answer: (
-      <p className="text-gray-300">
+      <p className="text-muted-foreground">
         These challenges are perfect for beginners who have a basic
         understanding of React. Each challenge includes detailed explanations
         and step-by-step guidance to help you learn and grow.
@@ -52,7 +52,7 @@ const faqData: FAQItemProps[] = [
   {
     question: "How do I get help if I'm stuck on a challenge?",
     answer: (
-      <p className="text-gray-300">
+      <p className="text-muted-foreground">
         You can reach out in our Discord community or email me directly at{" "}
         <a
           href="mailto:webdevcody@gmail.com"
@@ -67,7 +67,7 @@ const faqData: FAQItemProps[] = [
   {
     question: "Do I get access to the solution code?",
     answer: (
-      <p className="text-gray-300">
+      <p className="text-muted-foreground">
         Yes! Each challenge comes with a complete solution that you can
         reference. However, we encourage you to try solving the challenges
         yourself first to get the most out of the learning experience.
@@ -77,7 +77,7 @@ const faqData: FAQItemProps[] = [
   {
     question: "Can I use these projects in my portfolio?",
     answer: (
-      <p className="text-gray-300">
+      <p className="text-muted-foreground">
         Absolutely! Each challenge is a complete, portfolio-ready project. You
         can customize them further to showcase your skills to potential
         employers.
@@ -87,7 +87,7 @@ const faqData: FAQItemProps[] = [
   {
     question: "How long does it take to complete all challenges?",
     answer: (
-      <p className="text-gray-300">
+      <p className="text-muted-foreground">
         The time varies depending on your experience level and how much time you
         dedicate. On average, each challenge should take a maximum time of an
         hour or two to solve yourself.
@@ -100,7 +100,7 @@ export function FAQSection() {
   return (
     <section className="relative py-16 px-6 overflow-hidden">
       {/* Background gradient effect */}
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-gray-950" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background to-background" />
 
       {/* Content */}
       <div className="relative max-w-4xl mx-auto">
@@ -108,7 +108,7 @@ export function FAQSection() {
           <h2 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-theme-400 to-theme-600">
             Frequently Asked Questions
           </h2>
-          <p className="text-gray-400 max-w-2xl">
+          <p className="text-muted-foreground/70 max-w-2xl">
             Get quick answers to common questions about our course and services
           </p>
         </div>

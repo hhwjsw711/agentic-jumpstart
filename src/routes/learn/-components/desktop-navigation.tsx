@@ -85,13 +85,11 @@ export function DesktopNavigation({
         <div className="px-4">
           <div className="flex items-center gap-2">
             <img
-              src="/icon.png"
-              alt="Beginner React Challenges"
+              src="/logo.png"
+              alt="Agentic Jumpstart Logo"
               className="size-12"
             />
-            <span className="font-semibold">
-              The 20 React Challenges Course
-            </span>
+            <span className="font-semibold">Agentic Jumpstart</span>
           </div>
         </div>
 

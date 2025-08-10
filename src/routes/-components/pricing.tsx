@@ -41,19 +41,19 @@ export function PricingSection() {
         </h2>
         <div ref={cardRef} className="relative max-w-lg mx-auto">
           <div className="relative bg-[#111111] p-10 rounded-2xl overflow-hidden border border-theme-400/10">
-            <div className="absolute inset-0 rounded-2xl transition-opacity duration-300 [background:radial-gradient(circle_at_var(--mouse-x)_var(--mouse-y),rgba(74,222,128,0.1)_0%,rgba(74,222,128,0.05)_35%,transparent_60%)]"></div>
+            <div className="absolute inset-0 rounded-2xl transition-opacity duration-300 [background:radial-gradient(circle_at_var(--mouse-x)_var(--mouse-y),rgb(var(--color-theme-500-rgb)/0.1)_0%,rgb(var(--color-theme-500-rgb)/0.05)_35%,transparent_60%)]"></div>
             <div className="relative z-10">
               <h3 className="text-2xl font-bold mb-2 text-theme-400">
                 20 Beginner React Challenges
               </h3>
               <div className="text-6xl font-bold mb-8 text-white">
                 $20
-                <span className="text-lg text-gray-400 font-normal">
+                <span className="text-lg text-muted-foreground/70 font-normal">
                   /lifetime access
                 </span>
               </div>
               <ul className="text-left space-y-6 mb-10">
-                <li className="flex items-center text-gray-300 group">
+                <li className="flex items-center text-muted-foreground group">
                   <svg
                     className="w-6 h-6 mr-3 text-theme-400 group-hover:scale-110 transition-transform"
                     fill="none"
@@ -71,7 +71,7 @@ export function PricingSection() {
                     Step-by-step problem-solving approach with whiteboarding
                   </span>
                 </li>
-                <li className="flex items-center text-gray-300 group">
+                <li className="flex items-center text-muted-foreground group">
                   <svg
                     className="w-6 h-6 mr-3 text-theme-400 group-hover:scale-110 transition-transform"
                     fill="none"
@@ -89,7 +89,7 @@ export function PricingSection() {
                     Master React fundamentals through hands-on practice
                   </span>
                 </li>
-                <li className="flex items-center text-gray-300 group">
+                <li className="flex items-center text-muted-foreground group">
                   <svg
                     className="w-6 h-6 mr-3 text-theme-400 group-hover:scale-110 transition-transform"
                     fill="none"
@@ -107,7 +107,7 @@ export function PricingSection() {
                     Complete solution code with detailed explanations
                   </span>
                 </li>
-                <li className="flex items-center text-gray-300 group">
+                <li className="flex items-center text-muted-foreground group">
                   <svg
                     className="w-6 h-6 mr-3 text-theme-400 group-hover:scale-110 transition-transform"
                     fill="none"
@@ -129,7 +129,7 @@ export function PricingSection() {
               <Link to="/purchase" className="block">
                 <Button
                   size="lg"
-                  className="w-full h-14 text-lg font-semibold bg-theme-400 hover:bg-theme-500 text-black transition-all duration-300 transform hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(74,222,128,0.3)]"
+                  className="w-full h-14 text-lg font-semibold bg-theme-400 hover:bg-theme-500 text-black transition-all duration-300 transform hover:-translate-y-1 hover:shadow-[0_0_20px_rgb(var(--color-theme-500-rgb)/0.3)]"
                 >
                   Buy Now
                 </Button>

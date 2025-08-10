@@ -56,7 +56,7 @@ export function SegmentItem({
                   ? "bg-theme-500 text-white shadow-glow-sm"
                   : isActive
                     ? "bg-theme-100 dark:bg-theme-900 text-theme-600 dark:text-theme-400"
-                    : "bg-gray-100 dark:bg-gray-800 text-muted-foreground group-hover/segment:bg-theme-100 dark:group-hover/segment:bg-theme-900 group-hover/segment:text-theme-600 dark:group-hover/segment:text-theme-400"
+                    : "bg-muted text-muted-foreground group-hover/segment:bg-theme-100 dark:group-hover/segment:bg-theme-900 group-hover/segment:text-theme-600 dark:group-hover/segment:text-theme-400"
               )}
             >
               {isCompleted ? (

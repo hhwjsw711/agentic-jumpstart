@@ -51,13 +51,11 @@ export function MobileNavigation({
         <div className="px-4 pb-2">
           <div className="flex items-center gap-2">
             <img
-              src="/icon.png"
+              src="/logo.png"
               alt="Beginner React Challenges"
               className="size-6"
             />
-            <span className="font-semibold text-xs">
-              The 20 React Challenges Course
-            </span>
+            <span className="font-semibold text-xs">Agentic Jumpstart</span>
           </div>
         </div>
         <div className="flex-1 my-4 px-4 overflow-y-auto">

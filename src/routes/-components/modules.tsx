@@ -88,8 +88,8 @@ export function ModulesSection({ segments }: { segments: Segment[] }) {
   return (
     <section className="relative py-32 px-6">
       {/* Enhanced background effects */}
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-900/0 via-theme-950/10 to-gray-900/0 pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(74,222,128,0.05)_0%,transparent_65%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-theme-950/10 to-background/0 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgb(var(--color-theme-500-rgb)/0.05)_0%,transparent_65%)] pointer-events-none" />
 
       {/* Decorative elements */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2">
@@ -107,16 +107,16 @@ export function ModulesSection({ segments }: { segments: Segment[] }) {
           </div>
 
           <h1 className="text-6xl font-bold tracking-tight">
-            <span className="inline-block bg-gradient-to-r from-white via-white to-gray-300 bg-clip-text text-transparent">
+            <span className="inline-block bg-gradient-to-r from-white via-white to-muted-foreground bg-clip-text text-transparent">
               Master React Through
             </span>
             <br />
-            <span className="inline-block bg-gradient-to-r from-gray-300 to-gray-400 bg-clip-text text-transparent">
+            <span className="inline-block bg-gradient-to-r from-muted-foreground to-muted-foreground/70 bg-clip-text text-transparent">
               Hands-On Practice
             </span>
           </h1>
 
-          <p className="text-gray-300 text-xl max-w-2xl mx-auto leading-relaxed">
+          <p className="text-muted-foreground text-xl max-w-2xl mx-auto leading-relaxed">
             Each challenge is designed to help you learn React by building real
             projects. From simple utilities to interactive games, you'll develop
             practical skills while having fun.
@@ -145,7 +145,7 @@ export function ModulesSection({ segments }: { segments: Segment[] }) {
           <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
             Course Curriculum
           </h2>
-          <p className="text-gray-300 text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Each module contains bite-sized video lessons with hands-on
             exercises to reinforce your learning. Follow our structured path to
             success.
@@ -163,8 +163,8 @@ export function ModulesSection({ segments }: { segments: Segment[] }) {
             return (
               <div key={moduleId} className="group/module relative">
                 {/* Card content */}
-                <div className="relative bg-gray-800/50 rounded-2xl p-6 hover:bg-gray-800/30 transition-colors overflow-hidden border border-white/[0.08]">
-                  <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-[1px] transition-colors group-hover/module:bg-gray-900/50" />
+                <div className="relative bg-card/50 rounded-2xl p-6 hover:bg-card/30 transition-colors overflow-hidden border border-white/[0.08]">
+                  <div className="absolute inset-0 bg-background/60 backdrop-blur-[1px] transition-colors group-hover/module:bg-background/50" />
 
                   {/* Content container */}
                   <div className="relative z-10">
@@ -177,7 +177,7 @@ export function ModulesSection({ segments }: { segments: Segment[] }) {
                               ?.title
                           }
                         </h2>
-                        <div className="flex items-center gap-4 text-sm text-gray-300">
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <span>{moduleSegments.length} lessons</span>
                           <span>•</span>
                           <span>{formattedModuleDuration}</span>
@@ -213,21 +213,21 @@ export function ModulesSection({ segments }: { segments: Segment[] }) {
                             onMouseLeave={handleMouseLeave}
                             to="/learn/$slug"
                             params={{ slug: segment.slug }}
-                            className="bg-gray-900/95 hover:bg-gray-800/95 transition-colors p-4 rounded-lg flex justify-between items-center group/card border border-gray-800"
+                            className="bg-background/95 hover:bg-card/95 transition-colors p-4 rounded-lg flex justify-between items-center group/card border border-gray-800"
                             style={{
                               background:
                                 isActive && activeCard?.position
                                   ? `radial-gradient(400px circle at ${activeCard.position.x}px ${activeCard.position.y}px, 
-                                      rgba(74,222,128,0.08),
-                                      rgba(74,222,128,0.06) 20%,
-                                      rgba(74,222,128,0.04) 30%,
+                                      rgb(var(--color-theme-500-rgb)/0.08),
+                                      rgb(var(--color-theme-500-rgb)/0.06) 20%,
+                                      rgb(var(--color-theme-500-rgb)/0.04) 30%,
                                       transparent 50%
                                     )`
                                   : "",
                             }}
                           >
                             <div>
-                              <div className="text-gray-300 text-sm">
+                              <div className="text-muted-foreground text-sm">
                                 Video {index + 1}
                               </div>
                               <div className="text-white text-lg flex items-center gap-2">
@@ -265,7 +265,7 @@ export function ModulesSection({ segments }: { segments: Segment[] }) {
             <div className="text-4xl font-bold text-theme-400 mb-2">
               {Object.keys(modules).length} Total Modules
             </div>
-            <p className="text-gray-300 mb-6 max-w-md">
+            <p className="text-muted-foreground mb-6 max-w-md">
               Start learning React with my curriculum of{" "}
               {Object.keys(modules).length} comprehensive modules,{" "}
               {segments.length} video lessons, and{" "}

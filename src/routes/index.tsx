@@ -26,7 +26,7 @@ function Home() {
   const { segments } = Route.useLoaderData();
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950">
+    <div className="min-h-screen bg-white dark:bg-background">
       <HeroSection />
       <NewsletterSection />
       <ModulesSection segments={segments} />
