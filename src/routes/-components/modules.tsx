@@ -110,14 +110,12 @@ export function ModulesSection({ segments }: { segments: Segment[] }) {
               <span className="w-2 h-2 bg-theme-500 dark:bg-theme-400 rounded-full mr-2 animate-pulse"></span>
               Everyone can be a 10x developer
             </div>
-            
+
             <h2 className="text-6xl leading-tight mb-8">
               The Perfect Curriculum to{" "}
-              <span className="text-theme-400">
-                Master Agentic Coding
-              </span>
+              <span className="text-theme-400">Master Agentic Coding</span>
             </h2>
-            
+
             <p className="text-description mb-12 max-w-4xl mx-auto">
               Learn to leverage AI tools like Cursor, Claude Code, and advanced
               models to build applications faster than ever. From setup to
@@ -125,122 +123,122 @@ export function ModulesSection({ segments }: { segments: Segment[] }) {
             </p>
           </div>
 
-        {/* Module progression */}
-        <div className="mb-16">
-          <div className="space-y-8">
-            {moduleEntries.map(([moduleId, moduleSegments], index) => {
-              const moduleInfo = moduleData?.find(
-                (m) => m.id === Number(moduleId)
-              );
-              const moduleDurationMinutes = calculateDuration(moduleSegments);
-              const formattedModuleDuration = formatDuration(
-                moduleDurationMinutes
-              );
+          {/* Module progression */}
+          <div className="mb-16">
+            <div className="space-y-8">
+              {moduleEntries.map(([moduleId, moduleSegments], index) => {
+                const moduleInfo = moduleData?.find(
+                  (m) => m.id === Number(moduleId)
+                );
+                const moduleDurationMinutes = calculateDuration(moduleSegments);
+                const formattedModuleDuration = formatDuration(
+                  moduleDurationMinutes
+                );
 
-              return (
-                <div key={moduleId} className="relative">
-                  {/* Connector line */}
-                  {index < moduleEntries.length - 1 && (
-                    <div className="absolute left-8 top-20 w-px h-16 bg-gradient-to-b from-theme-300 to-theme-100 dark:from-theme-700 dark:to-theme-900"></div>
-                  )}
+                return (
+                  <div key={moduleId} className="relative">
+                    {/* Connector line */}
+                    {index < moduleEntries.length - 1 && (
+                      <div className="absolute left-8 top-20 w-px h-16 bg-gradient-to-b from-theme-300 to-theme-100 dark:from-theme-700 dark:to-theme-900"></div>
+                    )}
 
-                  <div className="flex gap-6">
-                    {/* Module indicator */}
-                    <div className="flex-shrink-0">
-                      <div className="w-16 h-16 rounded-full border-4 border-theme-500 bg-theme-100 dark:bg-theme-900/50 flex items-center justify-center">
-                        <div className="text-theme-500 dark:text-theme-400">
-                          {getModuleIcon(moduleId)}
+                    <div className="flex gap-6">
+                      {/* Module indicator */}
+                      <div className="flex-shrink-0">
+                        <div className="w-16 h-16 rounded-full border-4 border-theme-500 bg-theme-100 dark:bg-theme-900/50 flex items-center justify-center">
+                          <div className="text-theme-500 dark:text-theme-400">
+                            {getModuleIcon(moduleId)}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Module content */}
+                      <div className="flex-grow bg-gradient-to-b from-white to-theme-50/20 dark:to-gray-900 dark:from-theme-900/40 backdrop-blur-sm p-8 rounded-xl border border-border hover:border-theme-300 dark:hover:border-theme-700 transition-all duration-300">
+                        <div className="flex flex-wrap items-center gap-4 mb-4">
+                          <h4 className="text-2xl font-bold">
+                            {moduleInfo?.title || `Module ${moduleId}`}
+                          </h4>
+                          <Badge
+                            variant="outline"
+                            className="text-theme-600 dark:text-theme-400"
+                          >
+                            {formattedModuleDuration}
+                          </Badge>
+                          <Badge className="bg-theme-100 text-theme-800 dark:bg-theme-900/30 dark:text-theme-400">
+                            {moduleSegments.length} lessons
+                          </Badge>
+                        </div>
+
+                        <p className="text-muted-foreground mb-6 text-lg leading-relaxed">
+                          Learn essential AI development skills and master
+                          cutting-edge tools in this comprehensive module.
+                        </p>
+
+                        {/* Lessons grid */}
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                          {moduleSegments.map((segment, segmentIndex) => (
+                            <Link
+                              key={segment.id}
+                              to="/learn/$slug"
+                              params={{ slug: segment.slug }}
+                              className="group/lesson flex items-start gap-3 p-4 rounded-lg border border-border bg-white dark:bg-gray-900 hover:border-theme-300 dark:hover:border-theme-700 transition-all duration-200 hover:bg-accent/50"
+                            >
+                              <div className="flex-shrink-0 mt-1">
+                                <Circle className="w-4 h-4 text-theme-500 dark:text-theme-400" />
+                              </div>
+                              <div className="flex-grow">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="text-sm font-medium">
+                                    Lesson {segmentIndex + 1}
+                                  </span>
+                                  {!segment.isPremium ? (
+                                    <Badge
+                                      variant="outline"
+                                      className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800 text-xs"
+                                    >
+                                      FREE
+                                    </Badge>
+                                  ) : (
+                                    <Badge
+                                      variant="outline"
+                                      className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800 flex items-center gap-1 text-xs"
+                                    >
+                                      <Lock className="w-3 h-3" />
+                                      PREMIUM
+                                    </Badge>
+                                  )}
+                                </div>
+                                <p className="text-sm text-muted-foreground group-hover/lesson:text-foreground transition-colors">
+                                  {segment.title}
+                                </p>
+                                {segment.length && (
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    {segment.length}
+                                  </p>
+                                )}
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+
+                        {/* Start module button */}
+                        <div className="flex justify-end">
+                          <Link
+                            to="/learn/$slug"
+                            params={{ slug: moduleSegments[0]?.slug }}
+                          >
+                            <Button className="bg-theme-600 hover:bg-theme-700 text-white">
+                              Start Module <Play className="w-4 h-4 ml-2" />
+                            </Button>
+                          </Link>
                         </div>
                       </div>
                     </div>
-
-                    {/* Module content */}
-                    <div className="flex-grow bg-gradient-to-b from-white to-theme-50/20 dark:from-gray-900 dark:to-theme-950/60 backdrop-blur-sm p-8 rounded-xl border border-border hover:border-theme-300 dark:hover:border-theme-700 transition-all duration-300">
-                      <div className="flex flex-wrap items-center gap-4 mb-4">
-                        <h4 className="text-2xl font-bold">
-                          {moduleInfo?.title || `Module ${moduleId}`}
-                        </h4>
-                        <Badge
-                          variant="outline"
-                          className="text-theme-600 dark:text-theme-400"
-                        >
-                          {formattedModuleDuration}
-                        </Badge>
-                        <Badge className="bg-theme-100 text-theme-800 dark:bg-theme-900/30 dark:text-theme-400">
-                          {moduleSegments.length} lessons
-                        </Badge>
-                      </div>
-
-                      <p className="text-muted-foreground mb-6 text-lg leading-relaxed">
-                        Learn essential AI development skills and master
-                        cutting-edge tools in this comprehensive module.
-                      </p>
-
-                      {/* Lessons grid */}
-                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                        {moduleSegments.map((segment, segmentIndex) => (
-                          <Link
-                            key={segment.id}
-                            to="/learn/$slug"
-                            params={{ slug: segment.slug }}
-                            className="group/lesson flex items-start gap-3 p-4 rounded-lg border border-border bg-white dark:bg-gray-900 hover:border-theme-300 dark:hover:border-theme-700 transition-all duration-200 hover:bg-accent/50"
-                          >
-                            <div className="flex-shrink-0 mt-1">
-                              <Circle className="w-4 h-4 text-theme-500 dark:text-theme-400" />
-                            </div>
-                            <div className="flex-grow">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="text-sm font-medium">
-                                  Lesson {segmentIndex + 1}
-                                </span>
-                                {!segment.isPremium ? (
-                                  <Badge
-                                    variant="outline"
-                                    className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800 text-xs"
-                                  >
-                                    FREE
-                                  </Badge>
-                                ) : (
-                                  <Badge
-                                    variant="outline"
-                                    className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800 flex items-center gap-1 text-xs"
-                                  >
-                                    <Lock className="w-3 h-3" />
-                                    PREMIUM
-                                  </Badge>
-                                )}
-                              </div>
-                              <p className="text-sm text-muted-foreground group-hover/lesson:text-foreground transition-colors">
-                                {segment.title}
-                              </p>
-                              {segment.length && (
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  {segment.length}
-                                </p>
-                              )}
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
-
-                      {/* Start module button */}
-                      <div className="flex justify-end">
-                        <Link
-                          to="/learn/$slug"
-                          params={{ slug: moduleSegments[0]?.slug }}
-                        >
-                          <Button className="bg-theme-600 hover:bg-theme-700 text-white">
-                            Start Module <Play className="w-4 h-4 ml-2" />
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
         </div>
       </div>
 

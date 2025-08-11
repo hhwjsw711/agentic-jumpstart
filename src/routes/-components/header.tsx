@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Button } from "../../components/ui/button";
-import { Menu } from "lucide-react";
+import { Button, buttonVariants } from "../../components/ui/button";
+import { LogOut, Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "../../components/ui/sheet";
 import { useState } from "react";
 import { useContinueSlug } from "~/hooks/use-continue-slug";
@@ -60,7 +60,8 @@ export function Header() {
                     "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   )}
                   activeProps={{
-                    className: "text-theme-600 dark:text-theme-400 bg-theme-500/15 dark:bg-theme-500/10 font-semibold",
+                    className:
+                      "text-theme-600 dark:text-theme-400 bg-theme-500/15 dark:bg-theme-500/10 font-semibold",
                   }}
                 >
                   Home
@@ -72,7 +73,8 @@ export function Header() {
                     "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   )}
                   activeProps={{
-                    className: "text-theme-600 dark:text-theme-400 bg-theme-500/15 dark:bg-theme-500/10 font-semibold",
+                    className:
+                      "text-theme-600 dark:text-theme-400 bg-theme-500/15 dark:bg-theme-500/10 font-semibold",
                   }}
                 >
                   Pricing
@@ -110,25 +112,27 @@ export function Header() {
 
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center gap-3">
-              <ModeToggle />
               {user ? (
-                <a href="/api/logout">
-                  <Button>Logout</Button>
+                <a
+                  href="/api/logout"
+                  className={buttonVariants({ variant: "ghost" })}
+                >
+                  Logout
                 </a>
               ) : (
-                <a href="/api/login/google">
-                  <Button>Login</Button>
+                <a
+                  href="/api/login/google"
+                  className={buttonVariants({ variant: "ghost" })}
+                >
+                  Login
                 </a>
               )}
               {!user?.isPremium && (
                 <Link to="/purchase">
-                  <div className="relative group">
-                    {/* Subtle glow effect behind button */}
-                    <div className="absolute -inset-1 bg-gradient-to-r from-theme-500/20 to-theme-600/20 rounded-lg blur opacity-0 group-hover:opacity-100 transition duration-300"></div>
-                    <Button variant="secondary">Buy Now</Button>
-                  </div>
+                  <Button>Buy Now</Button>
                 </Link>
               )}
+              <ModeToggle />
             </div>
 
             {/* Mobile Menu */}
@@ -184,14 +188,18 @@ export function Header() {
                           <ModeToggle />
                         </div>
                         {user ? (
-                          <a href="/api/logout" className="block">
-                            <Button className="w-full">Logout</Button>
+                          <a
+                            href="/api/logout"
+                            className={buttonVariants({ variant: "ghost" })}
+                          >
+                            Logout
                           </a>
                         ) : (
-                          <a href="/api/login/google" className="block">
-                            <Button className="w-full module-card">
-                              Login
-                            </Button>
+                          <a
+                            href="/api/login/google"
+                            className={buttonVariants({ variant: "ghost" })}
+                          >
+                            Login
                           </a>
                         )}
                         {!user?.isPremium && (

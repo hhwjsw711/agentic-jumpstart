@@ -475,13 +475,6 @@ export function CommentList({
                 <div className="p-4 rounded-2xl bg-gradient-to-br from-theme-100 to-theme-200 dark:from-theme-900 dark:to-theme-800 shadow-elevation-2">
                   <MessageSquare className="h-8 w-8 text-theme-600 dark:text-theme-400" />
                 </div>
-                {/* Floating accent icons */}
-                <div className="absolute -top-1 -right-1 p-1.5 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 shadow-elevation-1">
-                  <Users className="h-3 w-3 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div className="absolute -bottom-1 -left-1 p-1.5 rounded-full bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900 dark:to-green-800 shadow-elevation-1">
-                  <Heart className="h-3 w-3 text-green-600 dark:text-green-400" />
-                </div>
               </div>
             </div>
           </div>
@@ -492,24 +485,10 @@ export function CommentList({
               Start the Discussion
             </h3>
             <div className="space-y-2 text-muted-foreground">
-              <p className="text-sm leading-relaxed">
+              <p className="leading-relaxed">
                 Be the first to share your thoughts on this lesson! Ask
                 questions, share insights, or help others learn.
               </p>
-              <div className="flex items-center justify-center gap-4 text-xs">
-                <div className="flex items-center gap-1">
-                  <Lightbulb className="h-3 w-3" />
-                  <span>Share insights</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <MessageSquare className="h-3 w-3" />
-                  <span>Ask questions</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Users className="h-3 w-3" />
-                  <span>Help others</span>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -527,7 +506,7 @@ export function CommentList({
             </div>
           ) : (
             <div className="pt-2">
-              <div className="p-3 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950 dark:to-orange-950 border border-amber-200 dark:border-amber-800">
+              <div className="p-3 rounded-xl bg-gradient-to-r from-theme-50 to-theme-50 dark:from-theme-950 dark:to-theme-950 border border-theme-200 dark:border-theme-800">
                 <p className="text-sm font-medium text-foreground mb-1">
                   Join the community
                 </p>

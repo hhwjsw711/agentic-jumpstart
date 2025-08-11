@@ -6,10 +6,12 @@ export const Route = createFileRoute("/terms-of-service")({
 
 function RouteComponent() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <article className="prose prose-slate max-w-none">
+    <div className="container mx-auto px-4 py-8 max-w-4xl pb-16">
+      <article className="prose prose-slate">
         <h1>Terms and Conditions</h1>
-        <p className="text-sm text-muted-foreground">Last updated: March 30, 2025</p>
+        <p className="text-sm text-muted-foreground">
+          Last updated: August 10, 2025
+        </p>
 
         <p>
           Please read these terms and conditions carefully before using Our

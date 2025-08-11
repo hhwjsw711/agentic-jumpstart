@@ -46,7 +46,9 @@ export function VideoPlayer({ segmentId }: VideoPlayerProps) {
             <Play className="h-8 w-8 text-destructive" />
           </div>
           <div className="text-center">
-            <p className="text-sm text-muted-foreground mb-2">Unable to load video</p>
+            <p className="text-sm text-muted-foreground mb-2">
+              Unable to load video
+            </p>
             <p className="text-xs text-muted-foreground">
               Please try refreshing the page
             </p>

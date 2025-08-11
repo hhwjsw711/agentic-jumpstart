@@ -1,4 +1,4 @@
-import { Button } from "~/components/ui/button";
+import { Button, buttonVariants } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { Home, LogOut, User } from "lucide-react";
 import { Link } from "@tanstack/react-router";
@@ -17,16 +17,15 @@ export function UserMenu({ className }: UserMenuProps) {
   if (!user) {
     return (
       <div className={className}>
-        <div className="p-4 border-t space-y-3">
-          <a href="/api/login/google">
-            <Button className="w-full">
-              <User className="mr-2 h-4 w-4" />
-              Login
-            </Button>
+        <div className="flex gap-2 p-4 border-t space-y-3">
+          <a
+            href="/api/login/google"
+            className={buttonVariants({ variant: "default" })}
+          >
+            <User className="mr-2 h-4 w-4" />
+            Login
           </a>
-          <div className="flex justify-center">
-            <ModeToggle />
-          </div>
+          <ModeToggle />
         </div>
       </div>
     );
@@ -48,11 +47,12 @@ export function UserMenu({ className }: UserMenuProps) {
           </Link>
 
           <div className="flex items-center gap-2">
-            <a href="/api/logout" className="flex-1">
-              <Button>
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
-              </Button>
+            <a
+              href="/api/logout"
+              className={buttonVariants({ variant: "default" })}
+            >
+              <LogOut className="mr-2 size-4" />
+              Logout
             </a>
             <ModeToggle />
           </div>

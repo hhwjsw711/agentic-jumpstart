@@ -5,13 +5,12 @@ export function FooterSection() {
   const firstSegment = useFirstSegment();
 
   return (
-    <footer className="py-12 px-6 bg-muted/50 dark:bg-background">
+    <footer className="relative py-12 px-6 bg-muted/50 dark:bg-background">
+      <div className="section-divider-glow-top"></div>
       <div className="max-w-4xl mx-auto text-muted-foreground">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
           <div>
-            <h3 className="font-semibold text-foreground mb-4">
-              Learn
-            </h3>
+            <h3 className="font-semibold text-foreground mb-4">Learn</h3>
             <ul className="space-y-2">
               <li>
                 {firstSegment.data && (
@@ -28,9 +27,7 @@ export function FooterSection() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-foreground mb-4">
-              Purchase
-            </h3>
+            <h3 className="font-semibold text-foreground mb-4">Purchase</h3>
             <ul className="space-y-2">
               <li>
                 <a
@@ -44,9 +41,7 @@ export function FooterSection() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-foreground mb-4">
-              Legal
-            </h3>
+            <h3 className="font-semibold text-foreground mb-4">Legal</h3>
             <ul className="space-y-2">
               <li>
                 <Link
@@ -68,9 +63,7 @@ export function FooterSection() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-foreground mb-4">
-              Contact
-            </h3>
+            <h3 className="font-semibold text-foreground mb-4">Contact</h3>
             <ul className="space-y-2">
               <li>
                 <a
