@@ -1,4 +1,4 @@
-import { FileText } from "lucide-react";
+import { FileText, Clock } from "lucide-react";
 import { type Segment } from "~/db/schema";
 import { MarkdownContent } from "~/routes/learn/-components/markdown-content";
 
@@ -7,6 +7,15 @@ interface ContentPanelProps {
 }
 
 export function ContentPanel({ currentSegment }: ContentPanelProps) {
+  if (currentSegment.isComingSoon) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
+        <p>This lesson content is coming soon.</p>
+      </div>
+    );
+  }
+
   if (currentSegment.content) {
     return (
       <div className="animate-fade-in">

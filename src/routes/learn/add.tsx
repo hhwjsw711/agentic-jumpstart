@@ -49,6 +49,7 @@ function RouteComponent() {
             slug: "",
             moduleTitle: search.moduleTitle || "",
             isPremium: false,
+            isComingSoon: false,
           }}
         />
       </Container>

@@ -44,6 +44,7 @@ function RouteComponent() {
             slug: segment.slug,
             moduleTitle: segment.moduleTitle,
             isPremium: segment.isPremium,
+            isComingSoon: segment.isComingSoon,
           }}
         />
       </Container>

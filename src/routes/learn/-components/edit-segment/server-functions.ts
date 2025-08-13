@@ -21,6 +21,7 @@ export const updateSegmentFn = createServerFn()
         slug: z.string(),
         length: z.string().optional(),
         isPremium: z.boolean(),
+        isComingSoon: z.boolean(),
       }),
     })
   )

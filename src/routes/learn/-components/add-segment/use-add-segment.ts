@@ -43,6 +43,7 @@ export function useAddSegment() {
           length: videoDuration,
           videoKey,
           isPremium: values.isPremium,
+          isComingSoon: values.isComingSoon,
         },
       });
 

@@ -47,6 +47,7 @@ export function useEditSegment(segment: any) {
             slug: values.slug,
             length: videoDuration,
             isPremium: values.isPremium,
+            isComingSoon: values.isComingSoon,
           },
         },
       });

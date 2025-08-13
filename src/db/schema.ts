@@ -80,6 +80,7 @@ export const segments = tableCreator(
     order: integer("order").notNull(),
     length: text("length"),
     isPremium: boolean("isPremium").notNull().default(false),
+    isComingSoon: boolean("isComingSoon").notNull().default(false),
     moduleId: serial("moduleId")
       .notNull()
       .references(() => modules.id, { onDelete: "cascade" }),

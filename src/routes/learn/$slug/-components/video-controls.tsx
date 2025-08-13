@@ -20,6 +20,7 @@ interface VideoControlsProps {
   segments: Segment[];
   isLoggedIn: boolean;
   setCurrentSegmentId: (id: number) => void;
+  currentSegment: Segment;
 }
 
 export function VideoControls({
@@ -27,6 +28,7 @@ export function VideoControls({
   segments,
   isLoggedIn,
   setCurrentSegmentId,
+  currentSegment,
 }: VideoControlsProps) {
   const navigate = useNavigate();
 
@@ -162,7 +164,8 @@ export function VideoControls({
 
       <Button
         onClick={async () => {
-          if (isLoggedIn) {
+          // Only mark as watched if logged in and segment is not coming soon
+          if (isLoggedIn && !currentSegment.isComingSoon) {
             await markedAsWatchedFn({
               data: { segmentId: currentSegmentId },
             });

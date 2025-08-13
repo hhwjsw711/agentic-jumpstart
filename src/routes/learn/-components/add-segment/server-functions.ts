@@ -16,6 +16,7 @@ export const createSegmentFn = createServerFn()
       moduleTitle: z.string(),
       length: z.string().optional(),
       isPremium: z.boolean(),
+      isComingSoon: z.boolean(),
     })
   )
   .handler(async ({ data }) => {
@@ -36,6 +37,7 @@ export const createSegmentFn = createServerFn()
       videoKey: data.videoKey,
       length: data.length,
       isPremium: data.isPremium,
+      isComingSoon: data.isComingSoon,
     });
 
     return segment;

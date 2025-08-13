@@ -83,6 +83,7 @@ function ViewSegment({
   const isLoggedIn = !!user?.id;
 
   const showUpgradePanel = currentSegment.isPremium && !isPremium && !isAdmin;
+  const showComingSoonPlaceholder = currentSegment.isComingSoon;
 
   return (
     <div className="max-w-5xl mx-auto space-y-4">
@@ -91,6 +92,18 @@ function ViewSegment({
 
       {showUpgradePanel ? (
         <UpgradePlaceholder currentSegment={currentSegment} />
+      ) : showComingSoonPlaceholder ? (
+        <div className="relative">
+          <div className="border border-theme-500 aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-background to-muted shadow-elevation-3 border border-border flex items-center justify-center">
+            <div className="text-center space-y-4">
+              <div className="text-6xl opacity-20">🚀</div>
+              <div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">Coming Soon</h3>
+                <p className="text-muted-foreground">This video content is currently being prepared and will be available soon.</p>
+              </div>
+            </div>
+          </div>
+        </div>
       ) : currentSegment.videoKey ? (
         <div className="relative">
           <div className="border border-theme-500 aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-background to-muted shadow-elevation-3 border border-border">
@@ -105,13 +118,16 @@ function ViewSegment({
         segments={segments}
         isLoggedIn={isLoggedIn}
         setCurrentSegmentId={setCurrentSegmentId}
+        currentSegment={currentSegment}
       />
 
-      {/* Tabs Section */}
-      <VideoContentTabsPanel
-        currentSegment={currentSegment}
-        isLoggedIn={isLoggedIn}
-      />
+      {/* Tabs Section - Hide when coming soon is enabled */}
+      {!showComingSoonPlaceholder && (
+        <VideoContentTabsPanel
+          currentSegment={currentSegment}
+          isLoggedIn={isLoggedIn}
+        />
+      )}
     </div>
   );
 }

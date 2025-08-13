@@ -32,6 +32,7 @@ import {
   Upload,
   Edit,
   LucideIcon,
+  Clock,
 } from "lucide-react";
 import { AutoComplete } from "~/components/ui/autocomplete";
 import { Switch } from "~/components/ui/switch";
@@ -47,6 +48,7 @@ export const formSchema = z.object({
   moduleTitle: z.string().min(1, "Module ID is required"),
   slug: z.string().min(2, "Slug must be at least 2 characters"),
   isPremium: z.boolean().default(false),
+  isComingSoon: z.boolean().default(false),
 });
 
 export type SegmentFormValues = z.infer<typeof formSchema>;
@@ -90,6 +92,7 @@ export function SegmentForm({
       slug: defaultValues?.slug || "",
       moduleTitle: defaultValues?.moduleTitle || "",
       isPremium: defaultValues?.isPremium || false,
+      isComingSoon: defaultValues?.isComingSoon || false,
     },
   });
 
@@ -403,7 +406,7 @@ export function SegmentForm({
                 Configure access permissions and content visibility
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-6">
               <FormField
                 control={form.control}
                 name="isPremium"
@@ -432,6 +435,40 @@ export function SegmentForm({
                           checked={field.value}
                           onCheckedChange={field.onChange}
                           className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-amber-500 data-[state=checked]:to-amber-600 scale-125"
+                        />
+                      </div>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="isComingSoon"
+                render={({ field }) => (
+                  <FormItem className="relative overflow-hidden flex flex-row items-center justify-between rounded-xl border p-8 bg-gradient-to-br from-blue-50 via-indigo-50/80 to-purple-50/60 dark:from-blue-950/30 dark:via-indigo-950/20 dark:to-purple-950/10 border-blue-200/60 dark:border-blue-800/40 shadow-elevation-1 hover:shadow-elevation-2 transition-all duration-300">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-transparent rounded-full blur-xl" />
+                    <div className="relative space-y-2">
+                      <FormLabel className="text-lg font-bold flex items-center gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg">
+                          <Clock className="h-4 w-4 text-primary-foreground" />
+                        </div>
+                        <span className="bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">
+                          Coming Soon
+                        </span>
+                      </FormLabel>
+                      <FormDescription className="text-base text-muted-foreground leading-relaxed mr-8">
+                        Mark this segment as coming soon.
+                        <br />
+                        This will show a placeholder instead of video content.
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <div className="relative">
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-500 data-[state=checked]:to-blue-600 scale-125"
                         />
                       </div>
                     </FormControl>
