@@ -1,13 +1,38 @@
+import { useState } from "react";
 import {
   Check,
   ChevronRight,
   CircleCheck,
   GripVertical,
   BookOpen,
+  MoreVertical,
+  Edit2,
+  Trash2,
 } from "lucide-react";
 import type { Module, Progress, Segment } from "~/db/schema";
 import { cn } from "~/lib/utils";
-import { DeleteModuleButton } from "./delete-module-button";
+import { EditModuleDialog } from "./edit-module-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { Button } from "~/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "~/components/ui/alert-dialog";
+import { buttonVariants } from "~/components/ui/button";
+import { useToast } from "~/hooks/use-toast";
+import { useRouter } from "@tanstack/react-router";
+import { deleteModuleFn } from "./delete-module-button";
 
 interface ModuleWithSegments extends Module {
   segments: Segment[];
@@ -32,6 +57,11 @@ export function ModuleAccordionHeader({
   isAdmin,
   moduleIndex,
 }: ModuleAccordionHeaderProps) {
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const { toast } = useToast();
+  const router = useRouter();
+
   // Early return if module data is incomplete
   if (!module || !module.title) {
     return null;
@@ -61,6 +91,26 @@ export function ModuleAccordionHeader({
   };
 
   const moduleProgress = getModuleProgress(module);
+
+  const handleDeleteModule = async () => {
+    try {
+      await deleteModuleFn({ data: { moduleId: module.id } });
+
+      toast({
+        title: "Module deleted successfully!",
+        description: `"${module.title}" has been permanently deleted.`,
+      });
+
+      router.invalidate();
+      setDeleteDialogOpen(false);
+    } catch (error) {
+      toast({
+        title: "Failed to delete module",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div
@@ -149,15 +199,88 @@ export function ModuleAccordionHeader({
               </button>
               
               {isAdmin && (
-                <DeleteModuleButton
-                  moduleId={module.id}
-                  moduleTitle={module.title}
-                />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <MoreVertical className="h-4 w-4" />
+                      <span className="sr-only">Open menu</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditDialogOpen(true);
+                      }}
+                    >
+                      <Edit2 className="mr-2 h-4 w-4" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeleteDialogOpen(true);
+                      }}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
             </div>
           </div>
         </div>
       </div>
+      
+      <EditModuleDialog
+        moduleId={module.id}
+        moduleTitle={module.title}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+      />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent
+          animation="slide-left"
+          className="bg-background border border-border shadow-elevation-3 rounded-xl max-w-md mx-auto"
+        >
+          <AlertDialogHeader className="space-y-4 p-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-destructive/10">
+                <Trash2 className="h-5 w-5 text-destructive" />
+              </div>
+              <AlertDialogTitle className="text-xl font-semibold text-foreground leading-tight">
+                Delete Module
+              </AlertDialogTitle>
+            </div>
+            <AlertDialogDescription className="text-muted-foreground text-sm leading-relaxed">
+              Are you sure you want to delete the module{" "}
+              <strong>"{module.title}"</strong>? This action cannot be undone and
+              will permanently delete the module and all its associated segments.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex gap-3 p-6 pt-0">
+            <AlertDialogCancel
+              className={buttonVariants({ variant: "gray-outline" })}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteModule}
+              className={buttonVariants({ variant: "destructive" })}
+            >
+              Delete Module
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

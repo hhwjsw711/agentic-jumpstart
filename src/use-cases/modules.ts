@@ -5,6 +5,7 @@ import {
   getModulesWithSegments,
   reorderModules,
   deleteModule,
+  updateModule,
 } from "~/data-access/modules";
 import type { ModuleCreate } from "~/db/schema";
 
@@ -47,6 +48,11 @@ export async function reorderModulesUseCase(
   updates: { id: number; order: number }[]
 ) {
   return reorderModules(updates);
+}
+
+export async function updateModuleUseCase(moduleId: number, updates: { title: string }) {
+  const [updated] = await updateModule(moduleId, updates);
+  return updated;
 }
 
 export async function deleteModuleUseCase(moduleId: number) {

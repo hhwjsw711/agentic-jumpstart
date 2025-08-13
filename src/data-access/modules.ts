@@ -59,6 +59,14 @@ export async function reorderModules(updates: { id: number; order: number }[]) {
   });
 }
 
+export async function updateModule(moduleId: number, updates: Partial<Pick<Module, "title">>) {
+  return database
+    .update(modules)
+    .set({ ...updates, updatedAt: new Date() })
+    .where(eq(modules.id, moduleId))
+    .returning();
+}
+
 export async function deleteModule(moduleId: number) {
   return database.delete(modules).where(eq(modules.id, moduleId));
 }
