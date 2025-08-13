@@ -31,7 +31,7 @@ import {
 } from "~/components/ui/alert-dialog";
 import { buttonVariants } from "~/components/ui/button";
 import { useToast } from "~/hooks/use-toast";
-import { useRouter } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { deleteModuleFn } from "./delete-module-button";
 
 interface ModuleWithSegments extends Module {
@@ -60,7 +60,7 @@ export function ModuleAccordionHeader({
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
-  const router = useRouter();
+  const queryClient = useQueryClient();
 
   // Early return if module data is incomplete
   if (!module || !module.title) {
@@ -101,7 +101,7 @@ export function ModuleAccordionHeader({
         description: `"${module.title}" has been permanently deleted.`,
       });
 
-      router.invalidate();
+      await queryClient.invalidateQueries({ queryKey: ["modules"] });
       setDeleteDialogOpen(false);
     } catch (error) {
       toast({
