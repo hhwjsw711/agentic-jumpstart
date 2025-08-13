@@ -89,7 +89,7 @@ export function ModuleAccordionHeader({
                     <BookOpen className="h-4 w-4 text-theme-600 dark:text-theme-400" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-base font-semibold text-foreground group-hover/module:text-theme-600 dark:group-hover/module:text-theme-400 transition-colors duration-200 truncate">
+                    <h3 className="text-base font-semibold text-foreground group-hover/module:text-theme-600 dark:group-hover/module:text-theme-400 transition-colors duration-200 line-clamp-2">
                       {module.title}
                     </h3>
                     <div className="flex items-center gap-2 mt-0.5">
