@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 
+
+exit 0;
+
 set -euo pipefail
 
-# Play the jobs-done.mp3 file using a suitable audio player
-AUDIO_FILE=".claude/jobs-done/jobs-done.mp3"
+# Usage: play.sh [sound-file]
+AUDIO_FILE="${1}"
+FULL_AUDIO_PATH=".claude/notifications/$AUDIO_FILE"
 
-if [[ ! -f "$AUDIO_FILE" ]]; then
-  echo "Error: $AUDIO_FILE not found." >&2
+if [[ ! -f "$FULL_AUDIO_PATH" ]]; then
+  echo "Error: $FULL_AUDIO_PATH not found." >&2
   exit 1
 fi
 
@@ -25,8 +29,8 @@ play_audio() {
   fi
 }
 
-echo "Playing jobs-done.mp3..."
-if ! play_audio "$AUDIO_FILE"; then
+echo "Playing $(basename "$FULL_AUDIO_PATH")..."
+if ! play_audio "$FULL_AUDIO_PATH"; then
   echo "Error: No suitable audio player found. Please install 'ffplay' (ffmpeg), 'mpg123', or 'mpv'." >&2
   exit 1
 fi
