@@ -4,6 +4,7 @@ import {
   createRootRouteWithContext,
   useRouter,
   useRouterState,
+  redirect,
 } from "@tanstack/react-router";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
@@ -19,9 +20,31 @@ import { FooterSection } from "~/routes/-components/footer";
 import { ThemeProvider } from "~/components/ThemeProvider";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
+import { checkEarlyAccessFn } from "~/fn/early-access";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
+    beforeLoad: async ({ location }) => {
+      const { earlyAccessEnabled } = await checkEarlyAccessFn();
+      
+      if (earlyAccessEnabled) {
+        // Allow access to early-access page and system routes
+        const allowedPaths = [
+          "/early-access",
+          "/api/",
+          "/_server",
+          "/auth",
+          "/login",
+          "/logout",
+        ];
+        
+        const isAllowed = allowedPaths.some(path => location.pathname.startsWith(path));
+        
+        if (!isAllowed) {
+          throw redirect({ to: "/early-access" });
+        }
+      }
+    },
     head: () => ({
       meta: [
         { charSet: "utf-8" },
@@ -84,8 +107,9 @@ function RootComponent() {
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   const routerState = useRouterState();
-  const showFooter = !routerState.location.pathname.startsWith("/learn");
-  const showHeader = !routerState.location.pathname.startsWith("/learn");
+  const isEarlyAccess = routerState.location.pathname === "/early-access";
+  const showFooter = !routerState.location.pathname.startsWith("/learn") && !isEarlyAccess;
+  const showHeader = !routerState.location.pathname.startsWith("/learn") && !isEarlyAccess;
 
   const prevPathnameRef = React.useRef("");
 
