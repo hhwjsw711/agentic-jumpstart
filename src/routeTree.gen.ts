@@ -19,7 +19,6 @@ import { Route as SuccessRouteImport } from './routes/success'
 import { Route as PurchaseRouteImport } from './routes/purchase'
 import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as EarlyAccessRouteImport } from './routes/early-access'
 import { Route as CreateTestimonialRouteImport } from './routes/create-testimonial'
 import { Route as CancelRouteImport } from './routes/cancel'
 import { Route as AboutRouteImport } from './routes/about'
@@ -74,11 +73,6 @@ const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EarlyAccessRoute = EarlyAccessRouteImport.update({
-  id: '/early-access',
-  path: '/early-access',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CreateTestimonialRoute = CreateTestimonialRouteImport.update({
@@ -179,7 +173,6 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/cancel': typeof CancelRoute
   '/create-testimonial': typeof CreateTestimonialRoute
-  '/early-access': typeof EarlyAccessRoute
   '/login': typeof LoginRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/purchase': typeof PurchaseRoute
@@ -201,7 +194,6 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/cancel': typeof CancelRoute
   '/create-testimonial': typeof CreateTestimonialRoute
-  '/early-access': typeof EarlyAccessRoute
   '/login': typeof LoginRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/purchase': typeof PurchaseRoute
@@ -223,7 +215,6 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/cancel': typeof CancelRoute
   '/create-testimonial': typeof CreateTestimonialRoute
-  '/early-access': typeof EarlyAccessRoute
   '/login': typeof LoginRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/purchase': typeof PurchaseRoute
@@ -248,7 +239,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/cancel'
     | '/create-testimonial'
-    | '/early-access'
     | '/login'
     | '/privacy-policy'
     | '/purchase'
@@ -270,7 +260,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/cancel'
     | '/create-testimonial'
-    | '/early-access'
     | '/login'
     | '/privacy-policy'
     | '/purchase'
@@ -291,7 +280,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/cancel'
     | '/create-testimonial'
-    | '/early-access'
     | '/login'
     | '/privacy-policy'
     | '/purchase'
@@ -315,7 +303,6 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   CancelRoute: typeof CancelRoute
   CreateTestimonialRoute: typeof CreateTestimonialRoute
-  EarlyAccessRoute: typeof EarlyAccessRoute
   LoginRoute: typeof LoginRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   PurchaseRoute: typeof PurchaseRoute
@@ -433,13 +420,6 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/early-access': {
-      id: '/early-access'
-      path: '/early-access'
-      fullPath: '/early-access'
-      preLoaderRoute: typeof EarlyAccessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/create-testimonial': {
@@ -606,7 +586,6 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   CancelRoute: CancelRoute,
   CreateTestimonialRoute: CreateTestimonialRoute,
-  EarlyAccessRoute: EarlyAccessRoute,
   LoginRoute: LoginRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
   PurchaseRoute: PurchaseRoute,

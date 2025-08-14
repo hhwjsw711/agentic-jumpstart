@@ -52,7 +52,7 @@ const getModuleIcon = (moduleId: string) => {
   }
 };
 
-export function ModulesSection({ segments }: { segments: Segment[] }) {
+export function ModulesSection({ segments, isDisabled = false }: { segments: Segment[], isDisabled?: boolean }) {
   // Group segments by moduleId
   const modules = segments.reduce(
     (acc, segment) => {
@@ -176,61 +176,86 @@ export function ModulesSection({ segments }: { segments: Segment[] }) {
 
                         {/* Lessons grid */}
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                          {moduleSegments.map((segment, segmentIndex) => (
-                            <Link
-                              key={segment.id}
-                              to="/learn/$slug"
-                              params={{ slug: segment.slug }}
-                              className="group/lesson flex items-start gap-3 p-4 rounded-lg border border-border bg-white dark:bg-gray-900 hover:border-theme-300 dark:hover:border-theme-700 transition-all duration-200 hover:bg-accent/50"
-                            >
-                              <div className="flex-shrink-0 mt-1">
-                                <Circle className="w-4 h-4 text-theme-500 dark:text-theme-400" />
-                              </div>
-                              <div className="flex-grow">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="text-sm font-medium">
-                                    Lesson {segmentIndex + 1}
-                                  </span>
-                                  {!segment.isPremium ? (
-                                    <Badge
-                                      variant="outline"
-                                      className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800 text-xs"
-                                    >
-                                      FREE
-                                    </Badge>
-                                  ) : (
-                                    <Badge
-                                      variant="outline"
-                                      className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800 flex items-center gap-1 text-xs"
-                                    >
-                                      <Lock className="w-3 h-3" />
-                                      PREMIUM
-                                    </Badge>
+                          {moduleSegments.map((segment, segmentIndex) => {
+                            const lessonContent = (
+                              <>
+                                <div className="flex-shrink-0 mt-1">
+                                  <Circle className="w-4 h-4 text-theme-500 dark:text-theme-400" />
+                                </div>
+                                <div className="flex-grow">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-sm font-medium">
+                                      Lesson {segmentIndex + 1}
+                                    </span>
+                                    {!segment.isPremium ? (
+                                      <Badge
+                                        variant="outline"
+                                        className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800 text-xs"
+                                      >
+                                        FREE
+                                      </Badge>
+                                    ) : (
+                                      <Badge
+                                        variant="outline"
+                                        className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800 flex items-center gap-1 text-xs"
+                                      >
+                                        <Lock className="w-3 h-3" />
+                                        PREMIUM
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  <p className="text-sm text-muted-foreground group-hover/lesson:text-foreground transition-colors">
+                                    {segment.title}
+                                  </p>
+                                  {segment.length && (
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                      {segment.length}
+                                    </p>
                                   )}
                                 </div>
-                                <p className="text-sm text-muted-foreground group-hover/lesson:text-foreground transition-colors">
-                                  {segment.title}
-                                </p>
-                                {segment.length && (
-                                  <p className="text-xs text-muted-foreground mt-1">
-                                    {segment.length}
-                                  </p>
-                                )}
-                              </div>
-                            </Link>
-                          ))}
+                              </>
+                            );
+                            
+                            if (isDisabled) {
+                              return (
+                                <div
+                                  key={segment.id}
+                                  className="group/lesson flex items-start gap-3 p-4 rounded-lg border border-border bg-white dark:bg-gray-900 opacity-60 cursor-not-allowed"
+                                >
+                                  {lessonContent}
+                                </div>
+                              );
+                            }
+                            
+                            return (
+                              <Link
+                                key={segment.id}
+                                to="/learn/$slug"
+                                params={{ slug: segment.slug }}
+                                className="group/lesson flex items-start gap-3 p-4 rounded-lg border border-border bg-white dark:bg-gray-900 hover:border-theme-300 dark:hover:border-theme-700 transition-all duration-200 hover:bg-accent/50"
+                              >
+                                {lessonContent}
+                              </Link>
+                            );
+                          })}
                         </div>
 
                         {/* Start module button */}
                         <div className="flex justify-end">
-                          <Link
-                            to="/learn/$slug"
-                            params={{ slug: moduleSegments[0]?.slug }}
-                          >
-                            <Button className="bg-theme-600 hover:bg-theme-700 text-white">
-                              Start Module <Play className="w-4 h-4 ml-2" />
+                          {isDisabled ? (
+                            <Button className="bg-gray-400 text-white cursor-not-allowed" disabled>
+                              Available Soon <Lock className="w-4 h-4 ml-2" />
                             </Button>
-                          </Link>
+                          ) : (
+                            <Link
+                              to="/learn/$slug"
+                              params={{ slug: moduleSegments[0]?.slug }}
+                            >
+                              <Button className="bg-theme-600 hover:bg-theme-700 text-white">
+                                Start Module <Play className="w-4 h-4 ml-2" />
+                              </Button>
+                            </Link>
+                          )}
                         </div>
                       </div>
                     </div>

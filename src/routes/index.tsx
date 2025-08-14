@@ -7,10 +7,13 @@ import { createServerFn } from "@tanstack/react-start";
 import { getSegmentsUseCase } from "~/use-cases/segments";
 import { NewsletterSection } from "./-components/newsletter";
 import { TestimonialsSection } from "./-components/testimonials";
+import { EarlyAccessSection } from "./-components/early-access";
+import { env } from "~/utils/env";
 
 const loaderFn = createServerFn().handler(async () => {
   const segments = await getSegmentsUseCase();
-  return { segments };
+  const earlyAccessEnabled = env.EARLY_ACCESS_MODE;
+  return { segments, earlyAccessEnabled };
 });
 
 export const Route = createFileRoute("/")({
@@ -22,7 +25,11 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  const { segments } = Route.useLoaderData();
+  const { segments, earlyAccessEnabled } = Route.useLoaderData();
+
+  if (earlyAccessEnabled) {
+    return <EarlyAccessSection />;
+  }
 
   return (
     <div className="min-h-screen bg-background">

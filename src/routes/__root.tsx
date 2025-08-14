@@ -20,30 +20,18 @@ import { FooterSection } from "~/routes/-components/footer";
 import { ThemeProvider } from "~/components/ThemeProvider";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
-import { checkEarlyAccessFn } from "~/fn/early-access";
+import { env } from "~/utils/env";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
     beforeLoad: async ({ location }) => {
-      const { earlyAccessEnabled } = await checkEarlyAccessFn();
-      
-      if (earlyAccessEnabled) {
-        // Allow access to early-access page and system routes
-        const allowedPaths = [
-          "/early-access",
-          "/api/",
-          "/_server",
-          "/auth",
-          "/login",
-          "/logout",
-        ];
-        
-        const isAllowed = allowedPaths.some(path => location.pathname.startsWith(path));
-        
-        if (!isAllowed) {
-          throw redirect({ to: "/early-access" });
-        }
+      const earlyAccessEnabled = env.EARLY_ACCESS_MODE;
+      if (earlyAccessEnabled && location.pathname !== "/") {
+        throw redirect({ to: "/" });
       }
+    },
+    loader: () => {
+      return { earlyAccessEnabled: env.EARLY_ACCESS_MODE };
     },
     head: () => ({
       meta: [
@@ -107,9 +95,11 @@ function RootComponent() {
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   const routerState = useRouterState();
-  const isEarlyAccess = routerState.location.pathname === "/early-access";
-  const showFooter = !routerState.location.pathname.startsWith("/learn") && !isEarlyAccess;
-  const showHeader = !routerState.location.pathname.startsWith("/learn") && !isEarlyAccess;
+  const { earlyAccessEnabled } = Route.useLoaderData();
+  const showFooter =
+    !routerState.location.pathname.startsWith("/learn") && !earlyAccessEnabled;
+  const showHeader =
+    !routerState.location.pathname.startsWith("/learn") && !earlyAccessEnabled;
 
   const prevPathnameRef = React.useRef("");
 
