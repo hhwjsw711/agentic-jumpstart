@@ -44,6 +44,8 @@ export const subscribeFn = createServerFn()
       },
       body: params.toString(),
     });
+
+    return { success: true };
   });
 
 export function NewsletterSection() {

@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-router";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import { HeadContent, Scripts } from "@tanstack/react-router";
+import { HeadContent, Scripts, redirect } from "@tanstack/react-router";
 import * as React from "react";
 import { type QueryClient } from "@tanstack/react-query";
 import { DefaultCatchBoundary } from "~/components/DefaultCatchBoundary";
@@ -17,11 +17,18 @@ import { seo } from "~/utils/seo";
 import { Header } from "~/routes/-components/header";
 import { FooterSection } from "~/routes/-components/footer";
 import { ThemeProvider } from "~/components/ThemeProvider";
+import { Toaster } from "~/components/ui/toaster";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
+import { publicEnv } from "~/utils/env-public";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
+    beforeLoad: ({ location }) => {
+      if (publicEnv.VITE_EARLY_ACCESS_MODE && location.pathname !== "/") {
+        throw redirect({ to: "/" });
+      }
+    },
     head: () => ({
       meta: [
         { charSet: "utf-8" },
@@ -84,8 +91,11 @@ function RootComponent() {
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   const routerState = useRouterState();
-  const showFooter = !routerState.location.pathname.startsWith("/learn");
-  const showHeader = !routerState.location.pathname.startsWith("/learn");
+  const isLearn = routerState.location.pathname.startsWith("/learn");
+  const isEarlyAccessLanding =
+    publicEnv.VITE_EARLY_ACCESS_MODE && routerState.location.pathname === "/";
+  const showFooter = !isLearn && !isEarlyAccessLanding;
+  const showHeader = !isLearn && !isEarlyAccessLanding;
 
   const prevPathnameRef = React.useRef("");
 
@@ -169,6 +179,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             {children}
           </main>
           {showFooter && <FooterSection />}
+          <Toaster />
           <TanStackRouterDevtools position="bottom-right" />
           <ReactQueryDevtools buttonPosition="bottom-left" />
           <Scripts />
