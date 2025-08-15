@@ -458,8 +458,27 @@ export function EarlyAccessSection() {
               <span className="w-2 h-2 bg-theme-500 dark:bg-theme-400 rounded-full mr-2 animate-pulse"></span>
               Your Instructor
             </div>
+
+            {/* Profile Picture with Gradient Background */}
+            <div className="mb-8 flex justify-center">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-theme-400 via-theme-500 to-theme-600 rounded-2xl blur-xl opacity-30"></div>
+                <div className="relative bg-gradient-to-br from-theme-400 via-theme-500 to-theme-600 rounded-2xl p-1">
+                  <img
+                    src="/cody.png"
+                    alt="Cody - Your Instructor"
+                    className="w-32 h-32 rounded-xl object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+
             <h2 className="text-5xl font-bold mb-6">
-              Learn from a <span className="text-theme-400">Proven Expert</span>
+              Learn from a{" "}
+              <span className="text-theme-400">
+                <br />
+                Experienced Web Developer
+              </span>
             </h2>
           </div>
 
@@ -501,7 +520,7 @@ export function EarlyAccessSection() {
                   programming to becoming 10x more productive with AI-powered
                   tools.
                 </p>
-                <div className="flex flex-wrap gap-4">
+                <div className="flex gap-4">
                   <a
                     href="https://youtube.com/@WebDevCody"
                     target="_blank"
