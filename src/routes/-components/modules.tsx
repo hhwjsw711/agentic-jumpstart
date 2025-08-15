@@ -52,7 +52,13 @@ const getModuleIcon = (moduleId: string) => {
   }
 };
 
-export function ModulesSection({ segments, isDisabled = false }: { segments: Segment[], isDisabled?: boolean }) {
+export function ModulesSection({
+  segments,
+  isDisabled = false,
+}: {
+  segments: Segment[];
+  isDisabled?: boolean;
+}) {
   // Group segments by moduleId
   const modules = segments.reduce(
     (acc, segment) => {
@@ -185,7 +191,7 @@ export function ModulesSection({ segments, isDisabled = false }: { segments: Seg
                                 <div className="flex-grow">
                                   <div className="flex items-center gap-2 mb-1">
                                     <span className="text-sm font-medium">
-                                      Lesson {segmentIndex + 1}
+                                      {segment.title}
                                     </span>
                                     {!segment.isPremium ? (
                                       <Badge
@@ -204,9 +210,6 @@ export function ModulesSection({ segments, isDisabled = false }: { segments: Seg
                                       </Badge>
                                     )}
                                   </div>
-                                  <p className="text-sm text-muted-foreground group-hover/lesson:text-foreground transition-colors">
-                                    {segment.title}
-                                  </p>
                                   {segment.length && (
                                     <p className="text-xs text-muted-foreground mt-1">
                                       {segment.length}
@@ -215,7 +218,7 @@ export function ModulesSection({ segments, isDisabled = false }: { segments: Seg
                                 </div>
                               </>
                             );
-                            
+
                             if (isDisabled) {
                               return (
                                 <div
@@ -226,7 +229,7 @@ export function ModulesSection({ segments, isDisabled = false }: { segments: Seg
                                 </div>
                               );
                             }
-                            
+
                             return (
                               <Link
                                 key={segment.id}
@@ -243,7 +246,10 @@ export function ModulesSection({ segments, isDisabled = false }: { segments: Seg
                         {/* Start module button */}
                         <div className="flex justify-end">
                           {isDisabled ? (
-                            <Button className="bg-gray-400 text-white cursor-not-allowed" disabled>
+                            <Button
+                              className="bg-gray-400 text-white cursor-not-allowed"
+                              disabled
+                            >
                               Available Soon <Lock className="w-4 h-4 ml-2" />
                             </Button>
                           ) : (
