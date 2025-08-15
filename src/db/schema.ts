@@ -62,13 +62,17 @@ export const sessions = tableCreator(
   (table) => [index("sessions_user_id_idx").on(table.userId)]
 );
 
-export const modules = tableCreator("module", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  order: integer("order").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+export const modules = tableCreator(
+  "module",
+  {
+    id: serial("id").primaryKey(),
+    title: text("title").notNull(),
+    order: integer("order").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [index("modules_order_idx").on(table.order)]
+);
 
 export const segments = tableCreator(
   "segment",
@@ -88,29 +92,44 @@ export const segments = tableCreator(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => [index("segments_slug_idx").on(table.slug)]
+  (table) => [
+    index("segments_slug_idx").on(table.slug),
+    index("segments_module_order_idx").on(table.moduleId, table.order),
+  ]
 );
 
-export const comments = tableCreator("comment", {
-  id: serial("id").primaryKey(),
-  userId: serial("userId")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  segmentId: serial("segmentId")
-    .notNull()
-    .references(() => segments.id, {
+export const comments = tableCreator(
+  "comment",
+  {
+    id: serial("id").primaryKey(),
+    userId: serial("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    segmentId: serial("segmentId")
+      .notNull()
+      .references(() => segments.id, {
+        onDelete: "cascade",
+      }),
+    parentId: integer("parentId").references((): AnyPgColumn => comments.id, {
       onDelete: "cascade",
     }),
-  parentId: integer("parentId").references((): AnyPgColumn => comments.id, {
-    onDelete: "cascade",
-  }),
-  repliedToId: integer("repliedToId").references((): AnyPgColumn => users.id, {
-    onDelete: "cascade",
-  }),
-  content: text("content").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+    repliedToId: integer("repliedToId").references(
+      (): AnyPgColumn => users.id,
+      {
+        onDelete: "cascade",
+      }
+    ),
+    content: text("content").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("comments_segment_created_idx").on(table.segmentId, table.createdAt),
+    index("comments_user_created_idx").on(table.userId, table.createdAt),
+    index("comments_parent_idx").on(table.parentId),
+    index("comments_replied_to_idx").on(table.repliedToId),
+  ]
+);
 
 export const progress = tableCreator(
   "progress",
@@ -132,28 +151,41 @@ export const progress = tableCreator(
   ]
 );
 
-export const testimonials = tableCreator("testimonial", {
-  id: serial("id").primaryKey(),
-  userId: serial("userId")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  content: text("content").notNull(),
-  emojis: text("emojis").notNull(),
-  displayName: text("displayName").notNull(),
-  permissionGranted: boolean("permissionGranted").notNull().default(false),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+export const testimonials = tableCreator(
+  "testimonial",
+  {
+    id: serial("id").primaryKey(),
+    userId: serial("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    content: text("content").notNull(),
+    emojis: text("emojis").notNull(),
+    displayName: text("displayName").notNull(),
+    permissionGranted: boolean("permissionGranted").notNull().default(false),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [index("testimonials_created_idx").on(table.createdAt)]
+);
 
-export const attachments = tableCreator("attachment", {
-  id: serial("id").primaryKey(),
-  segmentId: serial("segmentId")
-    .notNull()
-    .references(() => segments.id, { onDelete: "cascade" }),
-  fileName: text("fileName").notNull(),
-  fileKey: text("fileKey").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+export const attachments = tableCreator(
+  "attachment",
+  {
+    id: serial("id").primaryKey(),
+    segmentId: serial("segmentId")
+      .notNull()
+      .references(() => segments.id, { onDelete: "cascade" }),
+    fileName: text("fileName").notNull(),
+    fileKey: text("fileKey").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("attachments_segment_created_idx").on(
+      table.segmentId,
+      table.createdAt
+    ),
+  ]
+);
 
 export const modulesRelations = relations(modules, ({ many }) => ({
   segments: many(segments),
