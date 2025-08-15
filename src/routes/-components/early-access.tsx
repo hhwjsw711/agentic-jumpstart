@@ -192,7 +192,7 @@ export function EarlyAccessSection() {
                   <div className="w-px h-12 bg-gradient-to-b from-transparent via-border to-transparent" />
                   <div className="text-center">
                     <div className="text-3xl font-bold bg-gradient-to-r from-theme-500 to-theme-600 dark:from-theme-400 dark:to-theme-500 bg-clip-text text-transparent">
-                      Q1 2025
+                      Q3 2025
                     </div>
                     <div className="text-sm">Expected launch</div>
                   </div>
