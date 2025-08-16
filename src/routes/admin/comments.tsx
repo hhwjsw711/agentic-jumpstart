@@ -1,10 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useSuspenseQuery, useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import {
+  useSuspenseQuery,
+  useMutation,
+  useQueryClient,
+  useQuery,
+} from "@tanstack/react-query";
 import { useState } from "react";
-import { 
-  getAllRecentCommentsFn, 
+import {
+  getAllRecentCommentsFn,
   deleteCommentAsAdminFn,
-  createCommentFn 
+  createCommentFn,
 } from "~/fn/comments";
 import { getTimeAgo } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
@@ -25,10 +30,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { 
-  MoreHorizontal, 
-  Trash2, 
-  Reply, 
+import {
+  MoreHorizontal,
+  Trash2,
+  Reply,
   MessageSquare,
   Send,
   Shield,
@@ -36,7 +41,7 @@ import {
   Calendar,
   ExternalLink,
   Filter,
-  CheckCircle2
+  CheckCircle2,
 } from "lucide-react";
 import { toast } from "~/hooks/use-toast";
 import { adminMiddleware } from "~/lib/auth";
@@ -46,10 +51,11 @@ import { Switch } from "~/components/ui/switch";
 import { Label } from "~/components/ui/label";
 import { useAuth } from "~/hooks/use-auth";
 
-const allCommentsQuery = (filterAdminReplied: boolean) => queryOptions({
-  queryKey: ["admin", "comments", filterAdminReplied],
-  queryFn: () => getAllRecentCommentsFn({ data: { filterAdminReplied } }),
-});
+const allCommentsQuery = (filterAdminReplied: boolean) =>
+  queryOptions({
+    queryKey: ["admin", "comments", filterAdminReplied],
+    queryFn: () => getAllRecentCommentsFn({ data: { filterAdminReplied } }),
+  });
 
 export const Route = createFileRoute("/admin/comments")({
   middleware: [adminMiddleware],
@@ -61,15 +67,19 @@ export const Route = createFileRoute("/admin/comments")({
 
 function AdminComments() {
   const user = useAuth();
-  const [filterAdminReplied, setFilterAdminReplied] = useState(false);
-  const { data: comments } = useSuspenseQuery(allCommentsQuery(filterAdminReplied));
+  const [filterAdminReplied, setFilterAdminReplied] = useState(true);
+  const { data: comments } = useSuspenseQuery(
+    allCommentsQuery(filterAdminReplied)
+  );
   const queryClient = useQueryClient();
   const [deleteCommentId, setDeleteCommentId] = useState<number | null>(null);
-  const [replyingToCommentId, setReplyingToCommentId] = useState<number | null>(null);
+  const [replyingToCommentId, setReplyingToCommentId] = useState<number | null>(
+    null
+  );
   const [replyContent, setReplyContent] = useState("");
 
   const deleteCommentMutation = useMutation({
-    mutationFn: (commentId: number) => 
+    mutationFn: (commentId: number) =>
       deleteCommentAsAdminFn({ data: { commentId } }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "comments"] });
@@ -89,13 +99,18 @@ function AdminComments() {
   });
 
   const replyMutation = useMutation({
-    mutationFn: ({ segmentId, content, parentId }: { 
-      segmentId: number; 
-      content: string; 
+    mutationFn: ({
+      segmentId,
+      content,
+      parentId,
+    }: {
+      segmentId: number;
+      content: string;
       parentId: number | null;
-    }) => createCommentFn({ 
-      data: { segmentId, content, parentId, repliedToId: null } 
-    }),
+    }) =>
+      createCommentFn({
+        data: { segmentId, content, parentId, repliedToId: null },
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "comments"] });
       setReplyingToCommentId(null);
@@ -143,7 +158,7 @@ function AdminComments() {
           <div className="flex items-center space-x-2">
             <Filter className="h-4 w-4 text-muted-foreground" />
             <Label htmlFor="filter-toggle" className="text-sm">
-              Hide admin-replied
+              Hide Addressed
             </Label>
             <Switch
               id="filter-toggle"
@@ -170,7 +185,9 @@ function AdminComments() {
               replyingToThis={replyingToCommentId === comment.id}
               replyContent={replyContent}
               setReplyContent={setReplyContent}
-              onSubmitReply={() => handleSubmitReply(comment.segmentId, comment.id)}
+              onSubmitReply={() =>
+                handleSubmitReply(comment.segmentId, comment.id)
+              }
               onCancelReply={() => {
                 setReplyingToCommentId(null);
                 setReplyContent("");
@@ -181,16 +198,19 @@ function AdminComments() {
         )}
       </div>
 
-      <AlertDialog 
-        open={deleteCommentId !== null} 
+      <AlertDialog
+        open={deleteCommentId !== null}
         onOpenChange={(open) => !open && setDeleteCommentId(null)}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Comment</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this comment? This action cannot be undone.
-              {deleteCommentId && comments.find(c => c.id === deleteCommentId)?.children?.length ? (
+              Are you sure you want to delete this comment? This action cannot
+              be undone.
+              {deleteCommentId &&
+              comments.find((c) => c.id === deleteCommentId)?.children
+                ?.length ? (
                 <span className="block mt-2 font-semibold text-destructive">
                   Warning: This comment has replies that will also be deleted.
                 </span>
@@ -199,7 +219,7 @@ function AdminComments() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleConfirmDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
@@ -225,9 +245,9 @@ interface CommentItemProps {
   level?: number;
 }
 
-function CommentItem({ 
-  comment, 
-  onDelete, 
+function CommentItem({
+  comment,
+  onDelete,
   onReply,
   replyingToThis,
   replyContent,
@@ -235,7 +255,7 @@ function CommentItem({
   onSubmitReply,
   onCancelReply,
   isPendingReply,
-  level = 0 
+  level = 0,
 }: CommentItemProps) {
   const user = useAuth();
   const hasAdminReply = (comment as any).hasAdminReply;
@@ -289,11 +309,7 @@ function CommentItem({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onReply(comment.id)}>
-                  <Reply className="h-4 w-4 mr-2" />
-                  Reply
-                </DropdownMenuItem>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => onDelete(comment.id)}
                   className="text-destructive"
                 >
@@ -304,53 +320,46 @@ function CommentItem({
             </DropdownMenu>
           </div>
 
-          {replyingToThis && (
-            <div className="mt-4 pl-13">
-              <div className="space-y-3">
-                <Textarea
-                  placeholder="Type your reply..."
-                  value={replyContent}
-                  onChange={(e) => setReplyContent(e.target.value)}
-                  className="min-h-[80px]"
-                  autoFocus
-                />
-                <div className="flex gap-2 justify-end">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onCancelReply}
-                    disabled={isPendingReply}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={onSubmitReply}
-                    disabled={!replyContent.trim() || isPendingReply}
-                    className="btn-gradient"
-                  >
-                    {isPendingReply ? (
-                      <div className="flex items-center gap-2">
-                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white/70"></div>
-                        <span>Posting...</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <Send className="h-3 w-3" />
-                        <span>Reply</span>
-                      </div>
-                    )}
-                  </Button>
-                </div>
+          <div className="mt-4 pl-13">
+            <div className="space-y-3">
+              <Textarea
+                placeholder="Type your reply..."
+                value={replyingToThis ? replyContent : ""}
+                onChange={(e) => setReplyContent(e.target.value)}
+                className="min-h-[80px]"
+                onFocus={() => onReply(comment.id)}
+              />
+              <div className="flex gap-2 justify-end">
+                <Button
+                  size="sm"
+                  onClick={onSubmitReply}
+                  disabled={
+                    !replyContent.trim() || isPendingReply || !replyingToThis
+                  }
+                  className="btn-gradient"
+                >
+                  {isPendingReply ? (
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white/70"></div>
+                      <span>Posting...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Send className="h-3 w-3" />
+                      <span>Reply</span>
+                    </div>
+                  )}
+                </Button>
               </div>
             </div>
-          )}
+          </div>
 
           {comment.children && comment.children.length > 0 && (
             <div className="mt-3 pt-3 border-t border-border/50">
               <div className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
                 <MessageSquare className="h-3 w-3" />
-                {comment.children.length} {comment.children.length === 1 ? "reply" : "replies"}
+                {comment.children.length}{" "}
+                {comment.children.length === 1 ? "reply" : "replies"}
               </div>
               {comment.children.map((child) => (
                 <div key={child.id} className="ml-8 mt-2">
@@ -374,7 +383,9 @@ function CommentItem({
                           {getTimeAgo(child.createdAt)}
                         </span>
                       </div>
-                      <p className="text-sm whitespace-pre-wrap">{child.content}</p>
+                      <p className="text-sm whitespace-pre-wrap">
+                        {child.content}
+                      </p>
                     </div>
                   </div>
                 </div>
