@@ -11,38 +11,6 @@ const getSegmentsFn = createServerFn().handler(async () => {
   return segments;
 });
 
-const productivityData = [
-  { category: "Traditional", hours: 40, output: 10, quality: 60 },
-  { category: "Agentic", hours: 40, output: 80, quality: 95 },
-];
-
-const timeComparisonData = [
-  { task: "Building REST API", traditional: 16, agentic: 2 },
-  { task: "Creating UI Components", traditional: 12, agentic: 1.5 },
-  { task: "Writing Unit Tests", traditional: 8, agentic: 1 },
-  { task: "Refactoring Code", traditional: 10, agentic: 1.5 },
-  { task: "Documentation", traditional: 6, agentic: 0.5 },
-  { task: "Debugging Complex Issues", traditional: 14, agentic: 2 },
-];
-
-const skillRadarData = [
-  { skill: "Speed", traditional: 20, agentic: 95 },
-  { skill: "Quality", traditional: 60, agentic: 90 },
-  { skill: "Innovation", traditional: 40, agentic: 85 },
-  { skill: "Scalability", traditional: 30, agentic: 92 },
-  { skill: "Maintainability", traditional: 50, agentic: 88 },
-  { skill: "Testing", traditional: 35, agentic: 90 },
-];
-
-const growthData = [
-  { month: "Month 1", traditional: 100, agentic: 100 },
-  { month: "Month 2", traditional: 110, agentic: 180 },
-  { month: "Month 3", traditional: 115, agentic: 350 },
-  { month: "Month 4", traditional: 120, agentic: 600 },
-  { month: "Month 5", traditional: 125, agentic: 900 },
-  { month: "Month 6", traditional: 130, agentic: 1400 },
-];
-
 export function EarlyAccessSection() {
   const { email, setEmail, isSubmitted, isLoading, handleSubmit } =
     useNewsletterSubscription();
@@ -99,7 +67,7 @@ export function EarlyAccessSection() {
                 Early Access Registration
               </div>
 
-              <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-theme-500 to-theme-600 dark:from-theme-400 dark:to-theme-500 bg-clip-text text-transparent animate-gradient">
+              <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-theme-500 to-theme-600 dark:from-theme-400 dark:to-theme-500 bg-clip-text text-transparent animate-gradient leading-normal pb-1">
                 Coming Soon
               </h1>
               <p className="text-xl md:text-2xl text-muted-foreground mb-4">

@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { HeroSection } from "./-components/hero";
+import { StatsSection } from "./-components/stats";
 import { ModulesSection } from "./-components/modules";
 import { PricingSection } from "./-components/pricing";
 import { FAQSection } from "./-components/faq";
 import { createServerFn } from "@tanstack/react-start";
 import { getSegmentsUseCase } from "~/use-cases/segments";
+import { getCourseStatsUseCase } from "~/use-cases/stats";
 import { NewsletterSection } from "./-components/newsletter";
 import { TestimonialsSection } from "./-components/testimonials";
 import { EarlyAccessSection } from "./-components/early-access";
@@ -12,8 +14,9 @@ import { shouldShowEarlyAccessFn } from "~/fn/early-access";
 
 const loaderFn = createServerFn().handler(async () => {
   const segments = await getSegmentsUseCase();
+  const stats = await getCourseStatsUseCase();
   const shouldShowEarlyAccess = await shouldShowEarlyAccessFn();
-  return { segments, shouldShowEarlyAccess };
+  return { segments, stats, shouldShowEarlyAccess };
 });
 
 export const Route = createFileRoute("/")({
@@ -25,7 +28,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  const { segments, shouldShowEarlyAccess } = Route.useLoaderData();
+  const { segments, stats, shouldShowEarlyAccess } = Route.useLoaderData();
 
   if (shouldShowEarlyAccess) {
     return <EarlyAccessSection />;
@@ -34,6 +37,7 @@ function Home() {
   return (
     <div className="min-h-screen bg-background">
       <HeroSection />
+      <StatsSection stats={stats} />
       {/* <NewsletterSection /> */}
       <ModulesSection segments={segments} />
       <TestimonialsSection />
