@@ -1,4 +1,4 @@
-import { Outlet, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Outlet, createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { SidebarProvider, useSidebar } from "~/components/ui/sidebar";
 import { Button } from "~/components/ui/button";
 import { Menu } from "lucide-react";
@@ -39,7 +39,12 @@ export const getProgressFn = createServerFn()
 export const Route = createFileRoute("/learn/$slug/_layout")({
   component: RouteComponent,
   loader: async ({ context: { queryClient }, params }) => {
-    const { segment } = await getSegmentInfoFn({ data: { slug: params.slug } });
+    const { segment, segments } = await getSegmentInfoFn({ data: { slug: params.slug } });
+    
+    if (!segment) {
+      throw redirect({ to: "/learn/not-found" });
+    }
+    
     const isPremium = await isUserPremiumFn();
     const isAdmin = await isAdminFn();
     const progress = await getProgressFn();

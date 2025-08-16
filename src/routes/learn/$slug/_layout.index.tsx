@@ -31,9 +31,6 @@ export const Route = createFileRoute("/learn/$slug/_layout/")({
     const { segment, segments, progress } = await getSegmentInfoFn({
       data: { slug: params.slug },
     });
-    queryClient.ensureQueryData(getCommentsQuery(segment.id));
-    const isPremium = await isUserPremiumFn();
-    const isAdmin = await isAdminFn();
 
     if (segments.length === 0) {
       throw redirect({ to: "/learn/no-segments" });
@@ -42,6 +39,10 @@ export const Route = createFileRoute("/learn/$slug/_layout/")({
     if (!segment) {
       throw redirect({ to: "/learn/not-found" });
     }
+
+    queryClient.ensureQueryData(getCommentsQuery(segment.id));
+    const isPremium = await isUserPremiumFn();
+    const isAdmin = await isAdminFn();
 
     return { segment, segments, progress, isPremium, isAdmin };
   },
