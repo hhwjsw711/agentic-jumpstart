@@ -18,6 +18,7 @@ import { seo } from "~/utils/seo";
 import { Header } from "~/routes/-components/header";
 import { FooterSection } from "~/routes/-components/footer";
 import { ThemeProvider } from "~/components/ThemeProvider";
+import { ThemeToggle } from "~/components/theme-toggle";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import { env } from "~/utils/env";
@@ -102,6 +103,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     !routerState.location.pathname.startsWith("/learn") && !shouldShowEarlyAccess;
   const showHeader =
     !routerState.location.pathname.startsWith("/learn") && !shouldShowEarlyAccess;
+  const showThemeToggle = routerState.location.pathname === "/";
 
   const prevPathnameRef = React.useRef("");
 
@@ -185,6 +187,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             {children}
           </main>
           {showFooter && <FooterSection />}
+          {showThemeToggle && (
+            <div className="fixed top-4 right-4 z-50">
+              <ThemeToggle />
+            </div>
+          )}
           <TanStackRouterDevtools position="bottom-right" />
           <ReactQueryDevtools buttonPosition="bottom-left" />
           <Scripts />

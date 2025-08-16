@@ -1,11 +1,47 @@
 import { BookOpen, Play, Clock } from "lucide-react";
+import { useEffect, useState } from "react";
 import type { CourseStats } from "~/use-cases/stats";
+import { ScrollAnimation, ScrollScale } from "~/components/scroll-animation";
+
+// Custom hook for random glowing effect
+function useRandomGlow() {
+  // 2 for decorative dots + 18 for keyword badges = 20 total elements
+  const [glowStates, setGlowStates] = useState(new Array(20).fill(false));
+
+  useEffect(() => {
+    const intervals: NodeJS.Timeout[] = [];
+
+    // Create random intervals for each element
+    glowStates.forEach((_, index) => {
+      const interval = setInterval(
+        () => {
+          setGlowStates((prev) => {
+            const newStates = [...prev];
+            newStates[index] = !newStates[index];
+            return newStates;
+          });
+        },
+        Math.random() * 4000 + 3000
+      ); // Random interval between 3-7 seconds for badges
+
+      intervals.push(interval);
+    });
+
+    return () => {
+      intervals.forEach(clearInterval);
+    };
+  }, []);
+
+  return glowStates;
+}
 
 interface StatsProps {
   stats: CourseStats;
 }
 
 export function StatsSection({ stats }: StatsProps) {
+  const glowStates = useRandomGlow();
+
   const statsData = [
     {
       icon: BookOpen,
@@ -48,13 +84,17 @@ export function StatsSection({ stats }: StatsProps) {
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           {/* Section header */}
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">
-              Course <span className="text-theme-400">Overview</span>
-            </h2>
-            <p className="text-description max-w-2xl mx-auto">
-              Comprehensive agentic coding curriculum designed to transform your
-              development workflow
-            </p>
+            <ScrollAnimation direction="up" delay={0}>
+              <h2 className="text-4xl font-bold mb-4">
+                Course <span className="text-theme-400">Overview</span>
+              </h2>
+            </ScrollAnimation>
+            <ScrollAnimation direction="up" delay={0.1}>
+              <p className="text-description max-w-2xl mx-auto">
+                Comprehensive agentic coding curriculum designed to transform your
+                development workflow
+              </p>
+            </ScrollAnimation>
           </div>
 
           {/* Stats grid */}
@@ -62,7 +102,7 @@ export function StatsSection({ stats }: StatsProps) {
             {statsData.map((stat, index) => {
               const Icon = stat.icon;
               return (
-                <div key={index} className="group relative">
+                <ScrollScale key={index} delay={0.2 + index * 0.1} className="group relative">
                   {/* Card with glass morphism and glow effect */}
                   <div className="relative overflow-hidden rounded-2xl bg-card/80 dark:bg-card/60 backdrop-blur-sm border border-theme-200/60 dark:border-theme-500/30 shadow-elevation-2 transition-all duration-300 hover:shadow-glow-cyan hover:border-theme-400/80 hover:-translate-y-1 p-8">
                     {/* Glow effect on hover */}
@@ -96,13 +136,102 @@ export function StatsSection({ stats }: StatsProps) {
                       </div>
                     </div>
 
-                    {/* Decorative elements */}
-                    <div className="absolute top-4 right-4 w-2 h-2 bg-theme-400/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div className="absolute bottom-4 left-4 w-1.5 h-1.5 bg-theme-500/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    {/* Decorative elements with random glow */}
+                    <div
+                      className={`absolute top-4 right-4 w-2 h-2 bg-theme-400/30 rounded-full transition-all duration-1000 ${
+                        glowStates[0]
+                          ? "opacity-100 scale-125 shadow-lg shadow-theme-400/50"
+                          : "opacity-0 scale-100"
+                      }`}
+                    ></div>
+                    <div
+                      className={`absolute bottom-4 left-4 w-1.5 h-1.5 bg-theme-500/30 rounded-full transition-all duration-1000 ${
+                        glowStates[1]
+                          ? "opacity-100 scale-125 shadow-lg shadow-theme-500/50"
+                          : "opacity-0 scale-100"
+                      }`}
+                    ></div>
                   </div>
-                </div>
+                </ScrollScale>
               );
             })}
+          </div>
+
+          {/* Marketing Keywords Section - SEO Optimized */}
+          <div className="mt-16 text-center">
+            <ScrollAnimation direction="up" delay={0.5}>
+              <h3 className="text-2xl font-semibold mb-8 text-foreground">
+                Master the Latest{" "}
+                <span className="text-theme-400">AI Coding Tools</span> &
+                Technologies
+              </h3>
+            </ScrollAnimation>
+
+            {/* Keywords Grid */}
+            <ScrollAnimation direction="up" delay={0.6} className="max-w-6xl mx-auto">
+              <div className="flex flex-wrap justify-center gap-3">
+                {[
+                  { text: "Cursor IDE", highlight: true },
+                  { text: "Claude Code CLI", highlight: true },
+                  { text: "Cursor Agent", highlight: false },
+                  { text: "Claude Sonnet 3.5", highlight: true },
+                  { text: "Claude Opus 4.1", highlight: true },
+                  { text: "AI Pair Programming", highlight: false },
+                  { text: "Agentic Development", highlight: false },
+                  { text: "LLM Coding", highlight: false },
+                  { text: "AI Code Generation", highlight: false },
+                  { text: "Prompt Engineering", highlight: false },
+                  { text: "AI Workflow Automation", highlight: false },
+                  { text: "Claude API", highlight: false },
+                  { text: "AI-First Development", highlight: true },
+                  { text: "Code Assistant AI", highlight: false },
+                  { text: "Windsurf IDE", highlight: false },
+                  { text: "AI Coding Patterns", highlight: false },
+                  { text: "MCP Servers", highlight: false },
+                  { text: "Multi-Agent Systems", highlight: false },
+                ].map((keyword, index) => (
+                  <div
+                    key={index}
+                    className={`
+                      px-4 py-2 rounded-full text-sm font-medium
+                      transition-all duration-1000 cursor-default relative
+                      ${
+                        keyword.highlight
+                          ? `bg-theme-500/10 dark:bg-theme-400/20 text-theme-600 dark:text-theme-400 border border-theme-400/30 hover:bg-theme-500/20 dark:hover:bg-theme-400/30 hover:border-theme-400/50 hover:shadow-glow-sm ${
+                              glowStates[index + 2]
+                                ? "scale-105 shadow-lg shadow-theme-400/40 border-theme-400/60"
+                                : ""
+                            }`
+                          : `bg-card/60 dark:bg-card/40 text-foreground/80 border border-border/50 hover:bg-card/80 dark:hover:bg-card/60 hover:text-foreground hover:border-border ${
+                              glowStates[index + 2]
+                                ? "scale-105 shadow-lg shadow-border/30 border-border/70"
+                                : ""
+                            }`
+                      }
+                    `}
+                  >
+                    {keyword.text}
+                  </div>
+                ))}
+              </div>
+            </ScrollAnimation>
+
+            <ScrollAnimation direction="up" delay={0.7}>
+              {/* Call to Action Text */}
+              <p className="mt-10 text-lg text-muted-foreground max-w-3xl mx-auto">
+                Join the{" "}
+                <span className="font-semibold text-theme-500 dark:text-theme-400">
+                  best agentic coding course
+                </span>{" "}
+                available and learn how to leverage cutting-edge AI models to
+                build applications
+                <span className="font-semibold"> 10x faster</span> than
+                traditional programming. Perfect for developers ready to master{" "}
+                <span className="font-semibold">AI-augmented development</span>{" "}
+                and stay ahead in the rapidly evolving world of{" "}
+                <span className="font-semibold">AI coding assistants</span>.
+              </p>
+            </ScrollAnimation>
           </div>
         </div>
       </div>

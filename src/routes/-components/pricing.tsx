@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Button } from "~/components/ui/button";
 import { useEffect, useRef } from "react";
 import { ShoppingCart, Check } from "lucide-react";
+import { ScrollAnimation, ScrollScale } from "~/components/scroll-animation";
 
 export function PricingSection() {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -48,25 +49,32 @@ export function PricingSection() {
           <div className="flex items-center justify-center h-full">
             <div className="text-center max-w-4xl">
               {/* Badge - matching hero style */}
-              <div className="inline-flex items-center px-4 py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-sm font-medium mb-8">
-                <span className="w-2 h-2 bg-theme-500 dark:bg-theme-400 rounded-full mr-2 animate-pulse"></span>
-                Limited Time Offer
-              </div>
+              <ScrollAnimation direction="down" delay={0}>
+                <div className="inline-flex items-center px-4 py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-sm font-medium mb-8">
+                  <span className="w-2 h-2 bg-theme-500 dark:bg-theme-400 rounded-full mr-2 animate-pulse"></span>
+                  Limited Time Offer
+                </div>
+              </ScrollAnimation>
 
-              <h2 className="text-6xl leading-tight mb-8">
-                Master AI-First Development{" "}
-                <span className="text-theme-400">With AI Agents</span>
-              </h2>
+              <ScrollAnimation direction="up" delay={0.1}>
+                <h2 className="text-6xl leading-tight mb-8">
+                  Master AI-First Development{" "}
+                  <span className="text-theme-400">With AI Agents</span>
+                </h2>
+              </ScrollAnimation>
 
-              <p className="text-description mb-12 max-w-2xl mx-auto">
-                Transform your coding workflow with advanced AI tools and
-                techniques. Learn to build applications 10x faster using Cursor
-                IDE, Claude Code CLI, and cutting-edge agentic programming
-                methods.
-              </p>
+              <ScrollAnimation direction="up" delay={0.2}>
+                <p className="text-description mb-12 max-w-2xl mx-auto">
+                  Transform your coding workflow with advanced AI tools and
+                  techniques. Learn to build applications 10x faster using Cursor
+                  IDE, Claude Code CLI, and cutting-edge agentic programming
+                  methods.
+                </p>
+              </ScrollAnimation>
 
-              <div ref={cardRef} className="relative max-w-lg mx-auto">
-                <div className="video-container">
+              <ScrollScale delay={0.3}>
+                <div ref={cardRef} className="relative max-w-lg mx-auto">
+                  <div className="video-container">
                   <div className="video-wrapper p-10">
                     <div className="relative z-10">
                       <h3 className="text-4xl font-bold mb-2 text-theme-600 dark:text-theme-400">
@@ -120,8 +128,9 @@ export function PricingSection() {
                   {/* Decorative elements - matching hero */}
                   <div className="video-decorative-1"></div>
                   <div className="video-decorative-2"></div>
+                  </div>
                 </div>
-              </div>
+              </ScrollScale>
             </div>
           </div>
         </div>

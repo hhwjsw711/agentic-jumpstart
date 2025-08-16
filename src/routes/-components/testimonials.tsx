@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getTestimonialsUseCase } from "~/use-cases/testimonials";
 import { useQuery } from "@tanstack/react-query";
+import { ScrollAnimation, ScrollScale } from "~/components/scroll-animation";
 
 export const getTestimonialsFn = createServerFn().handler(async () => {
   return await getTestimonialsUseCase();
@@ -29,17 +30,22 @@ export function TestimonialsSection() {
       <div className="absolute bottom-0 left-0 right-0 h-[2px] blur-sm bg-gradient-to-r from-transparent via-theme-500/30 dark:via-theme-400/50 to-transparent"></div>
 
       <div className="relative max-w-5xl mx-auto">
-        <h2 className="text-4xl font-bold mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r from-theme-500 to-theme-600 dark:from-theme-400 dark:to-theme-500">
-          Loved by AI-First Developers
-        </h2>
-        <p className="text-muted-foreground/70 text-center mb-16 max-w-2xl mx-auto">
-          Join thousands of developers who have accelerated their workflow
-          and transformed their development process with AI-powered tools
-        </p>
+        <ScrollAnimation direction="up" delay={0}>
+          <h2 className="text-4xl font-bold mb-4 text-center bg-clip-text text-transparent bg-gradient-to-r from-theme-500 to-theme-600 dark:from-theme-400 dark:to-theme-500">
+            Loved by AI-First Developers
+          </h2>
+        </ScrollAnimation>
+        <ScrollAnimation direction="up" delay={0.1}>
+          <p className="text-muted-foreground/70 text-center mb-16 max-w-2xl mx-auto">
+            Join thousands of developers who have accelerated their workflow
+            and transformed their development process with AI-powered tools
+          </p>
+        </ScrollAnimation>
         <div className="grid md:grid-cols-3 gap-8">
-          {testimonials?.map((testimonial) => (
-            <div
+          {testimonials?.map((testimonial, index) => (
+            <ScrollScale
               key={testimonial.id}
+              delay={0.2 + index * 0.1}
               className="bg-white/80 dark:bg-card/50 p-8 rounded-xl border border-theme-200 dark:border-theme-500/20 hover:border-theme-300 dark:hover:border-theme-500/40 hover:transform hover:-translate-y-1 hover:bg-white/90 dark:hover:bg-card/60 transition-all duration-300 ease-in-out backdrop-blur-sm"
             >
               <div className="flex items-center mb-6">
@@ -75,7 +81,7 @@ export function TestimonialsSection() {
                   </span>
                 ))}
               </div>
-            </div>
+            </ScrollScale>
           ))}
         </div>
       </div>

@@ -6,6 +6,7 @@ import { getSegments } from "~/data-access/segments";
 import { VideoPlayer } from "~/routes/learn/-components/video-player";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ShoppingCart } from "lucide-react";
+import { ScrollAnimation, ScrollFadeIn } from "~/components/scroll-animation";
 
 const getFirstVideoSegmentFn = createServerFn().handler(async () => {
   const segments = await getSegments();
@@ -51,26 +52,33 @@ export function HeroSection() {
               {/* Left side - Content */}
               <div className="hero-content">
                 {/* Badge */}
-                <div className="inline-flex items-center px-4 py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-sm font-medium mb-8">
-                  <span className="w-2 h-2 bg-theme-500 dark:bg-theme-400 rounded-full mr-2 animate-pulse"></span>
-                  Agentic Coding Mastery Course
-                </div>
+                <ScrollAnimation direction="down" delay={0}>
+                  <div className="inline-flex items-center px-4 py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-sm font-medium mb-8">
+                    <span className="w-2 h-2 bg-theme-500 dark:bg-theme-400 rounded-full mr-2 animate-pulse"></span>
+                    Agentic Coding Mastery Course
+                  </div>
+                </ScrollAnimation>
 
-                <h1 className="text-6xl leading-tight mb-8">
-                  Coding is <span className="text-theme-400">Changing</span>,
-                  Master{" "}
-                  <span className="text-theme-400">Agentic Coding</span>{" "}
-                </h1>
+                <ScrollAnimation direction="up" delay={0.1}>
+                  <h1 className="text-6xl leading-tight mb-8">
+                    Coding is <span className="text-theme-400">Changing</span>,
+                    Master{" "}
+                    <span className="text-theme-400">Agentic Coding</span>{" "}
+                  </h1>
+                </ScrollAnimation>
 
-                <p className="text-description mb-12 max-w-xl">
-                  Master AI-first development with Cursor IDE, Claude Code CLI,
-                  and advanced AI models. Learn how to leverage Claude Sonnet
-                  3.5, Claude Opus, and cutting-edge agentic programming
-                  techniques to accelerate your development workflow and build
-                  applications 10x faster than traditional programming methods.
-                </p>
+                <ScrollAnimation direction="up" delay={0.2}>
+                  <p className="text-description mb-12 max-w-xl">
+                    Master AI-first development with Cursor IDE, Claude Code CLI,
+                    and advanced AI models. Learn how to leverage Claude Sonnet
+                    3.5, Claude Opus, and cutting-edge agentic programming
+                    techniques to accelerate your development workflow and build
+                    applications 10x faster than traditional programming methods.
+                  </p>
+                </ScrollAnimation>
 
-                <div className="flex flex-col sm:flex-row gap-4">
+                <ScrollAnimation direction="up" delay={0.3}>
+                  <div className="flex flex-col sm:flex-row gap-4">
                   <Link
                     to="/purchase"
                     className={buttonVariants({ variant: "outline" })}
@@ -98,11 +106,12 @@ export function HeroSection() {
                     Start Learning
                     <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
                   </Link>
-                </div>
+                  </div>
+                </ScrollAnimation>
               </div>
 
               {/* Right side - Video player */}
-              <div className="flex items-center justify-center lg:justify-end">
+              <ScrollAnimation direction="left" delay={0.4} className="flex items-center justify-center lg:justify-end">
                 {firstVideoSegment && (
                   <div className="w-full max-w-lg lg:max-w-xl">
                     {/* Video container with glass morphism effect */}
@@ -117,7 +126,7 @@ export function HeroSection() {
                     </div>
                   </div>
                 )}
-              </div>
+              </ScrollAnimation>
             </div>
           </div>
         </div>

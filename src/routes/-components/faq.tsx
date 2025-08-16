@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "~/lib/utils";
+import { ScrollAnimation, ScrollScale } from "~/components/scroll-animation";
 
 interface FAQItemProps {
   question: string;
@@ -199,27 +200,33 @@ export function FAQSection() {
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="flex flex-col items-center mb-16 text-center">
             {/* Badge - matching hero style */}
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-sm font-medium mb-8">
-              <span className="w-2 h-2 bg-theme-500 dark:bg-theme-400 rounded-full mr-2 animate-pulse"></span>
-              Got Questions? We've Got Answers
-            </div>
+            <ScrollAnimation direction="down" delay={0}>
+              <div className="inline-flex items-center px-4 py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-sm font-medium mb-8">
+                <span className="w-2 h-2 bg-theme-500 dark:bg-theme-400 rounded-full mr-2 animate-pulse"></span>
+                Got Questions? We've Got Answers
+              </div>
+            </ScrollAnimation>
 
-            <h2 className="text-6xl leading-tight mb-8">
-              Frequently Asked <span className="text-theme-400">Questions</span>
-            </h2>
+            <ScrollAnimation direction="up" delay={0.1}>
+              <h2 className="text-6xl leading-tight mb-8">
+                Frequently Asked <span className="text-theme-400">Questions</span>
+              </h2>
+            </ScrollAnimation>
 
-            <p className="text-description mb-12 max-w-3xl mx-auto">
-              Get quick answers to common questions about our agentic coding
-              course, AI tools, and development techniques. Still have
-              questions? Reach out anytime.
-            </p>
+            <ScrollAnimation direction="up" delay={0.2}>
+              <p className="text-description mb-12 max-w-3xl mx-auto">
+                Get quick answers to common questions about our agentic coding
+                course, AI tools, and development techniques. Still have
+                questions? Reach out anytime.
+              </p>
+            </ScrollAnimation>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {faqData.map((faq, index) => (
-              <div key={index} className="h-full flex">
+              <ScrollScale key={index} delay={0.3 + Math.floor(index / 2) * 0.1} className="h-full flex">
                 <FAQItem question={faq.question} answer={faq.answer} />
-              </div>
+              </ScrollScale>
             ))}
           </div>
         </div>

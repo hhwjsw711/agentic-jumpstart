@@ -16,6 +16,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getModules } from "~/data-access/modules";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "~/components/ui/button";
+import { ScrollAnimation, ScrollScale } from "~/components/scroll-animation";
 
 function formatDuration(durationInMinutes: number) {
   const hours = Math.floor(durationInMinutes / 60);
@@ -112,21 +113,27 @@ export function ModulesSection({
           {/* Section header */}
           <div className="text-center mb-16">
             {/* Badge - matching hero style */}
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-sm font-medium mb-8">
-              <span className="w-2 h-2 bg-theme-500 dark:bg-theme-400 rounded-full mr-2 animate-pulse"></span>
-              Everyone can be a 10x developer
-            </div>
+            <ScrollAnimation direction="down" delay={0}>
+              <div className="inline-flex items-center px-4 py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-sm font-medium mb-8">
+                <span className="w-2 h-2 bg-theme-500 dark:bg-theme-400 rounded-full mr-2 animate-pulse"></span>
+                Everyone can be a 10x developer
+              </div>
+            </ScrollAnimation>
 
-            <h2 className="text-6xl leading-tight mb-8">
-              The Perfect Curriculum to{" "}
-              <span className="text-theme-400">Master Agentic Coding</span>
-            </h2>
+            <ScrollAnimation direction="up" delay={0.1}>
+              <h2 className="text-6xl leading-tight mb-8">
+                The Perfect Curriculum to{" "}
+                <span className="text-theme-400">Master Agentic Coding</span>
+              </h2>
+            </ScrollAnimation>
 
-            <p className="text-description mb-12 max-w-4xl mx-auto">
-              Learn to leverage AI tools like Cursor, Claude Code, and advanced
-              models to build applications faster than ever. From setup to
-              deployment, master the complete AI-assisted development workflow.
-            </p>
+            <ScrollAnimation direction="up" delay={0.2}>
+              <p className="text-description mb-12 max-w-4xl mx-auto">
+                Learn to leverage AI tools like Cursor, Claude Code, and advanced
+                models to build applications faster than ever. From setup to
+                deployment, master the complete AI-assisted development workflow.
+              </p>
+            </ScrollAnimation>
           </div>
 
           {/* Module progression */}
@@ -142,7 +149,7 @@ export function ModulesSection({
                 );
 
                 return (
-                  <div key={moduleId} className="relative">
+                  <ScrollAnimation key={moduleId} direction="up" delay={0.3 + index * 0.15} className="relative">
                     {/* Connector line */}
                     {index < moduleEntries.length - 1 && (
                       <div className="absolute left-8 top-20 w-px h-16 bg-gradient-to-b from-theme-300 to-theme-100 dark:from-theme-700 dark:to-theme-900"></div>
@@ -272,7 +279,7 @@ export function ModulesSection({
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </ScrollAnimation>
                 );
               })}
             </div>

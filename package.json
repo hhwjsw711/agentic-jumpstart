@@ -52,7 +52,7 @@
     "cmdk": "^1.1.1",
     "drizzle-orm": "^0.44.3",
     "entities": "^6.0.1",
-    "framer-motion": "^12.23.10",
+    "framer-motion": "^12.23.12",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.528.0",
     "nprogress": "^0.2.0",
