@@ -1,0 +1,1 @@
+Split the given file up into smaller modules and remembrer to put them in the proper location based on my project structure. Always co-locate components in the route if possible instead of putting them in far off directories:
