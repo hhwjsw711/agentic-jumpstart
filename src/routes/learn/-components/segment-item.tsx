@@ -46,12 +46,12 @@ export function SegmentItem({
 
         <button
           onClick={() => onSegmentClick(segment.id)}
-          className="cursor-pointer flex items-center justify-between flex-1 text-left"
+          className="cursor-pointer flex items-center gap-2 flex-1 text-left min-w-0"
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
             <div
               className={cn(
-                "flex items-center justify-center w-6 h-6 rounded-md transition-all duration-300",
+                "flex items-center justify-center w-6 h-6 rounded-md transition-all duration-300 flex-shrink-0",
                 isCompleted
                   ? "bg-theme-500 text-white shadow-glow-sm"
                   : isActive
@@ -66,7 +66,7 @@ export function SegmentItem({
               )}
             </div>
 
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
               <h4
                 className={cn(
                   "text-sm font-medium transition-colors duration-200 truncate",
@@ -85,11 +85,11 @@ export function SegmentItem({
             </div>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex-shrink-0 ml-2">
             {segment.isComingSoon ? (
               <div
                 className={cn(
-                  "flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium",
+                  "flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium whitespace-nowrap",
                   "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
                 )}
               >
@@ -98,12 +98,12 @@ export function SegmentItem({
             ) : segment.isPremium && !isPremium ? (
               <div
                 className={cn(
-                  "flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium",
+                  "flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium whitespace-nowrap",
                   "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
                 )}
               >
-                <Lock className="h-3 w-3 text-muted-foreground" />
-                Pro Only
+                <Lock className="h-3 w-3 flex-shrink-0" />
+                <span>Pro Only</span>
               </div>
             ) : null}
           </div>

@@ -454,7 +454,8 @@ export function SegmentForm({
                             />
                           </FormControl>
                           <FormDescription className="text-xs">
-                            Supports Markdown syntax; great for searchable, accessible transcripts
+                            Supports Markdown syntax; great for searchable,
+                            accessible transcripts
                           </FormDescription>
                           <FormMessage />
                         </FormItem>

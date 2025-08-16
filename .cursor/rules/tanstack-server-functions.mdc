@@ -1,0 +1,29 @@
+---
+globs: src/fn/**/*.ts
+alwaysApply: false
+---
+
+When creating a tanstack start server function, always remember to include sometype of middleware function call. You can check `src/lib/auth.ts` file for the existing middleware functions we can use.
+
+When using a server function, always have a validator attached to it.
+
+When using server functions, never import any drizzle related objects inside the function handler. Server functions should always invoke use cases based on the layered archiecture I'm using in this project. Please use `docs/technical/layered-architecture`.md as a reference for how the layered architecture is working.
+
+```typescript
+import { createServerFn } from "@tanstack/react-start";
+import { adminMiddleware } from "~/lib/auth";
+import { z } from "zod";
+import { reorderSegmentsUseCase } from "~/use-cases/segments";
+
+export const reorderSegmentsFn = createServerFn()
+  .middleware([adminMiddleware])
+  .validator(
+    z.array(z.object({
+      id: z.number(),
+      order: z.number()
+    })
+  )
+  .handler(async ({ data }) => {
+    return reorderSegmentsUseCase(data);
+  });
+```

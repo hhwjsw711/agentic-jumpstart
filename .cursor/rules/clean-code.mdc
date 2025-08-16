@@ -1,0 +1,8 @@
+---
+globs: *.ts,*.tsx
+alwaysApply: false
+---
+
+Never hard code magic numbers into my code, instead you should at least consolidate them to the top of the file, or find a global configuration file. `/src/config/index.ts` to keep the code clean.
+
+Never allow a file to get over 1,000 lines of code. When a file is too large, please remember to split it into smaller modular components to make the codebase maintainble.

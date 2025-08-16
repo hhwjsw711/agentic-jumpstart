@@ -193,7 +193,14 @@ export function ModulesSection({
                                     <span className="text-sm font-medium">
                                       {segment.title}
                                     </span>
-                                    {!segment.isPremium ? (
+                                    {segment.isComingSoon ? (
+                                      <Badge
+                                        variant="outline"
+                                        className="bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800 text-xs"
+                                      >
+                                        COMING SOON
+                                      </Badge>
+                                    ) : !segment.isPremium ? (
                                       <Badge
                                         variant="outline"
                                         className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800 text-xs"

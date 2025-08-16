@@ -87,7 +87,7 @@ function LayoutContent() {
   return (
     <div className="flex w-full">
       {/* Desktop Navigation */}
-      <div className="hidden lg:block w-80 xl:w-[380px] flex-shrink-0">
+      <div className="hidden lg:block w-80 xl:w-[440px] flex-shrink-0">
         {shouldRenderNavigation ? (
           <DesktopNavigation
             modules={modulesWithSegments}
