@@ -1,5 +1,76 @@
 # Affiliate Program Changelog
 
+## [1.2.0] - GDPR-Compliant Discount System
+**Date**: August 17, 2025
+
+### Added
+#### Discount Code System
+- **Discount Dialog Component**: New modal dialog that appears during checkout flow
+- **10% Discount Feature**: Users can now apply affiliate codes to receive 10% off their purchase
+- **In-Memory Code Storage**: Implemented `DiscountStore` class for temporary, non-persistent code storage
+- **Real-time Code Validation**: Instant validation of affiliate codes against database
+- **Stripe Coupon Integration**: Automatic application of discount coupons when valid codes are provided
+
+#### GDPR Compliance Improvements
+- **Removed Browser Storage**: Eliminated localStorage and cookie storage of affiliate codes
+- **Memory-Only Storage**: Codes are now stored only in application memory during session
+- **Privacy-First Approach**: No personal data persistence in browser storage
+- **Session-Based Tracking**: Affiliate codes only retained for current checkout session
+
+#### User Experience Enhancements
+- **Seamless Checkout Flow**: Discount dialog integrated into purchase process
+- **Optional Code Entry**: Users can choose to apply discount codes or continue without them
+- **Clear Validation Feedback**: Real-time error messages and success indicators
+- **Enhanced Purchase Flow**: Purchase button now triggers discount dialog before checkout
+
+#### Technical Infrastructure
+- **Environment Variable**: Added `STRIPE_DISCOUNT_COUPON_ID` for coupon configuration
+- **Discount Store Class**: Simple in-memory store for managing discount codes
+- **Updated Checkout Function**: Enhanced to handle both affiliate codes and discount codes
+- **Code Validation Endpoint**: Server function for validating affiliate codes in real-time
+
+### Changed
+#### Affiliate Tracking Flow
+- **Modified Purchase Route**: Now shows discount dialog instead of direct checkout
+- **Updated Checkout Logic**: Handles both affiliate tracking and discount application
+- **Stripe Integration**: Passes discount codes to Stripe for coupon application
+- **Memory-Based Storage**: Replaced persistent storage with in-memory solution
+
+#### User Interface Updates
+- **Purchase Button Behavior**: Now opens discount dialog instead of immediate checkout
+- **Dialog-Based Code Entry**: Replaced URL-based code capture with user input dialog
+- **Enhanced Error Handling**: Better validation and error message display
+- **Improved Accessibility**: Enhanced keyboard navigation and screen reader support
+
+### Fixed
+#### Privacy and Compliance
+- **GDPR Compliance**: Removed all browser storage to avoid privacy concerns
+- **Data Minimization**: Only store necessary data for current session
+- **User Consent**: No data stored without explicit user action
+- **Session Isolation**: Affiliate codes don't persist between browser sessions
+
+#### Technical Improvements
+- **Memory Leak Prevention**: Proper cleanup of discount codes
+- **Race Condition Handling**: Improved validation timing
+- **Error Recovery**: Better handling of validation failures
+- **Code Validation**: Enhanced validation logic for affiliate codes
+
+### Migration Notes
+#### Breaking Changes
+- **Cookie Dependencies**: Applications relying on persistent affiliate code cookies will need updates
+- **localStorage Usage**: Code expecting localStorage affiliate codes needs modification
+- **Checkout Flow**: Direct checkout links may need UI updates for discount dialog
+
+#### Environment Setup
+- **New Environment Variable**: `STRIPE_DISCOUNT_COUPON_ID` must be configured in Stripe dashboard
+- **Coupon Configuration**: 10% discount coupon must be created in Stripe
+- **Updated .env.sample**: Added example configuration for discount coupon
+
+#### Database Impact
+- **No Schema Changes**: Existing affiliate tables remain unchanged
+- **Validation Logic**: Uses existing affiliate code validation infrastructure
+- **Tracking Continues**: Referral tracking through Stripe metadata unchanged
+
 ## [1.1.0] - UI Enhancements & Security Improvements  
 **Date**: August 2024
 

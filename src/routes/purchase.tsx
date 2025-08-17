@@ -6,7 +6,7 @@ import { env } from "~/utils/env";
 import { loadStripe } from "@stripe/stripe-js";
 import { publicEnv } from "~/utils/env-public";
 import { Button, buttonVariants } from "~/components/ui/button";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import {
   Lock,
@@ -23,6 +23,9 @@ import {
 import { useAuth } from "~/hooks/use-auth";
 import { useContinueSlug } from "~/hooks/use-continue-slug";
 import { Link } from "@tanstack/react-router";
+import { DiscountDialog } from "~/components/discount-dialog";
+import { discountStore } from "~/stores/discount-store";
+import { shouldShowEarlyAccessFn } from "~/fn/early-access";
 
 const searchSchema = z.object({
   ref: z.string().optional(),
@@ -30,11 +33,16 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/purchase")({
   validateSearch: searchSchema,
+  loader: async () => {
+    const shouldShowEarlyAccess = await shouldShowEarlyAccessFn();
+    return { shouldShowEarlyAccess };
+  },
   component: RouteComponent,
 });
 
 const checkoutSchema = z.object({
   affiliateCode: z.string().optional(),
+  discountCode: z.string().optional(),
 });
 
 const checkoutFn = createServerFn()
@@ -53,7 +61,7 @@ const checkoutFn = createServerFn()
       metadata.affiliateCode = data.affiliateCode;
     }
     
-    const session = await stripe.checkout.sessions.create({
+    const sessionConfig: any = {
       payment_method_types: ["card"],
       line_items: [{ price: env.STRIPE_PRICE_ID, quantity: 1 }],
       mode: "payment",
@@ -61,7 +69,16 @@ const checkoutFn = createServerFn()
       customer_email: context.email,
       cancel_url: `${env.HOST_NAME}/purchase`,
       metadata,
-    });
+    };
+    
+    // Apply discount if a valid discount code is provided
+    if (data.discountCode && env.STRIPE_DISCOUNT_COUPON_ID) {
+      sessionConfig.discounts = [{
+        coupon: env.STRIPE_DISCOUNT_COUPON_ID,
+      }];
+    }
+    
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     return { sessionId: session.id };
   });
@@ -103,65 +120,45 @@ const features = [
   },
 ];
 
-const testimonials = [
-  {
-    name: "Sarah Chen",
-    role: "Frontend Developer",
-    company: "Tech Corp",
-    text: "The problem-solving approach really helped me understand React better. Breaking down each challenge step by step made everything click.",
-  },
-  {
-    name: "Michael Rodriguez",
-    role: "React Developer",
-    company: "StartupX",
-    text: "These challenges helped me build a solid foundation in React. The whiteboarding sessions were especially helpful for understanding complex problems.",
-  },
-];
 
 function RouteComponent() {
   const user = useAuth();
   const continueSlug = useContinueSlug();
   const { ref } = Route.useSearch();
+  const [showDiscountDialog, setShowDiscountDialog] = useState(false);
 
-  // Store affiliate code in localStorage when present in URL
+  // Store affiliate code in memory when present in URL
   useEffect(() => {
     if (ref) {
-      localStorage.setItem("affiliateCode", ref);
-      // Set cookie as well for 30 days
-      const expires = new Date();
-      expires.setDate(expires.getDate() + 30);
-      document.cookie = `affiliateCode=${encodeURIComponent(ref)}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
+      discountStore.setDiscountCode(ref);
     }
   }, [ref]);
 
-  const handlePurchase = async () => {
+  const handlePurchaseClick = () => {
+    // Show discount dialog instead of going directly to checkout
+    setShowDiscountDialog(true);
+  };
+
+  const handleApplyDiscount = async (code: string) => {
+    // Store the code in memory if valid
+    if (code) {
+      discountStore.setDiscountCode(code);
+    }
+    // Proceed with checkout
+    await proceedToCheckout(code);
+  };
+
+  const proceedToCheckout = async (appliedDiscountCode: string) => {
     const stripePromise = loadStripe(publicEnv.VITE_STRIPE_PUBLISHABLE_KEY);
     const stripeResolved = await stripePromise;
     if (!stripeResolved) throw new Error("Stripe failed to initialize");
 
     try {
-      // Get affiliate code from localStorage or cookie with proper parsing
-      let affiliateCode = localStorage.getItem("affiliateCode");
-      
-      // Fallback to cookie if localStorage is empty
-      if (!affiliateCode) {
-        const cookieValue = document.cookie
-          .split("; ")
-          .find(row => row.startsWith("affiliateCode="))
-          ?.split("=")[1];
-        
-        if (cookieValue) {
-          try {
-            affiliateCode = decodeURIComponent(cookieValue);
-          } catch (decodeError) {
-            console.warn("Failed to decode affiliate code from cookie:", decodeError);
-            affiliateCode = null;
-          }
-        }
-      }
-      
       const { sessionId } = await checkoutFn({ 
-        data: { affiliateCode: affiliateCode || undefined } 
+        data: { 
+          affiliateCode: appliedDiscountCode || undefined,
+          discountCode: appliedDiscountCode || undefined,
+        } 
       });
       const { error } = await stripeResolved.redirectToCheckout({ sessionId });
       if (error) throw error;
@@ -267,7 +264,7 @@ function RouteComponent() {
                       <div className="flex flex-col items-center gap-4">
                         {user ? (
                           !user.isPremium ? (
-                            <Button size="lg" onClick={handlePurchase}>
+                            <Button size="lg" onClick={handlePurchaseClick}>
                               <ShoppingCart className="mr-2 h-4 w-4" />
                               Get Instant Access
                             </Button>
@@ -318,6 +315,14 @@ function RouteComponent() {
       {/* Bottom gradient fade with theme accent - matching hero */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
       <div className="section-divider-glow-bottom"></div>
+      
+      {/* Discount Dialog */}
+      <DiscountDialog
+        open={showDiscountDialog}
+        onOpenChange={setShowDiscountDialog}
+        onApplyDiscount={handleApplyDiscount}
+        initialCode={discountStore.getDiscountCode() || ""}
+      />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 # Affiliate Program
 
 ## Overview
-The Affiliate Program allows users to earn 30% commission by referring new customers to purchase the Agentic Jumpstart course. This feature includes a complete affiliate management system with tracking, analytics, and payout management.
+The Affiliate Program allows users to earn 30% commission by referring new customers to purchase the Agentic Jumpstart course. The system now includes a GDPR-compliant discount system where affiliate codes provide customers with 10% discounts while maintaining affiliate tracking through Stripe metadata. This feature includes a complete affiliate management system with tracking, analytics, and payout management.
 
 ## Quick Links
 - **User Registration**: [/affiliates](http://localhost:3000/affiliates)
@@ -52,21 +52,34 @@ The affiliate system includes 47 documented requirements with corresponding test
 3. Click the copy button to copy it to clipboard (improved UX feedback)
 4. Your 8-character affiliate code follows the format: `ABC12345`
 
-#### Testing Referral Tracking
+#### Testing Discount & Referral Tracking
 1. Open an incognito/private browser window
 2. Visit your affiliate link (e.g., `http://localhost:3000/purchase?ref=ABC12345`)
-3. Verify the affiliate code is stored in both cookies AND localStorage (dual redundancy)
-4. Cookie expires after exactly 30 days for proper attribution window
-5. Create a new test account and make a purchase
-6. The commission will be automatically tracked via Stripe webhook processing
+3. The affiliate code is temporarily stored in memory (not browser storage for GDPR compliance)
+4. Click "Get Instant Access" to start the purchase process
+5. A discount dialog will appear with your affiliate code pre-filled
+6. The dialog shows "Have a Discount Code?" with your code already entered
+7. Click "Apply 10% Discount" to validate and apply the discount
+8. Complete the checkout process - the customer gets 10% off
+9. The commission will be automatically tracked via Stripe webhook processing
+10. Both the affiliate code (for tracking) and discount code (for coupon) are passed to Stripe
 
 #### Tracking System Tests
 - **REQ-AF-005**: Test unique 8-character alphanumeric code generation  
 - **REQ-AF-008**: Verify tracking links follow format `/purchase?ref={code}`
-- **REQ-AF-009**: Confirm 30-day cookie duration
-- **REQ-AF-010**: Test cookie persistence across browser sessions
+- **REQ-AF-009**: Confirm affiliate codes are captured from URL parameters
+- **REQ-AF-010**: Test memory-only storage (no cookies/localStorage)
 - **REQ-AF-011**: Validate last-click attribution model
-- **REQ-AF-012**: Check dual storage in localStorage and cookies
+- **REQ-AF-012**: Check GDPR compliance (no persistent browser storage)
+
+#### Discount System Tests
+- **REQ-AF-048**: Test discount dialog appears during checkout process
+- **REQ-AF-049**: Verify users can enter affiliate codes for 10% discount
+- **REQ-AF-050**: Test real-time affiliate code validation
+- **REQ-AF-051**: Confirm Stripe discount coupon application
+- **REQ-AF-052**: Test pre-filling discount dialog with URL parameter code
+- **REQ-AF-053**: Verify users can skip discount entry
+- **REQ-AF-054**: Confirm codes stored in memory only during session
 
 ### 3. Viewing Analytics
 
@@ -141,25 +154,37 @@ Settings are defined in `/src/config.ts`:
 AFFILIATE_CONFIG = {
   COMMISSION_RATE: 30,          // 30% commission
   MINIMUM_PAYOUT: 5000,         // $50 minimum
-  COOKIE_DURATION_DAYS: 30,     // 30-day tracking
   AFFILIATE_CODE_LENGTH: 8,     // Code length
   AFFILIATE_CODE_RETRY_ATTEMPTS: 10
 }
 ```
 
+### Environment Variables
+
+New environment variable for discount system:
+```bash
+# Stripe coupon ID for 10% affiliate discount
+STRIPE_DISCOUNT_COUPON_ID=your_stripe_discount_coupon_id
+```
+
+This coupon must be created in your Stripe dashboard with 10% discount rate.
+
 ## Integration Points
 
-### Stripe Webhook
-The affiliate system integrates with Stripe webhooks:
-1. Affiliate code is passed as metadata in checkout session
-2. On successful payment, webhook processes the referral
-3. Commission is automatically calculated and recorded
-4. Self-referrals are prevented
+### Stripe Integration
+The affiliate system integrates with Stripe in multiple ways:
+1. **Checkout Session**: Both affiliate code (for tracking) and discount code are passed as metadata
+2. **Discount Application**: Valid affiliate codes trigger automatic 10% coupon application
+3. **Webhook Processing**: On successful payment, webhook processes the referral
+4. **Commission Calculation**: Commission is automatically calculated and recorded
+5. **Self-referral Prevention**: System prevents affiliates from using their own codes
 
-### Cookie Management
-- Affiliate codes are stored in both localStorage and cookies
-- 30-day expiration for attribution
-- Last-click attribution model
+### Discount Dialog Flow
+- **URL Parameter Capture**: Affiliate codes from `?ref={code}` are captured and stored in memory
+- **Purchase Flow**: Purchase button triggers discount dialog instead of direct checkout
+- **Code Validation**: Real-time validation against database of active affiliate codes
+- **Memory Storage**: Codes stored in application memory only (no browser persistence)
+- **GDPR Compliance**: No cookies or localStorage used for code storage
 
 ## Complete Test Suite
 
@@ -179,11 +204,11 @@ Each of the 47 requirements has a dedicated test scenario file in `/docs/feature
 - Tracking link format verification
 - Code uniqueness stress testing
 
-#### Cookie & Attribution (REQ-AF-009 to REQ-AF-012)
-- 30-day cookie duration testing
-- Cross-session persistence validation
+#### Code Attribution & Privacy (REQ-AF-009 to REQ-AF-012)
+- URL parameter capture testing (`?ref={code}`)
+- Memory-only storage validation (GDPR compliance)
 - Last-click attribution model verification
-- Dual storage redundancy (localStorage + cookies)
+- Browser storage absence verification (no cookies/localStorage)
 
 #### Commission System (REQ-AF-013 to REQ-AF-016)
 - 30% commission rate calculation accuracy
@@ -262,12 +287,19 @@ npm run test:affiliate:admin
 - Check `app_affiliate` table for existing record
 - **Test Scenario**: REQ-AF-004 covers duplicate registration prevention
 
-#### Referral not tracked
+#### Discount code validation fails
+1. Check if affiliate code exists and is active in database
+2. Verify `STRIPE_DISCOUNT_COUPON_ID` environment variable is set
+3. Ensure Stripe coupon exists and is active
+4. Check browser network logs for validation API errors
+5. **Test Scenario**: REQ-AF-050 covers real-time code validation
+
+#### Referral not tracked despite discount applied
 1. Check if affiliate code exists and is active
-2. Verify cookie is set in browser DevTools (Application > Cookies)
+2. Verify both affiliate and discount codes are passed to Stripe metadata
 3. Check Stripe webhook logs for processing errors
 4. Ensure it's not a self-referral (REQ-AF-030)
-5. Verify affiliate code in Stripe metadata
+5. Verify affiliate code in Stripe checkout session metadata
 
 #### Payment link update fails
 - Ensure the URL is valid (must start with http:// or https://)
@@ -287,13 +319,15 @@ npm run test:affiliate:admin
 - **Test Scenario**: REQ-AF-034 covers webhook processing
 
 ### Debug Mode
-To debug affiliate tracking:
+To debug affiliate discount and tracking:
 1. Open browser DevTools
-2. Check Application > Cookies for `affiliateCode`
-3. Check Application > Local Storage for `affiliateCode`
-4. Monitor Network tab during purchase for metadata
-5. Check webhook logs: `npm run stripe:listen`
-6. Verify database records in affiliate tables
+2. Check Network tab during discount validation for API calls
+3. Monitor Network tab during purchase for metadata
+4. Check webhook logs: `npm run stripe:listen`
+5. Verify database records in affiliate tables
+6. Check DiscountStore state (only exists in memory during session)
+7. Verify `STRIPE_DISCOUNT_COUPON_ID` environment variable
+8. Confirm Stripe coupon exists and is active
 
 ## Security Considerations
 
@@ -303,6 +337,9 @@ To debug affiliate tracking:
 - Duplicate transaction prevention
 - URL validation for payment links
 - SQL injection protection via parameterized queries
+- GDPR compliance: No persistent browser storage of affiliate codes
+- Memory-only code storage to avoid privacy concerns
+- Real-time validation prevents invalid code submissions
 
 ## API Reference
 
@@ -311,10 +348,21 @@ To debug affiliate tracking:
 - `getAffiliateDashboardFn` - Get dashboard data
 - `checkIfUserIsAffiliateFn` - Check affiliate status
 - `updateAffiliatePaymentLinkFn` - Update payment link
-- `validateAffiliateCodeFn` - Validate affiliate code
+- `validateAffiliateCodeFn` - Validate affiliate code (used by discount dialog)
 - `adminGetAllAffiliatesFn` - Get all affiliates (admin)
 - `adminToggleAffiliateStatusFn` - Toggle status (admin)
 - `adminRecordPayoutFn` - Record payout (admin)
+
+### Components
+- `DiscountDialog` - Modal for entering discount codes during checkout
+- `DiscountStore` - In-memory store for managing discount codes during session
+
+### Files Changed
+- `/src/routes/purchase.tsx` - Updated checkout flow with discount dialog
+- `/src/components/discount-dialog.tsx` - New discount code entry component
+- `/src/stores/discount-store.ts` - New in-memory store for codes
+- `/src/utils/env.ts` - Added STRIPE_DISCOUNT_COUPON_ID environment variable
+- `/src/fn/affiliates.ts` - Contains validateAffiliateCodeFn for real-time validation
 
 ## Support
 For issues or questions about the affiliate program, contact the development team or check the main project documentation.
