@@ -1,18 +1,43 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Button, buttonVariants } from "../../components/ui/button";
-import { LogOut, Menu } from "lucide-react";
+import {
+  LogOut,
+  Menu,
+  User,
+  ChevronDown,
+  TrendingUp,
+  DollarSign,
+  MessageCircle,
+  Users,
+} from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "../../components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../../components/ui/dropdown-menu";
 import { useState } from "react";
 import { useContinueSlug } from "~/hooks/use-continue-slug";
 import { cn } from "~/lib/utils";
 import { useAuth } from "~/hooks/use-auth";
 import { ModeToggle } from "~/components/ModeToggle";
+import { useQuery } from "@tanstack/react-query";
+import { checkIfUserIsAffiliateFn } from "~/fn/affiliates";
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const continueSlug = useContinueSlug();
   const user = useAuth();
   const routerState = useRouterState();
+
+  // Check if user is an affiliate (only for authenticated users)
+  const { data: affiliateStatus } = useQuery({
+    queryKey: ["user", "isAffiliate"],
+    queryFn: () => checkIfUserIsAffiliateFn(),
+    enabled: !!user && !user.isAdmin,
+  });
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50">
@@ -107,26 +132,112 @@ export function Header() {
                     Course Content
                   </Link>
                 )}
+                {user && !user.isAdmin && !affiliateStatus?.isAffiliate && (
+                  <Link
+                    to="/affiliates"
+                    className={cn(
+                      "flex items-center",
+                      "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                      "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    )}
+                    activeProps={{
+                      className:
+                        "text-theme-600 dark:text-theme-400 bg-theme-500/15 dark:bg-theme-500/10 font-semibold",
+                    }}
+                  >
+                    <DollarSign className="h-4 w-4 mr-2 text-theme-400" />
+                    Become an Affiliate
+                  </Link>
+                )}
               </div>
             </div>
 
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center gap-3">
-              {user?.isAdmin && (
-                <Link
-                  to="/admin/comments"
-                  className={buttonVariants({ variant: "ghost" })}
-                >
-                  Comments
-                </Link>
-              )}
               {user ? (
-                <a
-                  href="/api/logout"
-                  className={buttonVariants({ variant: "ghost" })}
-                >
-                  Logout
-                </a>
+                <>
+                  {user.isAdmin && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="flex items-center gap-2"
+                        >
+                          <User className="h-4 w-4" />
+                          <span>Admin</span>
+                          <ChevronDown className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link
+                            to="/admin/comments"
+                            className="flex items-center"
+                          >
+                            <MessageCircle className="mr-2 h-4 w-4" />
+                            Comments
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link
+                            to="/admin/affiliates"
+                            className="flex items-center"
+                          >
+                            <Users className="mr-2 h-4 w-4" />
+                            Affiliates
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <a href="/api/logout" className="flex items-center">
+                            <LogOut className="mr-2 h-4 w-4" />
+                            Logout
+                          </a>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                  {affiliateStatus?.isAffiliate && !user.isAdmin && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="flex items-center gap-2"
+                        >
+                          <User className="h-4 w-4" />
+                          <span>Account</span>
+                          <ChevronDown className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link
+                            to="/affiliate-dashboard"
+                            className="flex items-center"
+                          >
+                            <TrendingUp className="mr-2 h-4 w-4" />
+                            Affiliate Dashboard
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <a href="/api/logout" className="flex items-center">
+                            <LogOut className="mr-2 h-4 w-4" />
+                            Logout
+                          </a>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                  {!affiliateStatus?.isAffiliate && !user.isAdmin && (
+                    <a
+                      href="/api/logout"
+                      className={buttonVariants({ variant: "ghost" })}
+                    >
+                      Logout
+                    </a>
+                  )}
+                </>
               ) : (
                 <a
                   href="/api/login/google"
@@ -190,18 +301,48 @@ export function Header() {
                           Course Content
                         </Link>
                       )}
+                      {user && !user.isAdmin && !affiliateStatus?.isAffiliate && (
+                        <Link
+                          to="/affiliates"
+                          className="flex items-center py-3 text-lg text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted/50 px-3"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          Affiliate Program
+                        </Link>
+                      )}
 
                       <div className="pt-4 space-y-3 border-t border-border mt-4">
                         <div className="flex items-center justify-center">
                           <ModeToggle />
                         </div>
                         {user?.isAdmin && (
+                          <>
+                            <Link
+                              to="/admin/comments"
+                              className={buttonVariants({ variant: "ghost" })}
+                              onClick={() => setIsOpen(false)}
+                            >
+                              <MessageCircle className="mr-2 h-4 w-4" />
+                              Comments
+                            </Link>
+                            <Link
+                              to="/admin/affiliates"
+                              className={buttonVariants({ variant: "ghost" })}
+                              onClick={() => setIsOpen(false)}
+                            >
+                              <Users className="mr-2 h-4 w-4" />
+                              Affiliates
+                            </Link>
+                          </>
+                        )}
+                        {affiliateStatus?.isAffiliate && !user?.isAdmin && (
                           <Link
-                            to="/admin/comments"
+                            to="/affiliate-dashboard"
                             className={buttonVariants({ variant: "ghost" })}
                             onClick={() => setIsOpen(false)}
                           >
-                            Comments
+                            <TrendingUp className="mr-2 h-4 w-4" />
+                            Affiliate Dashboard
                           </Link>
                         )}
                         {user ? (
@@ -209,6 +350,7 @@ export function Header() {
                             href="/api/logout"
                             className={buttonVariants({ variant: "ghost" })}
                           >
+                            <LogOut className="mr-2 h-4 w-4" />
                             Logout
                           </a>
                         ) : (
