@@ -42,6 +42,7 @@ import {
   ExternalLink,
   Filter,
   CheckCircle2,
+  AlertCircle,
 } from "lucide-react";
 import { toast } from "~/hooks/use-toast";
 import { adminMiddleware } from "~/lib/auth";
@@ -145,85 +146,174 @@ function AdminComments() {
     }
   };
 
+  const totalComments = comments.length;
+  const addressedComments = comments.filter((c) => (c as any).hasAdminReply).length;
+  const pendingComments = totalComments - addressedComments;
+
   return (
-    <div className="container mx-auto py-20 px-4 max-w-6xl">
-      <div className="mb-8">
-        <div className="flex items-start justify-between mb-4">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">All Comments</h1>
-            <p className="text-muted-foreground">
-              Manage and moderate all user comments across the platform
-            </p>
+    <div className="min-h-screen bg-background">
+      {/* Background with subtle gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-theme-50/5 to-theme-100/10 dark:from-background dark:via-theme-950/10 dark:to-theme-900/20"></div>
+      
+      {/* Main content */}
+      <div className="relative z-10">
+        <div className="container mx-auto px-6 py-20 max-w-7xl">
+          {/* Header section */}
+          <div className="mb-12">
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h1 className="text-4xl font-bold mb-4">
+                  Comment <span className="text-gradient">Management</span>
+                </h1>
+                <p className="text-description max-w-2xl">
+                  Manage and moderate all user comments across the platform
+                </p>
+              </div>
+              <div className="flex items-center gap-4 bg-card/60 dark:bg-card/40 border border-border/50 rounded-xl px-4 py-3 backdrop-blur-sm">
+                <Filter className="h-4 w-4 text-theme-500 dark:text-theme-400" />
+                <Label htmlFor="filter-toggle" className="text-sm font-medium">
+                  Hide Addressed
+                </Label>
+                <Switch
+                  id="filter-toggle"
+                  checked={filterAdminReplied}
+                  onCheckedChange={setFilterAdminReplied}
+                />
+              </div>
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <Filter className="h-4 w-4 text-muted-foreground" />
-            <Label htmlFor="filter-toggle" className="text-sm">
-              Hide Addressed
-            </Label>
-            <Switch
-              id="filter-toggle"
-              checked={filterAdminReplied}
-              onCheckedChange={setFilterAdminReplied}
-            />
+
+          {/* Stats Overview */}
+          <div className="grid gap-6 md:grid-cols-3 mb-12">
+            {/* Total Comments */}
+            <div className="group relative">
+              <div className="module-card p-6 h-full">
+                <div className="flex flex-row items-center justify-between space-y-0 mb-4">
+                  <div className="text-sm font-medium text-muted-foreground">Total Comments</div>
+                  <div className="w-10 h-10 rounded-full bg-theme-500/10 dark:bg-theme-400/20 flex items-center justify-center group-hover:bg-theme-500/20 dark:group-hover:bg-theme-400/30 transition-colors duration-300">
+                    <MessageSquare className="h-5 w-5 text-theme-500 dark:text-theme-400" />
+                  </div>
+                </div>
+                <div className="text-3xl font-bold text-foreground mb-2 group-hover:text-theme-600 dark:group-hover:text-theme-400 transition-colors duration-300">
+                  {totalComments}
+                </div>
+                <p className="text-sm text-muted-foreground">All user comments</p>
+              </div>
+            </div>
+
+            {/* Pending Comments */}
+            <div className="group relative">
+              <div className="module-card p-6 h-full">
+                <div className="flex flex-row items-center justify-between space-y-0 mb-4">
+                  <div className="text-sm font-medium text-muted-foreground">Pending</div>
+                  <div className="w-10 h-10 rounded-full bg-orange-500/10 dark:bg-orange-400/20 flex items-center justify-center group-hover:bg-orange-500/20 dark:group-hover:bg-orange-400/30 transition-colors duration-300">
+                    <Calendar className="h-5 w-5 text-orange-500 dark:text-orange-400" />
+                  </div>
+                </div>
+                <div className="text-3xl font-bold text-foreground mb-2 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-300">
+                  {pendingComments}
+                </div>
+                <p className="text-sm text-muted-foreground">Awaiting response</p>
+              </div>
+            </div>
+
+            {/* Addressed Comments */}
+            <div className="group relative">
+              <div className="module-card p-6 h-full">
+                <div className="flex flex-row items-center justify-between space-y-0 mb-4">
+                  <div className="text-sm font-medium text-muted-foreground">Addressed</div>
+                  <div className="w-10 h-10 rounded-full bg-green-500/10 dark:bg-green-400/20 flex items-center justify-center group-hover:bg-green-500/20 dark:group-hover:bg-green-400/30 transition-colors duration-300">
+                    <CheckCircle2 className="h-5 w-5 text-green-500 dark:text-green-400" />
+                  </div>
+                </div>
+                <div className="text-3xl font-bold text-foreground mb-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300">
+                  {addressedComments}
+                </div>
+                <p className="text-sm text-muted-foreground">Admin replied</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Comments List */}
+          <div className="module-card">
+            <div className="p-6 border-b border-border/50">
+              <h2 className="text-2xl font-semibold mb-2">All Comments</h2>
+              <p className="text-muted-foreground">
+                View and respond to user comments
+              </p>
+            </div>
+            <div className="p-6">
+              {comments.length === 0 ? (
+                <div className="text-center py-16 text-muted-foreground">
+                  <MessageSquare className="h-16 w-16 mx-auto mb-6 opacity-30" />
+                  <p className="text-lg">No comments to display</p>
+                  <p className="text-sm mt-2">
+                    {filterAdminReplied ? "All comments have been addressed" : "No comments yet"}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {comments.map((comment) => (
+                    <CommentItem
+                      key={comment.id}
+                      comment={comment}
+                      onDelete={(id) => setDeleteCommentId(id)}
+                      onReply={(id) => setReplyingToCommentId(id)}
+                      replyingToThis={replyingToCommentId === comment.id}
+                      replyContent={replyContent}
+                      setReplyContent={setReplyContent}
+                      onSubmitReply={() =>
+                        handleSubmitReply(comment.segmentId, comment.id)
+                      }
+                      onCancelReply={() => {
+                        setReplyingToCommentId(null);
+                        setReplyContent("");
+                      }}
+                      isPendingReply={replyMutation.isPending}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="space-y-4">
-        {comments.length === 0 ? (
-          <div className="module-card p-8 text-center">
-            <MessageSquare className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <p className="text-muted-foreground">No comments yet</p>
-          </div>
-        ) : (
-          comments.map((comment) => (
-            <CommentItem
-              key={comment.id}
-              comment={comment}
-              onDelete={(id) => setDeleteCommentId(id)}
-              onReply={(id) => setReplyingToCommentId(id)}
-              replyingToThis={replyingToCommentId === comment.id}
-              replyContent={replyContent}
-              setReplyContent={setReplyContent}
-              onSubmitReply={() =>
-                handleSubmitReply(comment.segmentId, comment.id)
-              }
-              onCancelReply={() => {
-                setReplyingToCommentId(null);
-                setReplyContent("");
-              }}
-              isPendingReply={replyMutation.isPending}
-            />
-          ))
-        )}
-      </div>
-
+      {/* Delete Confirmation Dialog */}
       <AlertDialog
         open={deleteCommentId !== null}
         onOpenChange={(open) => !open && setDeleteCommentId(null)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="sm:max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Comment</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this comment? This action cannot
-              be undone.
+            <AlertDialogTitle className="text-xl font-semibold flex items-center gap-2">
+              <Trash2 className="h-5 w-5 text-destructive" />
+              Delete Comment
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-base">
+              Are you sure you want to delete this comment? This action cannot be undone.
               {deleteCommentId &&
-              comments.find((c) => c.id === deleteCommentId)?.children
-                ?.length ? (
-                <span className="block mt-2 font-semibold text-destructive">
-                  Warning: This comment has replies that will also be deleted.
-                </span>
+              comments.find((c) => c.id === deleteCommentId)?.children?.length ? (
+                <div className="mt-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+                  <div className="flex items-center gap-2 text-destructive font-medium text-sm">
+                    <AlertCircle className="h-4 w-4" />
+                    Warning
+                  </div>
+                  <p className="text-sm text-destructive/80 mt-1">
+                    This comment has replies that will also be deleted.
+                  </p>
+                </div>
               ) : null}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="flex gap-3">
+            <AlertDialogCancel className="flex-1">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 flex-1"
             >
-              Delete
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete Comment
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -261,28 +351,36 @@ function CommentItem({
   const hasAdminReply = (comment as any).hasAdminReply;
 
   return (
-    <div className={level > 0 ? "ml-12 mt-3" : ""}>
-      <div className="module-card">
-        <div className="p-4">
-          <div className="flex justify-between items-start mb-3">
-            <div className="flex items-start gap-3 flex-1">
-              <div className="flex shrink-0 size-10 rounded-full overflow-hidden bg-gradient-to-br from-theme-100 to-theme-200 dark:from-theme-800 dark:to-theme-700">
+    <div className={level > 0 ? "ml-12 mt-4" : ""}>
+      <div className="group relative overflow-hidden rounded-xl bg-card/60 dark:bg-card/40 border border-border/50 p-6 hover:bg-card/80 dark:hover:bg-card/60 hover:border-theme-400/30 hover:shadow-elevation-2 transition-all duration-300">
+        {/* Subtle hover glow effect */}
+        <div className="absolute inset-0 bg-gradient-to-br from-theme-500/5 to-theme-400/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-xl"></div>
+        
+        <div className="relative">
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex items-start gap-4 flex-1">
+              <div className="relative flex shrink-0 size-12 rounded-full overflow-hidden bg-gradient-to-br from-theme-100 to-theme-200 dark:from-theme-800 dark:to-theme-700 ring-2 ring-border/30">
                 <img
-                  className="max-h-10 w-auto object-cover"
+                  className="size-full object-cover"
                   src={
                     comment.profile.image ??
                     `https://api.dicebear.com/9.x/initials/svg?seed=${comment.profile.displayName || "user"}&backgroundColor=6366f1&textColor=ffffff`
                   }
                   alt={comment.profile.displayName || "User"}
                 />
+                {hasAdminReply && (
+                  <div className="absolute -top-1 -right-1 size-4 bg-green-500 rounded-full border-2 border-background flex items-center justify-center">
+                    <CheckCircle2 className="h-2.5 w-2.5 text-white" />
+                  </div>
+                )}
               </div>
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-medium">
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="font-semibold text-foreground">
                     {comment.profile.displayName || "Anonymous"}
                   </span>
                   {hasAdminReply && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800">
                       <CheckCircle2 className="h-3 w-3" />
                       Admin Replied
                     </span>
@@ -294,42 +392,59 @@ function CommentItem({
                 <Link
                   to="/learn/$slug"
                   params={{ slug: comment.segment.slug }}
-                  className="inline-flex items-center gap-1 text-sm text-theme-600 dark:text-theme-400 hover:underline mb-2"
+                  className="inline-flex items-center gap-2 text-sm text-theme-600 dark:text-theme-400 hover:text-theme-700 dark:hover:text-theme-300 transition-colors mb-3 font-medium"
                 >
+                  <ExternalLink className="h-3.5 w-3.5" />
                   {comment.segment.title}
-                  <ExternalLink className="h-3 w-3" />
                 </Link>
-                <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
+                <div className="p-4 rounded-lg bg-muted/50 border border-border/30">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{comment.content}</p>
+                </div>
               </div>
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="sm" className="relative z-10 h-8 w-8">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
                   onClick={() => onDelete(comment.id)}
-                  className="text-destructive"
+                  className="text-destructive hover:text-destructive"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
+                  Delete Comment
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
 
-          <div className="mt-4 pl-13">
-            <div className="space-y-3">
+          {/* Reply Interface */}
+          <div className="ml-16 mt-6">
+            <div className="space-y-4 p-4 rounded-xl bg-gradient-to-br from-theme-50/30 to-theme-100/20 dark:from-theme-950/20 dark:to-theme-900/10 border border-theme-200/30 dark:border-theme-700/30">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <Reply className="h-4 w-4 text-theme-500 dark:text-theme-400" />
+                Admin Reply
+              </div>
               <Textarea
-                placeholder="Type your reply..."
+                placeholder="Type your reply to this comment..."
                 value={replyingToThis ? replyContent : ""}
                 onChange={(e) => setReplyContent(e.target.value)}
-                className="min-h-[80px]"
+                className="min-h-[100px] resize-none bg-background/60 dark:bg-background/40"
                 onFocus={() => onReply(comment.id)}
               />
-              <div className="flex gap-2 justify-end">
+              <div className="flex gap-3 justify-end">
+                {replyingToThis && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={onCancelReply}
+                    className="border-border/50"
+                  >
+                    Cancel
+                  </Button>
+                )}
                 <Button
                   size="sm"
                   onClick={onSubmitReply}
@@ -345,8 +460,8 @@ function CommentItem({
                     </div>
                   ) : (
                     <div className="flex items-center gap-2">
-                      <Send className="h-3 w-3" />
-                      <span>Reply</span>
+                      <Send className="h-3.5 w-3.5" />
+                      <span>Post Reply</span>
                     </div>
                   )}
                 </Button>
@@ -354,42 +469,44 @@ function CommentItem({
             </div>
           </div>
 
+          {/* Existing Replies */}
           {comment.children && comment.children.length > 0 && (
-            <div className="mt-3 pt-3 border-t border-border/50">
-              <div className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
-                <MessageSquare className="h-3 w-3" />
-                {comment.children.length}{" "}
-                {comment.children.length === 1 ? "reply" : "replies"}
+            <div className="ml-16 mt-6 pt-6 border-t border-border/50">
+              <div className="text-sm text-muted-foreground mb-4 flex items-center gap-2 font-medium">
+                <MessageSquare className="h-4 w-4 text-theme-500 dark:text-theme-400" />
+                {comment.children.length} {comment.children.length === 1 ? "Reply" : "Replies"}
               </div>
-              {comment.children.map((child) => (
-                <div key={child.id} className="ml-8 mt-2">
-                  <div className="flex items-start gap-2">
-                    <div className="flex shrink-0 size-8 rounded-full overflow-hidden bg-gradient-to-br from-theme-100 to-theme-200 dark:from-theme-800 dark:to-theme-700">
-                      <img
-                        className="max-h-8 w-auto object-cover"
-                        src={
-                          child.profile.image ??
-                          `https://api.dicebear.com/9.x/initials/svg?seed=${child.profile.displayName || "user"}&backgroundColor=6366f1&textColor=ffffff`
-                        }
-                        alt={child.profile.displayName || "User"}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-medium">
-                          {child.profile.displayName || "Anonymous"}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {getTimeAgo(child.createdAt)}
-                        </span>
+              <div className="space-y-4">
+                {comment.children.map((child) => (
+                  <div key={child.id} className="p-4 rounded-lg bg-gradient-to-br from-background/80 to-muted/30 border border-border/40">
+                    <div className="flex items-start gap-3">
+                      <div className="flex shrink-0 size-10 rounded-full overflow-hidden bg-gradient-to-br from-theme-100 to-theme-200 dark:from-theme-800 dark:to-theme-700">
+                        <img
+                          className="size-full object-cover"
+                          src={
+                            child.profile.image ??
+                            `https://api.dicebear.com/9.x/initials/svg?seed=${child.profile.displayName || "user"}&backgroundColor=6366f1&textColor=ffffff`
+                          }
+                          alt={child.profile.displayName || "User"}
+                        />
                       </div>
-                      <p className="text-sm whitespace-pre-wrap">
-                        {child.content}
-                      </p>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="text-sm font-semibold text-foreground">
+                            {child.profile.displayName || "Anonymous"}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {getTimeAgo(child.createdAt)}
+                          </span>
+                        </div>
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                          {child.content}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
         </div>

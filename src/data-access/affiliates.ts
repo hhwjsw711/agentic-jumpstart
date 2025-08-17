@@ -1,4 +1,4 @@
-import { eq, desc, and, sql, gte, lt } from "drizzle-orm";
+import { eq, desc, and, sql, gte, lt, inArray } from "drizzle-orm";
 import { database } from "~/db";
 import {
   affiliates,
@@ -186,7 +186,7 @@ export async function createAffiliatePayout(
         .where(
           and(
             eq(affiliateReferrals.affiliateId, data.affiliateId),
-            sql`${affiliateReferrals.id} = ANY(${referralsToUpdate})`
+            inArray(affiliateReferrals.id, referralsToUpdate)
           )
         );
     }
