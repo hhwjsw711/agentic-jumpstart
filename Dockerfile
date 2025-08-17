@@ -15,6 +15,7 @@ COPY . .
 
 ARG VITE_RECAPTCHA_KEY
 ARG VITE_STRIPE_PUBLISHABLE_KEY
+ARG VITE_HOST_NAME
 
 # Build the application
 RUN npm run build

@@ -20,6 +20,7 @@ import { useAuth } from "~/hooks/use-auth";
 import {
   getAffiliateDashboardFn,
   updateAffiliatePaymentLinkFn,
+  checkIfUserIsAffiliateFn,
 } from "~/fn/affiliates";
 import { authenticatedMiddleware } from "~/lib/auth";
 import {
@@ -126,26 +127,42 @@ const statsVariants = {
 export const Route = createFileRoute("/affiliate-dashboard")({
   beforeLoad: () => assertAuthenticatedFn(),
   loader: async ({ context }) => {
+    // First check if user is an affiliate
+    const affiliateCheck = await context.queryClient.ensureQueryData({
+      queryKey: ["affiliate", "check"],
+      queryFn: () => checkIfUserIsAffiliateFn(),
+    });
+
+    if (!affiliateCheck.isAffiliate) {
+      return { isAffiliate: false };
+    }
+
+    // If they are an affiliate, get dashboard data
     const data = await context.queryClient.ensureQueryData({
       queryKey: ["affiliate", "dashboard"],
       queryFn: () => getAffiliateDashboardFn(),
     });
-    return data;
+    return { isAffiliate: true, dashboard: data };
   },
   component: AffiliateDashboard,
 });
 
 function AffiliateDashboard() {
+  const loaderData = Route.useLoaderData();
+  
+  // If user is not an affiliate, show error message
+  if (!loaderData.isAffiliate) {
+    return <NotAffiliateError />;
+  }
+
   const user = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [copied, setCopied] = useState(false);
   const [editPaymentOpen, setEditPaymentOpen] = useState(false);
 
-  const { data: dashboard } = useSuspenseQuery({
-    queryKey: ["affiliate", "dashboard"],
-    queryFn: () => getAffiliateDashboardFn(),
-  });
+  // Use the dashboard data from loader
+  const dashboard = loaderData.dashboard;
 
   const form = useForm<PaymentLinkFormValues>({
     resolver: zodResolver(paymentLinkSchema),
@@ -687,6 +704,54 @@ function AffiliateDashboard() {
           </motion.div>
         )}
       </motion.div>
+    </div>
+  );
+}
+
+function NotAffiliateError() {
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="max-w-md mx-auto text-center px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-theme-500/10 dark:bg-theme-400/20 flex items-center justify-center">
+            <Users className="h-10 w-10 text-theme-500 dark:text-theme-400" />
+          </div>
+          
+          <h1 className="text-3xl font-bold mb-4">
+            Not an <span className="text-theme-400">Affiliate</span>
+          </h1>
+          
+          <p className="text-muted-foreground mb-8 text-lg">
+            You are not registered as an affiliate. You need to join our affiliate program to access this dashboard.
+          </p>
+          
+          <div className="space-y-4">
+            <Link
+              to="/"
+              className={cn(
+                buttonVariants({ variant: "default", size: "lg" }),
+                "w-full"
+              )}
+            >
+              Return Home
+            </Link>
+            
+            <Link
+              to="/affiliate-signup"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "lg" }),
+                "w-full"
+              )}
+            >
+              Join Affiliate Program
+            </Link>
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 }
