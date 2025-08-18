@@ -79,7 +79,7 @@
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans antialiased bg-background text-foreground w-full;
   }
 }
 
@@ -168,4 +168,8 @@
   .video-decorative-2 {
     @apply absolute -bottom-4 -left-4 w-6 h-6 bg-theme-500/30 rounded-full blur-sm;
   }
+}
+
+a {
+  cursor: pointer;
 }

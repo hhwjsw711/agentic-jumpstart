@@ -13,7 +13,7 @@ import {
   Settings,
   Target,
 } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "../../components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "../../components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -359,6 +359,10 @@ export function Header() {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-[250px] sm:w-[300px]">
+                  <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                  <SheetDescription className="sr-only">
+                    Main navigation menu with links to different sections of the website
+                  </SheetDescription>
                   {/* Mobile menu with matching gradient background */}
                   <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-background"></div>
                   <div className="absolute inset-0 backdrop-blur-md bg-white/90 dark:bg-background/20"></div>

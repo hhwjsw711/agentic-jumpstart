@@ -67,7 +67,7 @@ export function HeroSection() {
                   </h1>
                 </ScrollAnimation>
 
-                <ScrollAnimation direction="up" delay={0.2}>
+                <ScrollAnimation direction="up" delay={0.1}>
                   <p className="text-description mb-12 max-w-xl">
                     Master AI-first development with Cursor IDE, Claude Code
                     CLI, and advanced AI models. Learn how to leverage Claude
@@ -78,7 +78,7 @@ export function HeroSection() {
                   </p>
                 </ScrollAnimation>
 
-                <ScrollAnimation direction="up" delay={0.3}>
+                <ScrollAnimation direction="up" delay={0.1}>
                   <div className="flex flex-col sm:flex-row gap-4">
                     <Link
                       to="/purchase"

@@ -89,7 +89,7 @@ export function StatsSection({ stats }: StatsProps) {
                 Course <span className="text-theme-400">Overview</span>
               </h2>
             </ScrollAnimation>
-            <ScrollAnimation direction="up" delay={0.0}>
+            <ScrollAnimation direction="up" delay={0}>
               <p className="text-description max-w-2xl mx-auto">
                 Comprehensive agentic coding curriculum designed to transform
                 your development workflow
@@ -104,7 +104,7 @@ export function StatsSection({ stats }: StatsProps) {
               return (
                 <ScrollScale
                   key={index}
-                  delay={0.2 + index * 0.1}
+                  delay={0.1 + index * 0.2}
                   className="group relative"
                 >
                   {/* Card with glass morphism and glow effect */}
@@ -163,7 +163,7 @@ export function StatsSection({ stats }: StatsProps) {
 
           {/* Marketing Keywords Section - SEO Optimized */}
           <div className="mt-16 text-center">
-            <ScrollAnimation direction="up" delay={0.2}>
+            <ScrollAnimation direction="up" delay={0.5}>
               <h3 className="text-2xl font-semibold mb-8 text-foreground">
                 Master the Latest{" "}
                 <span className="text-theme-400">AI Coding Tools</span> &

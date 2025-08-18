@@ -89,7 +89,7 @@ export function ModulesSection({
   const formattedTotalDuration = formatDuration(totalDurationMinutes);
 
   return (
-    <section className="relative w-full py-24">
+    <section className="relative w-full py-12 md:py-24">
       {/* Modern AI-themed gradient background - matching hero */}
       <div className="absolute inset-0 hero-background-ai"></div>
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-theme-500/5 dark:via-theme-950/20 to-transparent"></div>
@@ -109,26 +109,26 @@ export function ModulesSection({
 
       {/* Content */}
       <div className="relative z-10 h-full">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-12">
           {/* Section header */}
-          <div className="text-center mb-16">
+          <div className="text-center mb-8 md:mb-16">
             {/* Badge - matching hero style */}
             <ScrollAnimation direction="down" delay={0}>
-              <div className="inline-flex items-center px-4 py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-sm font-medium mb-8">
+              <div className="inline-flex items-center px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-xs md:text-sm font-medium mb-6 md:mb-8">
                 <span className="w-2 h-2 bg-theme-500 dark:bg-theme-400 rounded-full mr-2 animate-pulse"></span>
                 Everyone can be a 10x developer
               </div>
             </ScrollAnimation>
 
             <ScrollAnimation direction="up" delay={0.0}>
-              <h2 className="text-6xl leading-tight mb-8">
+              <h2 className="text-3xl md:text-4xl lg:text-6xl leading-tight mb-6 md:mb-8">
                 The Perfect Curriculum to{" "}
                 <span className="text-theme-400">Master Agentic Coding</span>
               </h2>
             </ScrollAnimation>
 
             <ScrollAnimation direction="up" delay={0.1}>
-              <p className="text-description mb-12 max-w-4xl mx-auto">
+              <p className="text-sm md:text-base lg:text-lg text-description mb-8 md:mb-12 max-w-4xl mx-auto">
                 Learn to leverage AI tools like Cursor, Claude Code, and
                 advanced models to build applications faster than ever. From
                 setup to deployment, master the complete AI-assisted development
@@ -138,8 +138,8 @@ export function ModulesSection({
           </div>
 
           {/* Module progression */}
-          <div className="mb-16">
-            <div className="space-y-8">
+          <div className="mb-8 md:mb-16">
+            <div className="space-y-6 md:space-y-8">
               {moduleEntries.map(([moduleId, moduleSegments], index) => {
                 const moduleInfo = moduleData?.find(
                   (m) => m.id === Number(moduleId)
@@ -158,23 +158,23 @@ export function ModulesSection({
                   >
                     {/* Connector line */}
                     {index < moduleEntries.length - 1 && (
-                      <div className="absolute left-8 top-20 w-px h-16 bg-gradient-to-b from-theme-300 to-theme-100 dark:from-theme-700 dark:to-theme-900"></div>
+                      <div className="absolute left-6 md:left-8 top-16 md:top-20 w-px h-12 md:h-16 bg-gradient-to-b from-theme-300 to-theme-100 dark:from-theme-700 dark:to-theme-900"></div>
                     )}
 
-                    <div className="flex gap-6">
+                    <div className="flex gap-3 md:gap-6">
                       {/* Module indicator */}
                       <div className="flex-shrink-0">
-                        <div className="w-16 h-16 rounded-full border-4 border-theme-500 bg-theme-100 dark:bg-theme-900/50 flex items-center justify-center">
-                          <div className="text-theme-500 dark:text-theme-400">
+                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 md:border-4 border-theme-500 bg-theme-100 dark:bg-theme-900/50 flex items-center justify-center">
+                          <div className="text-theme-500 dark:text-theme-400 scale-75 md:scale-100">
                             {getModuleIcon(moduleId)}
                           </div>
                         </div>
                       </div>
 
                       {/* Module content */}
-                      <div className="flex-grow bg-gradient-to-b from-white to-theme-50/20 dark:to-gray-900 dark:from-theme-900/40 backdrop-blur-sm p-8 rounded-xl border border-border hover:border-theme-300 dark:hover:border-theme-700 transition-all duration-300">
-                        <div className="flex flex-wrap items-center gap-4 mb-4">
-                          <h4 className="text-2xl font-bold">
+                      <div className="flex-grow bg-gradient-to-b from-white to-theme-50/20 dark:to-gray-900 dark:from-theme-900/40 backdrop-blur-sm p-4 md:p-6 lg:p-8 rounded-xl border border-border hover:border-theme-300 dark:hover:border-theme-700 transition-all duration-300">
+                        <div className="flex flex-wrap items-center gap-2 md:gap-4 mb-4">
+                          <h4 className="text-lg md:text-xl lg:text-2xl font-bold">
                             {moduleInfo?.title || `Module ${moduleId}`}
                           </h4>
                           <Badge
@@ -188,13 +188,13 @@ export function ModulesSection({
                           </Badge>
                         </div>
 
-                        <p className="text-muted-foreground mb-6 text-lg leading-relaxed">
+                        <p className="text-muted-foreground mb-4 md:mb-6 text-sm md:text-base lg:text-lg leading-relaxed">
                           Learn essential AI development skills and master
                           cutting-edge tools in this comprehensive module.
                         </p>
 
                         {/* Lessons grid */}
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
                           {moduleSegments.map((segment, segmentIndex) => {
                             const lessonContent = (
                               <>
@@ -243,7 +243,7 @@ export function ModulesSection({
                               return (
                                 <div
                                   key={segment.id}
-                                  className="group/lesson flex items-start gap-3 p-4 rounded-lg border border-border bg-white dark:bg-gray-900 opacity-60 cursor-not-allowed"
+                                  className="group/lesson flex items-start gap-2 md:gap-3 p-3 md:p-4 rounded-lg border border-border bg-white dark:bg-gray-900 opacity-60 cursor-not-allowed"
                                 >
                                   {lessonContent}
                                 </div>
@@ -255,7 +255,7 @@ export function ModulesSection({
                                 key={segment.id}
                                 to="/learn/$slug"
                                 params={{ slug: segment.slug }}
-                                className="group/lesson flex items-start gap-3 p-4 rounded-lg border border-border bg-white dark:bg-gray-900 hover:border-theme-300 dark:hover:border-theme-700 transition-all duration-200 hover:bg-accent/50"
+                                className="group/lesson flex items-start gap-2 md:gap-3 p-3 md:p-4 rounded-lg border border-border bg-white dark:bg-gray-900 hover:border-theme-300 dark:hover:border-theme-700 transition-all duration-200 hover:bg-accent/50"
                               >
                                 {lessonContent}
                               </Link>
@@ -264,7 +264,7 @@ export function ModulesSection({
                         </div>
 
                         {/* Start module button */}
-                        <div className="flex justify-end">
+                        <div className="flex justify-center md:justify-end">
                           {isDisabled ? (
                             <Button
                               className="bg-gray-400 text-white cursor-not-allowed"

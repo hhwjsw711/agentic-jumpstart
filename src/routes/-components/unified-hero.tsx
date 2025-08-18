@@ -35,7 +35,7 @@ export function UnifiedHero({ isEarlyAccess }: UnifiedHeroProps) {
   }
 
   return (
-    <section className="relative w-full py-12">
+    <section className="relative w-full py-8 md:py-12">
       {/* Modern AI-themed gradient background */}
       <div className="absolute inset-0 hero-background-ai"></div>
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-theme-500/5 dark:via-theme-950/20 to-transparent"></div>
@@ -55,21 +55,21 @@ export function UnifiedHero({ isEarlyAccess }: UnifiedHeroProps) {
 
       {/* Content */}
       <div className="relative z-10 h-full">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 h-full">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-12 h-full">
           <div className="flex items-center h-full">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 w-full items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 w-full items-center">
               {/* Left side - Content */}
               <div className="hero-content">
                 {/* Badge */}
                 <ScrollAnimation direction="down" delay={0}>
-                  <div className="inline-flex items-center px-4 py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-sm font-medium mb-8">
+                  <div className="inline-flex items-center px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-xs md:text-sm font-medium mb-6 md:mb-8">
                     <span className="w-2 h-2 bg-theme-500 dark:bg-theme-400 rounded-full mr-2 animate-pulse"></span>
                     Agentic Coding Mastery Course
                   </div>
                 </ScrollAnimation>
 
                 <ScrollAnimation direction="up" delay={0}>
-                  <h1 className="text-6xl leading-tight mb-8">
+                  <h1 className="text-4xl md:text-5xl lg:text-6xl leading-tight mb-8">
                     Coding is <span className="text-theme-400">Changing</span>,
                     Master{" "}
                     <span className="text-theme-400">Agentic Coding</span>{" "}
@@ -77,7 +77,7 @@ export function UnifiedHero({ isEarlyAccess }: UnifiedHeroProps) {
                 </ScrollAnimation>
 
                 <ScrollAnimation direction="up" delay={0.2}>
-                  <p className="text-description mb-12 max-w-xl">
+                  <p className="text-base md:text-lg text-description mb-8 md:mb-12 max-w-xl">
                     Master AI-first development with Cursor IDE, Claude Code
                     CLI, and advanced AI models. Learn how to leverage Claude
                     Sonnet 3.5, Claude Opus, and cutting-edge agentic
@@ -178,7 +178,7 @@ function EarlyAccessHeroContent() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 py-16">
+      <div className="relative z-10 container mx-auto px-4 py-12 md:py-16">
         <div className="max-w-2xl mx-auto text-center">
           {/* Logo with glow effect */}
           <ScrollScale delay={0}>
@@ -200,29 +200,29 @@ function EarlyAccessHeroContent() {
           <div className="mb-12">
             {/* Badge */}
             <ScrollAnimation direction="down" delay={0.1}>
-              <div className="inline-flex items-center px-4 py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-sm font-medium mb-6">
+              <div className="inline-flex items-center px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-xs md:text-sm font-medium mb-4 md:mb-6">
                 <span className="w-2 h-2 bg-theme-500 dark:bg-theme-400 rounded-full mr-2 animate-pulse"></span>
                 Early Access Registration
               </div>
             </ScrollAnimation>
 
             <ScrollAnimation direction="up" delay={0.2}>
-              <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-theme-500 to-theme-600 dark:from-theme-400 dark:to-theme-500 bg-clip-text text-transparent animate-gradient leading-normal pb-1">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-theme-500 to-theme-600 dark:from-theme-400 dark:to-theme-500 bg-clip-text text-transparent animate-gradient leading-normal pb-1">
                 Coming Soon
               </h1>
             </ScrollAnimation>
             <ScrollAnimation direction="up" delay={0.3}>
-              <p className="text-xl md:text-2xl text-muted-foreground mb-4">
+              <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-4">
                 Master the future of coding with AI—learn to build agentic
                 systems that work for you.
               </p>
             </ScrollAnimation>
             <ScrollAnimation direction="up" delay={0.4}>
-              <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+              <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto px-4 md:px-0">
                 Join our exclusive waiting list to be the first to access our
-                groundbreaking course, designed to teach you agentic coding
-                and empower you to create intelligent, autonomous software
-                using the latest in AI-powered development.
+                groundbreaking course, designed to teach you agentic coding and
+                empower you to create intelligent, autonomous software using the
+                latest in AI-powered development.
               </p>
             </ScrollAnimation>
           </div>

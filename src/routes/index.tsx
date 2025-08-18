@@ -34,22 +34,11 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Unified Hero - dynamically switches based on early access mode */}
       <UnifiedHero isEarlyAccess={shouldShowEarlyAccess} />
-
-      {/* Discord Community Section - early access mode only */}
       {shouldShowEarlyAccess && <DiscordCommunitySection />}
-
-      {/* Future of Coding Section - always shown for value */}
       <FutureOfCodingSection />
-
-      {/* Stats Section - when available */}
       {stats && <StatsSection stats={stats} />}
-
-      {/* Research Sources - always shown */}
       <ResearchSourcesSection />
-
-      {/* Course Preview/Modules */}
       {segments.length > 0 && (
         <div className={shouldShowEarlyAccess ? "opacity-80" : ""}>
           <ModulesSection
@@ -58,17 +47,9 @@ function Home() {
           />
         </div>
       )}
-
-      {/* Instructor Section - always shown */}
       <InstructorSection />
-
-      {/* Testimonials - regular mode only */}
       {!shouldShowEarlyAccess && <TestimonialsSection />}
-
-      {/* Pricing Section - regular mode only */}
       {!shouldShowEarlyAccess && <PricingSection />}
-
-      {/* Enhanced FAQ - always shown with mode-specific questions */}
       <FAQSection isEarlyAccess={shouldShowEarlyAccess} />
     </div>
   );

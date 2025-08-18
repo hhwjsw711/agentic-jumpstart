@@ -57,14 +57,14 @@ export function PricingSection() {
               </ScrollAnimation>
 
               <ScrollAnimation direction="up" delay={0.1}>
-                <h2 className="text-6xl leading-tight mb-8">
+                <h2 className="text-3xl md:text-4xl lg:text-6xl leading-tight mb-6 md:mb-8">
                   Master AI-First Development{" "}
                   <span className="text-theme-400">With AI Agents</span>
                 </h2>
               </ScrollAnimation>
 
               <ScrollAnimation direction="up" delay={0.2}>
-                <p className="text-description mb-12 max-w-2xl mx-auto">
+                <p className="text-sm md:text-base lg:text-lg text-description mb-8 md:mb-12 max-w-2xl mx-auto">
                   Transform your coding workflow with advanced AI tools and
                   techniques. Learn to build applications 10x faster using Cursor
                   IDE, Claude Code CLI, and cutting-edge agentic programming
@@ -75,12 +75,12 @@ export function PricingSection() {
               <ScrollScale delay={0.3}>
                 <div ref={cardRef} className="relative max-w-lg mx-auto">
                   <div className="video-container">
-                  <div className="video-wrapper p-10">
+                  <div className="video-wrapper p-6 md:p-8 lg:p-10">
                     <div className="relative z-10">
-                      <h3 className="text-4xl font-bold mb-2 text-theme-600 dark:text-theme-400">
+                      <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 text-theme-600 dark:text-theme-400">
                         Agentic Coding Mastery
                       </h3>
-                      <div className="text-6xl font-bold mb-8 text-foreground">
+                      <div className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 md:mb-8 text-foreground">
                         $199
                         <span className="text-lg text-muted-foreground/70 font-normal">
                           /lifetime access
