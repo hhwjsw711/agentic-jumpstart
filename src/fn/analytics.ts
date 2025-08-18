@@ -9,88 +9,74 @@ import {
   getEngagementInsightsUseCase,
   getCourseHealthMetricsUseCase,
 } from "~/use-cases/analytics";
-import { validateRequest } from "~/utils/auth";
 import {
   trackPurchaseIntent,
   generateSessionId,
   trackPageView,
 } from "~/utils/analytics";
 import {
-  getConversionMetrics,
-  getConversionFunnel,
-  getTopReferrers,
-  getDailyConversions,
-  getAllAnalyticsEvents,
-  getAllAnalyticsSessions,
   getEventTypeCounts,
   getPopularPages,
   getOverallAnalyticsStats,
 } from "~/data-access/analytics";
 import { getHeaders } from "@tanstack/react-start/server";
-
-// Helper function to verify admin access
-async function requireAdmin() {
-  const { user } = await validateRequest();
-
-  if (!user) {
-    throw new Error("Unauthorized");
-  }
-
-  if (!user.isAdmin) {
-    throw new Error("Admin access required");
-  }
-
-  return user;
-}
+import { adminMiddleware } from "~/lib/auth";
 
 export const getAnalyticsDashboardDataFn = createServerFn({
   method: "GET",
-}).handler(async () => {
-  await requireAdmin();
-  return getAnalyticsDashboardDataUseCase();
-});
+})
+  .middleware([adminMiddleware])
+  .handler(async () => {
+    return getAnalyticsDashboardDataUseCase();
+  });
 
 export const getUserStatsFn = createServerFn({
   method: "GET",
-}).handler(async () => {
-  await requireAdmin();
-  return getUserStatsUseCase();
-});
+})
+  .middleware([adminMiddleware])
+  .handler(async () => {
+    return getUserStatsUseCase();
+  });
 
 export const getModulesAnalyticsFn = createServerFn({
   method: "GET",
-}).handler(async () => {
-  await requireAdmin();
-  return getModulesAnalyticsUseCase();
-});
+})
+  .middleware([adminMiddleware])
+  .handler(async () => {
+    return getModulesAnalyticsUseCase();
+  });
 
 export const getSegmentsAnalyticsFn = createServerFn({
   method: "GET",
-}).handler(async () => {
-  await requireAdmin();
-  return getSegmentsAnalyticsUseCase();
-});
+})
+  .middleware([adminMiddleware])
+  .handler(async () => {
+    return getSegmentsAnalyticsUseCase();
+  });
 
 export const getOverallStatsFn = createServerFn({
   method: "GET",
-}).handler(async () => {
-  await requireAdmin();
-  return getOverallStatsUseCase();
-});
+})
+  .middleware([adminMiddleware])
+  .handler(async () => {
+    return getOverallStatsUseCase();
+  });
 
 export const getEngagementInsightsFn = createServerFn({
   method: "GET",
-}).handler(async () => {
-  await requireAdmin();
-  return getEngagementInsightsUseCase();
-});
+})
+  .middleware([adminMiddleware])
+  .handler(async () => {
+    return getEngagementInsightsUseCase();
+  });
 
 export const getCourseHealthMetricsFn = createServerFn({
   method: "GET",
-}).handler(async () => {
-  await requireAdmin();
-  return getCourseHealthMetricsUseCase();
-});
+})
+  .middleware([adminMiddleware])
+  .handler(async () => {
+    return getCourseHealthMetricsUseCase();
+  });
 
 // New conversion tracking functions
 
@@ -101,6 +87,7 @@ const trackPurchaseIntentSchema = z.object({
 
 export const trackPurchaseIntentFn = createServerFn()
   .validator(trackPurchaseIntentSchema)
+  .middleware([adminMiddleware])
   .handler(async ({ data }) => {
     const headers = getHeaders();
     try {
@@ -169,9 +156,8 @@ const limitSchema = z.object({
 
 export const getEventTypeCountsFn = createServerFn()
   .validator(dateRangeSchema)
+  .middleware([adminMiddleware])
   .handler(async ({ data }) => {
-    await requireAdmin();
-
     const dateRange =
       data.start && data.end
         ? {
@@ -185,9 +171,8 @@ export const getEventTypeCountsFn = createServerFn()
 
 export const getPopularPagesFn = createServerFn()
   .validator(limitSchema)
+  .middleware([adminMiddleware])
   .handler(async ({ data }) => {
-    await requireAdmin();
-
     const dateRange =
       data.start && data.end
         ? {
@@ -201,9 +186,8 @@ export const getPopularPagesFn = createServerFn()
 
 export const getOverallAnalyticsStatsFn = createServerFn()
   .validator(dateRangeSchema)
+  .middleware([adminMiddleware])
   .handler(async ({ data }) => {
-    await requireAdmin();
-
     const dateRange =
       data.start && data.end
         ? {

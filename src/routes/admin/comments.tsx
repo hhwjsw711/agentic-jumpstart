@@ -1,10 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  useSuspenseQuery,
-  useMutation,
-  useQueryClient,
-  useQuery,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import {
   getAllRecentCommentsFn,
@@ -36,8 +31,6 @@ import {
   Reply,
   MessageSquare,
   Send,
-  Shield,
-  User,
   Calendar,
   ExternalLink,
   Filter,
@@ -45,15 +38,16 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { toast } from "~/hooks/use-toast";
-import { adminMiddleware } from "~/lib/auth";
 import { queryOptions } from "@tanstack/react-query";
 import { AllCommentsWithDetails } from "~/data-access/comments";
 import { Switch } from "~/components/ui/switch";
 import { Label } from "~/components/ui/label";
-import { useAuth } from "~/hooks/use-auth";
-import { assertIsAdminFn } from "~/fn/auth";
-import { Page } from "./-components/page";
 import { PageHeader } from "./-components/page-header";
+
+// Skeleton component for count cards
+function CountSkeleton() {
+  return <div className="h-8 w-16 bg-muted/50 rounded animate-pulse"></div>;
+}
 
 const allCommentsQuery = (filterAdminReplied: boolean) =>
   queryOptions({
@@ -62,7 +56,6 @@ const allCommentsQuery = (filterAdminReplied: boolean) =>
   });
 
 export const Route = createFileRoute("/admin/comments")({
-  beforeLoad: () => assertIsAdminFn(),
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(allCommentsQuery(false));
   },
@@ -70,9 +63,8 @@ export const Route = createFileRoute("/admin/comments")({
 });
 
 function AdminComments() {
-  const user = useAuth();
   const [filterAdminReplied, setFilterAdminReplied] = useState(true);
-  const { data: comments } = useSuspenseQuery(
+  const { data: comments, isLoading } = useQuery(
     allCommentsQuery(filterAdminReplied)
   );
   const queryClient = useQueryClient();
@@ -179,119 +171,154 @@ function AdminComments() {
     });
   };
 
-  const totalComments = comments.length;
-  const addressedComments = comments.filter(
-    (c) => (c as any).hasAdminReply
-  ).length;
-  const pendingComments = totalComments - addressedComments;
+  const totalComments = comments?.length ?? 0;
+  const addressedComments =
+    comments?.filter((c) => (c as any).hasAdminReply).length ?? 0;
+  const pendingComments = totalComments - (addressedComments ?? 0);
 
   return (
     <>
-      <Page>
-        <PageHeader
-          title="Comment Management"
-          highlightedWord="Management"
-          description="Manage and moderate all user comments across the platform"
-          actions={
-            <div className="flex items-center gap-4 bg-card/60 dark:bg-card/40 border border-border/50 rounded-xl px-4 py-3 backdrop-blur-sm">
-              <Filter className="h-4 w-4 text-theme-500 dark:text-theme-400" />
-              <Label htmlFor="filter-toggle" className="text-sm font-medium">
-                Hide Addressed
-              </Label>
-              <Switch
-                id="filter-toggle"
-                checked={filterAdminReplied}
-                onCheckedChange={setFilterAdminReplied}
-              />
-            </div>
-          }
-        />
-
-        {/* Stats Overview */}
-        <div className="grid gap-6 md:grid-cols-3 mb-12">
-            {/* Total Comments */}
-            <div className="group relative">
-              <div className="module-card p-6 h-full">
-                <div className="flex flex-row items-center justify-between space-y-0 mb-4">
-                  <div className="text-sm font-medium text-muted-foreground">
-                    Total Comments
-                  </div>
-                  <div className="w-10 h-10 rounded-full bg-theme-500/10 dark:bg-theme-400/20 flex items-center justify-center group-hover:bg-theme-500/20 dark:group-hover:bg-theme-400/30 transition-colors duration-300">
-                    <MessageSquare className="h-5 w-5 text-theme-500 dark:text-theme-400" />
-                  </div>
-                </div>
-                <div className="text-3xl font-bold text-foreground mb-2 group-hover:text-theme-600 dark:group-hover:text-theme-400 transition-colors duration-300">
-                  {totalComments}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  All user comments
-                </p>
-              </div>
-            </div>
-
-            {/* Pending Comments */}
-            <div className="group relative">
-              <div className="module-card p-6 h-full">
-                <div className="flex flex-row items-center justify-between space-y-0 mb-4">
-                  <div className="text-sm font-medium text-muted-foreground">
-                    Pending
-                  </div>
-                  <div className="w-10 h-10 rounded-full bg-orange-500/10 dark:bg-orange-400/20 flex items-center justify-center group-hover:bg-orange-500/20 dark:group-hover:bg-orange-400/30 transition-colors duration-300">
-                    <Calendar className="h-5 w-5 text-orange-500 dark:text-orange-400" />
-                  </div>
-                </div>
-                <div className="text-3xl font-bold text-foreground mb-2 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-300">
-                  {pendingComments}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Awaiting response
-                </p>
-              </div>
-            </div>
-
-            {/* Addressed Comments */}
-            <div className="group relative">
-              <div className="module-card p-6 h-full">
-                <div className="flex flex-row items-center justify-between space-y-0 mb-4">
-                  <div className="text-sm font-medium text-muted-foreground">
-                    Addressed
-                  </div>
-                  <div className="w-10 h-10 rounded-full bg-green-500/10 dark:bg-green-400/20 flex items-center justify-center group-hover:bg-green-500/20 dark:group-hover:bg-green-400/30 transition-colors duration-300">
-                    <CheckCircle2 className="h-5 w-5 text-green-500 dark:text-green-400" />
-                  </div>
-                </div>
-                <div className="text-3xl font-bold text-foreground mb-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300">
-                  {addressedComments}
-                </div>
-                <p className="text-sm text-muted-foreground">Admin replied</p>
-              </div>
-            </div>
+      <PageHeader
+        title="Comment Management"
+        highlightedWord="Management"
+        description="Manage and moderate all user comments across the platform"
+        actions={
+          <div className="flex items-center gap-4 bg-card/60 dark:bg-card/40 border border-border/50 rounded-xl px-4 py-3 backdrop-blur-sm">
+            <Filter className="h-4 w-4 text-theme-500 dark:text-theme-400" />
+            <Label htmlFor="filter-toggle" className="text-sm font-medium">
+              Hide Addressed
+            </Label>
+            <Switch
+              id="filter-toggle"
+              checked={filterAdminReplied}
+              onCheckedChange={setFilterAdminReplied}
+            />
           </div>
+        }
+      />
 
-        {/* Comments List */}
-        <div className="module-card">
-          <div className="p-6 border-b border-border/50">
-            <h2 className="text-2xl font-semibold mb-2">All Comments</h2>
-            <p className="text-muted-foreground">
-              View and respond to user comments
-            </p>
-          </div>
-          <div className="p-6">
-            {comments.length === 0 ? (
-              <div className="text-center py-16 text-muted-foreground">
-                <MessageSquare className="h-16 w-16 mx-auto mb-6 opacity-30" />
-                <p className="text-lg">No comments to display</p>
-                <p className="text-sm mt-2">
-                  {filterAdminReplied
-                    ? "All comments have been addressed"
-                    : "No comments yet"}
-                </p>
+      {/* Stats Overview */}
+      <div
+        className="grid gap-6 md:grid-cols-3 mb-12 animate-in fade-in slide-in-from-bottom-2 duration-500"
+        style={{ animationDelay: "0.1s", animationFillMode: "both" }}
+      >
+        {/* Total Comments */}
+        <div
+          className="group relative animate-in fade-in slide-in-from-bottom-2 duration-500"
+          style={{ animationDelay: "0.2s", animationFillMode: "both" }}
+        >
+          <div className="module-card p-6 h-full">
+            <div className="flex flex-row items-center justify-between space-y-0 mb-4">
+              <div className="text-sm font-medium text-muted-foreground">
+                Total Comments
               </div>
-            ) : (
-              <div className="space-y-6">
-                {comments.map((comment) => (
+              <div className="w-10 h-10 rounded-full bg-theme-500/10 dark:bg-theme-400/20 flex items-center justify-center group-hover:bg-theme-500/20 dark:group-hover:bg-theme-400/30 transition-colors duration-300">
+                <MessageSquare className="h-5 w-5 text-theme-500 dark:text-theme-400" />
+              </div>
+            </div>
+            <div className="text-3xl font-bold text-foreground mb-2 group-hover:text-theme-600 dark:group-hover:text-theme-400 transition-colors duration-300">
+              {isLoading ? <CountSkeleton /> : totalComments}
+            </div>
+            <p className="text-sm text-muted-foreground">All user comments</p>
+          </div>
+        </div>
+
+        {/* Pending Comments */}
+        <div
+          className="group relative animate-in fade-in slide-in-from-bottom-2 duration-500"
+          style={{ animationDelay: "0.3s", animationFillMode: "both" }}
+        >
+          <div className="module-card p-6 h-full">
+            <div className="flex flex-row items-center justify-between space-y-0 mb-4">
+              <div className="text-sm font-medium text-muted-foreground">
+                Pending
+              </div>
+              <div className="w-10 h-10 rounded-full bg-orange-500/10 dark:bg-orange-400/20 flex items-center justify-center group-hover:bg-orange-500/20 dark:group-hover:bg-orange-400/30 transition-colors duration-300">
+                <Calendar className="h-5 w-5 text-orange-500 dark:text-orange-400" />
+              </div>
+            </div>
+            <div className="text-3xl font-bold text-foreground mb-2 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-300">
+              {isLoading ? <CountSkeleton /> : pendingComments}
+            </div>
+            <p className="text-sm text-muted-foreground">Awaiting response</p>
+          </div>
+        </div>
+
+        {/* Addressed Comments */}
+        <div
+          className="group relative animate-in fade-in slide-in-from-bottom-2 duration-500"
+          style={{ animationDelay: "0.4s", animationFillMode: "both" }}
+        >
+          <div className="module-card p-6 h-full">
+            <div className="flex flex-row items-center justify-between space-y-0 mb-4">
+              <div className="text-sm font-medium text-muted-foreground">
+                Addressed
+              </div>
+              <div className="w-10 h-10 rounded-full bg-green-500/10 dark:bg-green-400/20 flex items-center justify-center group-hover:bg-green-500/20 dark:group-hover:bg-green-400/30 transition-colors duration-300">
+                <CheckCircle2 className="h-5 w-5 text-green-500 dark:text-green-400" />
+              </div>
+            </div>
+            <div className="text-3xl font-bold text-foreground mb-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300">
+              {isLoading ? <CountSkeleton /> : addressedComments}
+            </div>
+            <p className="text-sm text-muted-foreground">Admin replied</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Comments List */}
+      <div
+        className="module-card animate-in fade-in slide-in-from-bottom-2 duration-500"
+        style={{ animationDelay: "0.5s", animationFillMode: "both" }}
+      >
+        <div className="p-6 border-b border-border/50">
+          <h2 className="text-2xl font-semibold mb-2">All Comments</h2>
+          <p className="text-muted-foreground">
+            View and respond to user comments
+          </p>
+        </div>
+        <div className="p-6">
+          {isLoading ? (
+            <div className="space-y-6">
+              {[...Array(3)].map((_, idx) => (
+                <div
+                  key={idx}
+                  className="animate-in fade-in slide-in-from-bottom-2 duration-500"
+                  style={{
+                    animationDelay: `${0.6 + idx * 0.1}s`,
+                    animationFillMode: "both",
+                  }}
+                >
+                  <div className="flex flex-col gap-3">
+                    <div className="h-6 w-1/3 bg-muted/50 rounded animate-pulse mb-2"></div>
+                    <div className="h-4 w-1/2 bg-muted/30 rounded animate-pulse mb-1"></div>
+                    <div className="h-4 w-1/4 bg-muted/20 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : comments?.length === 0 ? (
+            <div className="text-center py-16 text-muted-foreground">
+              <MessageSquare className="h-16 w-16 mx-auto mb-6 opacity-30" />
+              <p className="text-lg">No comments to display</p>
+              <p className="text-sm mt-2">
+                {filterAdminReplied
+                  ? "All comments have been addressed"
+                  : "No comments yet"}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {comments?.map((comment, index) => (
+                <div
+                  key={comment.id}
+                  className="animate-in fade-in slide-in-from-bottom-2 duration-500"
+                  style={{
+                    animationDelay: `${0.6 + index * 0.1}s`,
+                    animationFillMode: "both",
+                  }}
+                >
                   <CommentItem
-                    key={comment.id}
                     comment={comment}
                     onDelete={(id) => setDeleteCommentId(id)}
                     onReply={(id) => setReplyingToCommentId(id)}
@@ -307,18 +334,17 @@ function AdminComments() {
                     }}
                     isPendingReply={replyMutation.isPending}
                   />
-                ))}
-              </div>
-            )}
-          </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-    </Page>
+      </div>
 
-    {/* Delete Confirmation Dialog */}
-    <AlertDialog
-      open={deleteCommentId !== null}
-      onOpenChange={(open) => !open && setDeleteCommentId(null)}
-    >
+      <AlertDialog
+        open={deleteCommentId !== null}
+        onOpenChange={(open) => !open && setDeleteCommentId(null)}
+      >
         <AlertDialogContent className="sm:max-w-md">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-xl font-semibold flex items-center gap-2">
@@ -329,7 +355,7 @@ function AdminComments() {
               Are you sure you want to delete this comment? This action cannot
               be undone.
               {deleteCommentId &&
-              comments.find((c) => c.id === deleteCommentId)?.children
+              comments?.find((c) => c.id === deleteCommentId)?.children
                 ?.length ? (
                 <div className="mt-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
                   <div className="flex items-center gap-2 text-destructive font-medium text-sm">
@@ -384,7 +410,6 @@ function CommentItem({
   isPendingReply,
   level = 0,
 }: CommentItemProps) {
-  const user = useAuth();
   const hasAdminReply = (comment as any).hasAdminReply;
 
   return (

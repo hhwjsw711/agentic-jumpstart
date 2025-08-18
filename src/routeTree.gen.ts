@@ -27,6 +27,7 @@ import { Route as CancelRouteImport } from './routes/cancel'
 import { Route as AffiliatesRouteImport } from './routes/affiliates'
 import { Route as AffiliateDashboardRouteImport } from './routes/affiliate-dashboard'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LearnIndexRouteImport } from './routes/learn/index'
 import { Route as LearnNotFoundRouteImport } from './routes/learn/not-found'
@@ -125,6 +126,11 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRouteRoute = AdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -161,29 +167,29 @@ const LearnAddRoute = LearnAddRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminEmailsRoute = AdminEmailsRouteImport.update({
-  id: '/admin/emails',
-  path: '/admin/emails',
-  getParentRoute: () => rootRouteImport,
+  id: '/emails',
+  path: '/emails',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminConversionsRoute = AdminConversionsRouteImport.update({
-  id: '/admin/conversions',
-  path: '/admin/conversions',
-  getParentRoute: () => rootRouteImport,
+  id: '/conversions',
+  path: '/conversions',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminCommentsRoute = AdminCommentsRouteImport.update({
-  id: '/admin/comments',
-  path: '/admin/comments',
-  getParentRoute: () => rootRouteImport,
+  id: '/comments',
+  path: '/comments',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
-  id: '/admin/analytics',
-  path: '/admin/analytics',
-  getParentRoute: () => rootRouteImport,
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminAffiliatesRoute = AdminAffiliatesRouteImport.update({
-  id: '/admin/affiliates',
-  path: '/admin/affiliates',
-  getParentRoute: () => rootRouteImport,
+  id: '/affiliates',
+  path: '/affiliates',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 const LearnSlugEditRoute = LearnSlugEditRouteImport.update({
   id: '/edit',
@@ -230,6 +236,7 @@ const ApiLoginGoogleCallbackIndexServerRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/affiliate-dashboard': typeof AffiliateDashboardRoute
   '/affiliates': typeof AffiliatesRoute
@@ -261,6 +268,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/affiliate-dashboard': typeof AffiliateDashboardRoute
   '/affiliates': typeof AffiliatesRoute
@@ -292,6 +300,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/affiliate-dashboard': typeof AffiliateDashboardRoute
   '/affiliates': typeof AffiliatesRoute
@@ -326,6 +335,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/about'
     | '/affiliate-dashboard'
     | '/affiliates'
@@ -357,6 +367,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/about'
     | '/affiliate-dashboard'
     | '/affiliates'
@@ -387,6 +398,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/about'
     | '/affiliate-dashboard'
     | '/affiliates'
@@ -420,6 +432,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRouteRoute: typeof AdminRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   AffiliateDashboardRoute: typeof AffiliateDashboardRoute
   AffiliatesRoute: typeof AffiliatesRoute
@@ -435,11 +448,6 @@ export interface RootRouteChildren {
   UnauthenticatedRoute: typeof UnauthenticatedRoute
   UnauthorizedRoute: typeof UnauthorizedRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
-  AdminAffiliatesRoute: typeof AdminAffiliatesRoute
-  AdminAnalyticsRoute: typeof AdminAnalyticsRoute
-  AdminCommentsRoute: typeof AdminCommentsRoute
-  AdminConversionsRoute: typeof AdminConversionsRoute
-  AdminEmailsRoute: typeof AdminEmailsRoute
   LearnAddRoute: typeof LearnAddRoute
   LearnCourseCompletedRoute: typeof LearnCourseCompletedRoute
   LearnNoSegmentsRoute: typeof LearnNoSegmentsRoute
@@ -608,6 +616,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -659,38 +674,38 @@ declare module '@tanstack/react-router' {
     }
     '/admin/emails': {
       id: '/admin/emails'
-      path: '/admin/emails'
+      path: '/emails'
       fullPath: '/admin/emails'
       preLoaderRoute: typeof AdminEmailsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
     '/admin/conversions': {
       id: '/admin/conversions'
-      path: '/admin/conversions'
+      path: '/conversions'
       fullPath: '/admin/conversions'
       preLoaderRoute: typeof AdminConversionsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
     '/admin/comments': {
       id: '/admin/comments'
-      path: '/admin/comments'
+      path: '/comments'
       fullPath: '/admin/comments'
       preLoaderRoute: typeof AdminCommentsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
     '/admin/analytics': {
       id: '/admin/analytics'
-      path: '/admin/analytics'
+      path: '/analytics'
       fullPath: '/admin/analytics'
       preLoaderRoute: typeof AdminAnalyticsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
     '/admin/affiliates': {
       id: '/admin/affiliates'
-      path: '/admin/affiliates'
+      path: '/affiliates'
       fullPath: '/admin/affiliates'
       preLoaderRoute: typeof AdminAffiliatesRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
     '/learn/$slug/edit': {
       id: '/learn/$slug/edit'
@@ -755,6 +770,26 @@ declare module '@tanstack/react-start/server' {
   }
 }
 
+interface AdminRouteRouteChildren {
+  AdminAffiliatesRoute: typeof AdminAffiliatesRoute
+  AdminAnalyticsRoute: typeof AdminAnalyticsRoute
+  AdminCommentsRoute: typeof AdminCommentsRoute
+  AdminConversionsRoute: typeof AdminConversionsRoute
+  AdminEmailsRoute: typeof AdminEmailsRoute
+}
+
+const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminAffiliatesRoute: AdminAffiliatesRoute,
+  AdminAnalyticsRoute: AdminAnalyticsRoute,
+  AdminCommentsRoute: AdminCommentsRoute,
+  AdminConversionsRoute: AdminConversionsRoute,
+  AdminEmailsRoute: AdminEmailsRoute,
+}
+
+const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
+  AdminRouteRouteChildren,
+)
+
 interface LearnSlugLayoutRouteChildren {
   LearnSlugLayoutIndexRoute: typeof LearnSlugLayoutIndexRoute
 }
@@ -783,6 +818,7 @@ const LearnSlugRouteWithChildren = LearnSlugRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRouteRoute: AdminRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   AffiliateDashboardRoute: AffiliateDashboardRoute,
   AffiliatesRoute: AffiliatesRoute,
@@ -798,11 +834,6 @@ const rootRouteChildren: RootRouteChildren = {
   UnauthenticatedRoute: UnauthenticatedRoute,
   UnauthorizedRoute: UnauthorizedRoute,
   UnsubscribeRoute: UnsubscribeRoute,
-  AdminAffiliatesRoute: AdminAffiliatesRoute,
-  AdminAnalyticsRoute: AdminAnalyticsRoute,
-  AdminCommentsRoute: AdminCommentsRoute,
-  AdminConversionsRoute: AdminConversionsRoute,
-  AdminEmailsRoute: AdminEmailsRoute,
   LearnAddRoute: LearnAddRoute,
   LearnCourseCompletedRoute: LearnCourseCompletedRoute,
   LearnNoSegmentsRoute: LearnNoSegmentsRoute,

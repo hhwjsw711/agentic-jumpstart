@@ -1,6 +1,10 @@
 import { useNewsletterSubscription } from "~/hooks/use-newsletter-subscription";
 import { Button } from "~/components/ui/button";
-import { ScrollAnimation, ScrollScale, ScrollFadeIn } from "~/components/scroll-animation";
+import {
+  ScrollAnimation,
+  ScrollScale,
+  ScrollFadeIn,
+} from "~/components/scroll-animation";
 
 interface NewsletterFormProps {
   showStats?: boolean;
@@ -52,10 +56,7 @@ export function NewsletterForm({ showStats = true }: NewsletterFormProps) {
         </ScrollScale>
       ) : (
         <ScrollAnimation direction="up" delay={0.5}>
-          <form
-            onSubmit={handleSubmit}
-            className="max-w-md mx-auto relative"
-          >
+          <form onSubmit={handleSubmit} className="max-w-md mx-auto relative">
             {/* Form glow effect */}
             <div className="absolute inset-0 bg-theme-500/5 blur-3xl"></div>
 
@@ -129,30 +130,32 @@ export function NewsletterForm({ showStats = true }: NewsletterFormProps) {
                 </svg>
               </div>
 
-              <div className="relative z-10 flex items-center justify-center gap-8 text-muted-foreground group-hover:text-foreground/90 transition-colors duration-300">
+              <div className="relative z-10 flex flex-col items-center justify-center gap-6 text-muted-foreground group-hover:text-foreground/90 transition-colors duration-300 sm:flex-row sm:gap-8">
                 <div className="text-center group-hover:scale-105 transition-transform duration-300">
-                  <div className="text-3xl font-bold bg-gradient-to-r from-theme-500 to-theme-600 dark:from-theme-400 dark:to-theme-500 bg-clip-text text-transparent group-hover:from-theme-400 group-hover:to-theme-500 transition-all duration-300">
+                  <div className="text-3xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-theme-500 to-theme-600 dark:from-theme-400 dark:to-theme-500 bg-clip-text text-transparent group-hover:from-theme-400 group-hover:to-theme-500 transition-all duration-300">
                     500+
                   </div>
-                  <div className="text-sm group-hover:text-theme-600 dark:group-hover:text-theme-400 transition-colors duration-300">
+                  <div className="text-sm sm:text-base group-hover:text-theme-600 dark:group-hover:text-theme-400 transition-colors duration-300">
                     People waiting
                   </div>
                 </div>
-                <div className="w-px h-12 bg-gradient-to-b from-transparent via-border to-transparent group-hover:via-theme-400 transition-colors duration-300" />
+                <div className="hidden sm:block w-px h-12 bg-gradient-to-b from-transparent via-border to-transparent group-hover:via-theme-400 transition-colors duration-300" />
+                <div className="block sm:hidden w-12 h-px bg-gradient-to-r from-transparent via-border to-transparent group-hover:via-theme-400 transition-colors duration-300 my-2" />
                 <div className="text-center group-hover:scale-105 transition-transform duration-300">
-                  <div className="text-3xl font-bold bg-gradient-to-r from-theme-500 to-theme-600 dark:from-theme-400 dark:to-theme-500 bg-clip-text text-transparent group-hover:from-theme-400 group-hover:to-theme-500 transition-all duration-300">
+                  <div className="text-3xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-theme-500 to-theme-600 dark:from-theme-400 dark:to-theme-500 bg-clip-text text-transparent group-hover:from-theme-400 group-hover:to-theme-500 transition-all duration-300">
                     Q3 2025
                   </div>
-                  <div className="text-sm group-hover:text-theme-600 dark:group-hover:text-theme-400 transition-colors duration-300">
+                  <div className="text-sm sm:text-base group-hover:text-theme-600 dark:group-hover:text-theme-400 transition-colors duration-300">
                     Expected launch
                   </div>
                 </div>
-                <div className="w-px h-12 bg-gradient-to-b from-transparent via-border to-transparent group-hover:via-theme-400 transition-colors duration-300" />
+                <div className="hidden sm:block w-px h-12 bg-gradient-to-b from-transparent via-border to-transparent group-hover:via-theme-400 transition-colors duration-300" />
+                <div className="block sm:hidden w-12 h-px bg-gradient-to-r from-transparent via-border to-transparent group-hover:via-theme-400 transition-colors duration-300 my-2" />
                 <div className="text-center group-hover:scale-105 transition-transform duration-300">
-                  <div className="text-3xl font-bold bg-gradient-to-r from-theme-500 to-theme-600 dark:from-theme-400 dark:to-theme-500 bg-clip-text text-transparent group-hover:from-theme-400 group-hover:to-theme-500 transition-all duration-300">
+                  <div className="text-3xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-theme-500 to-theme-600 dark:from-theme-400 dark:to-theme-500 bg-clip-text text-transparent group-hover:from-theme-400 group-hover:to-theme-500 transition-all duration-300">
                     100%
                   </div>
-                  <div className="text-sm group-hover:text-theme-600 dark:group-hover:text-theme-400 transition-colors duration-300">
+                  <div className="text-sm sm:text-base group-hover:text-theme-600 dark:group-hover:text-theme-400 transition-colors duration-300">
                     Worth the wait
                   </div>
                 </div>
