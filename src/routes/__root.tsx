@@ -106,9 +106,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   const { shouldShowEarlyAccess } = Route.useLoaderData();
   const showFooter =
     !routerState.location.pathname.startsWith("/learn") &&
+    !routerState.location.pathname.startsWith("/admin") &&
     !shouldShowEarlyAccess;
   const showHeader =
     !routerState.location.pathname.startsWith("/learn") &&
+    !routerState.location.pathname.startsWith("/admin") &&
     !shouldShowEarlyAccess;
   const showThemeToggle =
     routerState.location.pathname === "/" && shouldShowEarlyAccess;
