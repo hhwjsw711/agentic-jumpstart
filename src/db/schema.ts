@@ -259,6 +259,66 @@ export const affiliatePayouts = tableCreator(
   ]
 );
 
+export const emailBatches = tableCreator(
+  "email_batch",
+  {
+    id: serial("id").primaryKey(),
+    subject: text("subject").notNull(),
+    htmlContent: text("htmlContent").notNull(),
+    recipientCount: integer("recipientCount").notNull().default(0),
+    sentCount: integer("sentCount").notNull().default(0),
+    failedCount: integer("failedCount").notNull().default(0),
+    status: text("status").notNull().default("pending"), // pending, processing, completed, failed
+    adminId: serial("adminId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("email_batches_admin_created_idx").on(table.adminId, table.createdAt),
+    index("email_batches_status_idx").on(table.status),
+  ]
+);
+
+export const userEmailPreferences = tableCreator(
+  "user_email_preference",
+  {
+    id: serial("id").primaryKey(),
+    userId: serial("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" })
+      .unique(),
+    allowCourseUpdates: boolean("allowCourseUpdates").notNull().default(true),
+    allowPromotional: boolean("allowPromotional").notNull().default(true),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("email_preferences_user_idx").on(table.userId),
+  ]
+);
+
+export const unsubscribeTokens = tableCreator(
+  "unsubscribe_token",
+  {
+    id: serial("id").primaryKey(),
+    token: text("token").notNull().unique(),
+    userId: serial("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    emailAddress: text("emailAddress").notNull(),
+    isUsed: boolean("isUsed").notNull().default(false),
+    expiresAt: timestamp("expires_at").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("unsubscribe_tokens_token_idx").on(table.token),
+    index("unsubscribe_tokens_user_idx").on(table.userId),
+    index("unsubscribe_tokens_expires_idx").on(table.expiresAt),
+  ]
+);
+
 export const modulesRelations = relations(modules, ({ many }) => ({
   segments: many(segments),
 }));
@@ -346,6 +406,33 @@ export const affiliatePayoutsRelations = relations(
   })
 );
 
+export const emailBatchesRelations = relations(emailBatches, ({ one }) => ({
+  admin: one(users, {
+    fields: [emailBatches.adminId],
+    references: [users.id],
+  }),
+}));
+
+export const userEmailPreferencesRelations = relations(
+  userEmailPreferences,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [userEmailPreferences.userId],
+      references: [users.id],
+    }),
+  })
+);
+
+export const unsubscribeTokensRelations = relations(
+  unsubscribeTokens,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [unsubscribeTokens.userId],
+      references: [users.id],
+    }),
+  })
+);
+
 export type User = typeof users.$inferSelect;
 export type Profile = typeof profiles.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
@@ -367,3 +454,9 @@ export type AffiliateReferral = typeof affiliateReferrals.$inferSelect;
 export type AffiliateReferralCreate = typeof affiliateReferrals.$inferInsert;
 export type AffiliatePayout = typeof affiliatePayouts.$inferSelect;
 export type AffiliatePayoutCreate = typeof affiliatePayouts.$inferInsert;
+export type EmailBatch = typeof emailBatches.$inferSelect;
+export type EmailBatchCreate = typeof emailBatches.$inferInsert;
+export type UserEmailPreference = typeof userEmailPreferences.$inferSelect;
+export type UserEmailPreferenceCreate = typeof userEmailPreferences.$inferInsert;
+export type UnsubscribeToken = typeof unsubscribeTokens.$inferSelect;
+export type UnsubscribeTokenCreate = typeof unsubscribeTokens.$inferInsert;

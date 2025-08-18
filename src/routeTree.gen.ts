@@ -12,10 +12,12 @@ import { createFileRoute } from '@tanstack/react-router'
 import { createServerRootRoute } from '@tanstack/react-start/server'
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
 import { Route as UnauthenticatedRouteImport } from './routes/unauthenticated'
 import { Route as TermsOfServiceRouteImport } from './routes/terms-of-service'
 import { Route as SuccessRouteImport } from './routes/success'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as PurchaseRouteImport } from './routes/purchase'
 import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as LoginRouteImport } from './routes/login'
@@ -30,6 +32,7 @@ import { Route as LearnNotFoundRouteImport } from './routes/learn/not-found'
 import { Route as LearnNoSegmentsRouteImport } from './routes/learn/no-segments'
 import { Route as LearnCourseCompletedRouteImport } from './routes/learn/course-completed'
 import { Route as LearnAddRouteImport } from './routes/learn/add'
+import { Route as AdminEmailsRouteImport } from './routes/admin/emails'
 import { Route as AdminCommentsRouteImport } from './routes/admin/comments'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin/analytics'
 import { Route as AdminAffiliatesRouteImport } from './routes/admin/affiliates'
@@ -45,6 +48,11 @@ import { ServerRoute as ApiLoginGoogleCallbackIndexServerRouteImport } from './r
 const LearnSlugRouteImport = createFileRoute('/learn/$slug')()
 const rootServerRouteImport = createServerRootRoute()
 
+const UnsubscribeRoute = UnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UnauthorizedRoute = UnauthorizedRouteImport.update({
   id: '/unauthorized',
   path: '/unauthorized',
@@ -63,6 +71,11 @@ const TermsOfServiceRoute = TermsOfServiceRouteImport.update({
 const SuccessRoute = SuccessRouteImport.update({
   id: '/success',
   path: '/success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PurchaseRoute = PurchaseRouteImport.update({
@@ -140,6 +153,11 @@ const LearnAddRoute = LearnAddRouteImport.update({
   path: '/learn/add',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminEmailsRoute = AdminEmailsRouteImport.update({
+  id: '/admin/emails',
+  path: '/admin/emails',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminCommentsRoute = AdminCommentsRouteImport.update({
   id: '/admin/comments',
   path: '/admin/comments',
@@ -208,13 +226,16 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/purchase': typeof PurchaseRoute
+  '/settings': typeof SettingsRoute
   '/success': typeof SuccessRoute
   '/terms-of-service': typeof TermsOfServiceRoute
   '/unauthenticated': typeof UnauthenticatedRoute
   '/unauthorized': typeof UnauthorizedRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/admin/affiliates': typeof AdminAffiliatesRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/comments': typeof AdminCommentsRoute
+  '/admin/emails': typeof AdminEmailsRoute
   '/learn/add': typeof LearnAddRoute
   '/learn/course-completed': typeof LearnCourseCompletedRoute
   '/learn/no-segments': typeof LearnNoSegmentsRoute
@@ -234,13 +255,16 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/purchase': typeof PurchaseRoute
+  '/settings': typeof SettingsRoute
   '/success': typeof SuccessRoute
   '/terms-of-service': typeof TermsOfServiceRoute
   '/unauthenticated': typeof UnauthenticatedRoute
   '/unauthorized': typeof UnauthorizedRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/admin/affiliates': typeof AdminAffiliatesRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/comments': typeof AdminCommentsRoute
+  '/admin/emails': typeof AdminEmailsRoute
   '/learn/add': typeof LearnAddRoute
   '/learn/course-completed': typeof LearnCourseCompletedRoute
   '/learn/no-segments': typeof LearnNoSegmentsRoute
@@ -260,13 +284,16 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/purchase': typeof PurchaseRoute
+  '/settings': typeof SettingsRoute
   '/success': typeof SuccessRoute
   '/terms-of-service': typeof TermsOfServiceRoute
   '/unauthenticated': typeof UnauthenticatedRoute
   '/unauthorized': typeof UnauthorizedRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/admin/affiliates': typeof AdminAffiliatesRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/comments': typeof AdminCommentsRoute
+  '/admin/emails': typeof AdminEmailsRoute
   '/learn/add': typeof LearnAddRoute
   '/learn/course-completed': typeof LearnCourseCompletedRoute
   '/learn/no-segments': typeof LearnNoSegmentsRoute
@@ -289,13 +316,16 @@ export interface FileRouteTypes {
     | '/login'
     | '/privacy-policy'
     | '/purchase'
+    | '/settings'
     | '/success'
     | '/terms-of-service'
     | '/unauthenticated'
     | '/unauthorized'
+    | '/unsubscribe'
     | '/admin/affiliates'
     | '/admin/analytics'
     | '/admin/comments'
+    | '/admin/emails'
     | '/learn/add'
     | '/learn/course-completed'
     | '/learn/no-segments'
@@ -315,13 +345,16 @@ export interface FileRouteTypes {
     | '/login'
     | '/privacy-policy'
     | '/purchase'
+    | '/settings'
     | '/success'
     | '/terms-of-service'
     | '/unauthenticated'
     | '/unauthorized'
+    | '/unsubscribe'
     | '/admin/affiliates'
     | '/admin/analytics'
     | '/admin/comments'
+    | '/admin/emails'
     | '/learn/add'
     | '/learn/course-completed'
     | '/learn/no-segments'
@@ -340,13 +373,16 @@ export interface FileRouteTypes {
     | '/login'
     | '/privacy-policy'
     | '/purchase'
+    | '/settings'
     | '/success'
     | '/terms-of-service'
     | '/unauthenticated'
     | '/unauthorized'
+    | '/unsubscribe'
     | '/admin/affiliates'
     | '/admin/analytics'
     | '/admin/comments'
+    | '/admin/emails'
     | '/learn/add'
     | '/learn/course-completed'
     | '/learn/no-segments'
@@ -368,13 +404,16 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   PurchaseRoute: typeof PurchaseRoute
+  SettingsRoute: typeof SettingsRoute
   SuccessRoute: typeof SuccessRoute
   TermsOfServiceRoute: typeof TermsOfServiceRoute
   UnauthenticatedRoute: typeof UnauthenticatedRoute
   UnauthorizedRoute: typeof UnauthorizedRoute
+  UnsubscribeRoute: typeof UnsubscribeRoute
   AdminAffiliatesRoute: typeof AdminAffiliatesRoute
   AdminAnalyticsRoute: typeof AdminAnalyticsRoute
   AdminCommentsRoute: typeof AdminCommentsRoute
+  AdminEmailsRoute: typeof AdminEmailsRoute
   LearnAddRoute: typeof LearnAddRoute
   LearnCourseCompletedRoute: typeof LearnCourseCompletedRoute
   LearnNoSegmentsRoute: typeof LearnNoSegmentsRoute
@@ -438,6 +477,13 @@ export interface RootServerRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/unauthorized': {
       id: '/unauthorized'
       path: '/unauthorized'
@@ -464,6 +510,13 @@ declare module '@tanstack/react-router' {
       path: '/success'
       fullPath: '/success'
       preLoaderRoute: typeof SuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/purchase': {
@@ -569,6 +622,13 @@ declare module '@tanstack/react-router' {
       path: '/learn/add'
       fullPath: '/learn/add'
       preLoaderRoute: typeof LearnAddRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/emails': {
+      id: '/admin/emails'
+      path: '/admin/emails'
+      fullPath: '/admin/emails'
+      preLoaderRoute: typeof AdminEmailsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/comments': {
@@ -691,13 +751,16 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
   PurchaseRoute: PurchaseRoute,
+  SettingsRoute: SettingsRoute,
   SuccessRoute: SuccessRoute,
   TermsOfServiceRoute: TermsOfServiceRoute,
   UnauthenticatedRoute: UnauthenticatedRoute,
   UnauthorizedRoute: UnauthorizedRoute,
+  UnsubscribeRoute: UnsubscribeRoute,
   AdminAffiliatesRoute: AdminAffiliatesRoute,
   AdminAnalyticsRoute: AdminAnalyticsRoute,
   AdminCommentsRoute: AdminCommentsRoute,
+  AdminEmailsRoute: AdminEmailsRoute,
   LearnAddRoute: LearnAddRoute,
   LearnCourseCompletedRoute: LearnCourseCompletedRoute,
   LearnNoSegmentsRoute: LearnNoSegmentsRoute,

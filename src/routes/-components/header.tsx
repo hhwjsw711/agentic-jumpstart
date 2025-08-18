@@ -9,6 +9,8 @@ import {
   DollarSign,
   MessageCircle,
   Users,
+  Mail,
+  Settings,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "../../components/ui/sheet";
 import {
@@ -215,6 +217,15 @@ export function Header() {
                             Analytics
                           </Link>
                         </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link
+                            to="/admin/emails"
+                            className="flex items-center"
+                          >
+                            <Mail className="mr-2 h-4 w-4" />
+                            Emails
+                          </Link>
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
                           <a href="/api/logout" className="flex items-center">
@@ -239,6 +250,13 @@ export function Header() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
+                          <Link to="/settings" className="flex items-center">
+                            <Settings className="mr-2 h-4 w-4" />
+                            Settings
+                          </Link>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem asChild>
                           <Link
                             to="/affiliate-dashboard"
                             className="flex items-center"
@@ -258,12 +276,33 @@ export function Header() {
                     </DropdownMenu>
                   )}
                   {!affiliateStatus?.isAffiliate && !user.isAdmin && (
-                    <a
-                      href="/api/logout"
-                      className={buttonVariants({ variant: "ghost" })}
-                    >
-                      Logout
-                    </a>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="flex items-center gap-2"
+                        >
+                          <User className="h-4 w-4" />
+                          <span>Account</span>
+                          <ChevronDown className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link to="/settings" className="flex items-center">
+                            <Settings className="mr-2 h-4 w-4" />
+                            Settings
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <a href="/api/logout" className="flex items-center">
+                            <LogOut className="mr-2 h-4 w-4" />
+                            Logout
+                          </a>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   )}
                 </>
               ) : (
@@ -341,16 +380,18 @@ export function Header() {
                         </Link>
                       )}
                       {/* Affiliate link for logged in users who are not affiliates */}
-                      {user && !user.isAdmin && !affiliateStatus?.isAffiliate && (
-                        <Link
-                          to="/affiliates"
-                          className="flex items-center py-3 text-lg text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted/50 px-3"
-                          onClick={() => setIsOpen(false)}
-                        >
-                          <DollarSign className="mr-2 h-4 w-4 text-theme-400" />
-                          Become an Affiliate
-                        </Link>
-                      )}
+                      {user &&
+                        !user.isAdmin &&
+                        !affiliateStatus?.isAffiliate && (
+                          <Link
+                            to="/affiliates"
+                            className="flex items-center py-3 text-lg text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted/50 px-3"
+                            onClick={() => setIsOpen(false)}
+                          >
+                            <DollarSign className="mr-2 h-4 w-4 text-theme-400" />
+                            Become an Affiliate
+                          </Link>
+                        )}
 
                       <div className="pt-4 space-y-3 border-t border-border mt-4">
                         <div className="flex items-center justify-center">
@@ -382,6 +423,14 @@ export function Header() {
                               <TrendingUp className="mr-2 h-4 w-4" />
                               Analytics
                             </Link>
+                            <Link
+                              to="/admin/emails"
+                              className={buttonVariants({ variant: "ghost" })}
+                              onClick={() => setIsOpen(false)}
+                            >
+                              <Mail className="mr-2 h-4 w-4" />
+                              Emails
+                            </Link>
                           </>
                         )}
                         {affiliateStatus?.isAffiliate && !user?.isAdmin && (
@@ -395,13 +444,25 @@ export function Header() {
                           </Link>
                         )}
                         {user ? (
-                          <a
-                            href="/api/logout"
-                            className={buttonVariants({ variant: "ghost" })}
-                          >
-                            <LogOut className="mr-2 h-4 w-4" />
-                            Logout
-                          </a>
+                          <>
+                            {!user.isAdmin && !affiliateStatus?.isAffiliate && (
+                              <Link
+                                to="/settings"
+                                className={buttonVariants({ variant: "ghost" })}
+                                onClick={() => setIsOpen(false)}
+                              >
+                                <Settings className="mr-2 h-4 w-4" />
+                                Settings
+                              </Link>
+                            )}
+                            <a
+                              href="/api/logout"
+                              className={buttonVariants({ variant: "ghost" })}
+                            >
+                              <LogOut className="mr-2 h-4 w-4" />
+                              Logout
+                            </a>
+                          </>
                         ) : (
                           <a
                             href="/api/login/google"

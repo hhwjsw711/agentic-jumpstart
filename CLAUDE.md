@@ -93,10 +93,6 @@ Required environment variables (see `/src/utils/env.ts`):
 - **Layered Architecture** - `/docs/technical/layered-architecture.md`
 - **Tailwind Additional Info** - `/docs/technical/tailwind.md`
 
-## IMPORTANT EXTRA CHECKS
-
-Please read through `/docs/technical/important.md` for extra constraints for how you should be generating all code.
-
 ## DO NOT RUN SERVER
 
 I always run my server in a separate terminal. NEVER TRY TO RUN `npm run dev`!
