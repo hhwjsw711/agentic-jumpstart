@@ -213,16 +213,16 @@ function EarlyAccessHeroContent() {
             </ScrollAnimation>
             <ScrollAnimation direction="up" delay={0.3}>
               <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-4">
-                Master the future of coding with AI—learn to build agentic
-                systems that work for you.
+                Ship full-stack apps 10x faster using Claude Code and Cursor—let
+                AI agents write production code while you focus on architecture.
               </p>
             </ScrollAnimation>
             <ScrollAnimation direction="up" delay={0.4}>
               <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto px-4 md:px-0">
-                Join our exclusive waiting list to be the first to access our
-                groundbreaking course, designed to teach you agentic coding and
-                empower you to create intelligent, autonomous software using the
-                latest in AI-powered development.
+                Learn to build real-world applications by commanding AI coding
+                agents. From React frontends to Node.js backends, discover how
+                to leverage Claude and Cursor to transform your ideas into
+                deployed applications in hours, not weeks.
               </p>
             </ScrollAnimation>
           </div>

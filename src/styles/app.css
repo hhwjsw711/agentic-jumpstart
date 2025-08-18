@@ -173,3 +173,8 @@
 a {
   cursor: pointer;
 }
+
+/* Hide reCAPTCHA logo/badge */
+.grecaptcha-badge {
+  visibility: hidden !important;
+}

@@ -78,6 +78,29 @@ export function NewsletterForm({ showStats = true }: NewsletterFormProps) {
                 {isLoading ? "Joining..." : "Join Waitlist"}
               </Button>
             </div>
+            
+            {/* reCAPTCHA disclaimer */}
+            <p className="mt-3 text-xs text-muted-foreground text-center">
+              This site is protected by reCAPTCHA and the Google{" "}
+              <a
+                href="https://policies.google.com/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-theme-500 hover:text-theme-600 transition-colors"
+              >
+                Privacy Policy
+              </a>{" "}
+              and{" "}
+              <a
+                href="https://policies.google.com/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-theme-500 hover:text-theme-600 transition-colors"
+              >
+                Terms of Service
+              </a>{" "}
+              apply.
+            </p>
           </form>
         </ScrollAnimation>
       )}
