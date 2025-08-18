@@ -93,7 +93,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootComponent() {
   // Initialize analytics tracking
   useAnalytics();
-  
+
   return (
     <RootDocument>
       <Outlet />
@@ -105,10 +105,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   const routerState = useRouterState();
   const { shouldShowEarlyAccess } = Route.useLoaderData();
   const showFooter =
-    !routerState.location.pathname.startsWith("/learn") && !shouldShowEarlyAccess;
+    !routerState.location.pathname.startsWith("/learn") &&
+    !shouldShowEarlyAccess;
   const showHeader =
-    !routerState.location.pathname.startsWith("/learn") && !shouldShowEarlyAccess;
-  const showThemeToggle = routerState.location.pathname === "/" && shouldShowEarlyAccess;
+    !routerState.location.pathname.startsWith("/learn") &&
+    !shouldShowEarlyAccess;
+  const showThemeToggle =
+    routerState.location.pathname === "/" && shouldShowEarlyAccess;
 
   const prevPathnameRef = React.useRef("");
 
@@ -188,7 +191,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body className="min-h-screen flex flex-col">
         <ThemeProvider>
           {showHeader && <Header />}
-          <main className={`flex-1 ${showHeader ? "mt-16" : ""}`}>
+          <main
+            className={`overflow-x-hidden flex-1 ${showHeader ? "mt-16" : ""}`}
+          >
             {children}
           </main>
           {showFooter && <FooterSection />}

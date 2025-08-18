@@ -69,7 +69,8 @@ export function FooterSection() {
               <li>
                 <a
                   href="mailto:webdevcody@gmail.com"
-                  className="hover:text-foreground transition-colors"
+                  className="hover:text-foreground transition-colors break-all"
+                  style={{ wordBreak: "break-all" }}
                 >
                   webdevcody@gmail.com
                 </a>
