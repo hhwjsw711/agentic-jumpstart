@@ -4,9 +4,7 @@ import {
   useNavigate,
   redirect,
 } from "@tanstack/react-router";
-import { SidebarProvider, useSidebar } from "~/components/ui/sidebar";
-import { Button } from "~/components/ui/button";
-import { Menu } from "lucide-react";
+import { SidebarProvider } from "~/components/ui/sidebar";
 import { MobileNavigation } from "~/routes/learn/-components/mobile-navigation";
 import { DesktopNavigation } from "~/routes/learn/-components/desktop-navigation";
 import { getSegmentInfoFn } from "./_layout.index";
@@ -16,30 +14,16 @@ import {
   useSegment,
 } from "~/routes/learn/-components/segment-context";
 import { useEffect } from "react";
-import { createServerFn } from "@tanstack/react-start";
-import { getModulesWithSegmentsUseCase } from "~/use-cases/modules";
-import { unauthenticatedMiddleware } from "~/lib/auth";
 import { queryOptions, useQuery } from "@tanstack/react-query";
-import { getAllProgressForUserUseCase } from "~/use-cases/progress";
 import { NavigationSkeleton } from "../-components/navigation-skeleton";
 import { MobileNavigationSkeleton } from "../-components/mobile-navigation-skeleton";
-
-const getModulesWithSegmentsFn = createServerFn()
-  .middleware([unauthenticatedMiddleware])
-  .handler(async () => {
-    return getModulesWithSegmentsUseCase();
-  });
+import { getProgressFn } from "~/fn/progress";
+import { getModulesWithSegmentsFn } from "~/fn/modules";
 
 export const modulesQueryOptions = queryOptions({
   queryKey: ["modules"],
   queryFn: () => getModulesWithSegmentsFn(),
 });
-
-export const getProgressFn = createServerFn()
-  .middleware([unauthenticatedMiddleware])
-  .handler(async ({ context }) => {
-    return context.userId ? getAllProgressForUserUseCase(context.userId) : [];
-  });
 
 export const Route = createFileRoute("/learn/$slug/_layout")({
   component: RouteComponent,
@@ -81,6 +65,7 @@ function LayoutContent() {
         ?.flatMap((module) => module.segments)
         .find((s) => s.id === currentSegmentId);
       if (newSegment && newSegment.slug !== segment.slug) {
+        console.log("navigating to", newSegment.slug);
         navigate({ to: "/learn/$slug", params: { slug: newSegment.slug } });
       }
     }

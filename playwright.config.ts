@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 import dotenv from "dotenv";
 
 // Load environment variables for test database
-dotenv.config();
+dotenv.config({ path: ".env.test" });
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -27,7 +27,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: "http://localhost:3000",
+    baseURL: "http://localhost:3001",
     headless: true,
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
@@ -77,12 +77,12 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command:
-      "DATABASE_URL=$DATABASE_URL_TEST npm run build && DATABASE_URL=$DATABASE_URL_TEST npm start",
-    url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
+    command: `npm run build && PORT=3001 DATABASE_URL=$DATABASE_URL_TEST vite dev`,
+    url: "http://localhost:3001",
+    reuseExistingServer: true,
     timeout: 120 * 1000,
     env: {
+      IS_TEST: "true",
       DATABASE_URL:
         process.env.DATABASE_URL_TEST ||
         "postgresql://postgres:example@localhost:5433/postgres",

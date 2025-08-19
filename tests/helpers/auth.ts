@@ -54,12 +54,26 @@ export async function createMockAdminSession(page: Page) {
   return { user: adminUser, sessionToken };
 }
 
-export async function createMockUserSession(page: Page) {
+export async function createAndLoginAsNewRegularUser(page: Page) {
+  const email = `user-${Date.now()}@example.com`;
+  // Upsert (insert or update) the regular user in the database
   const [regularUser] = await testDatabase
-    .select()
-    .from(users)
-    .where(eq(users.email, "user@test.com"))
-    .limit(1);
+    .insert(users)
+    .values({
+      email,
+      isAdmin: false,
+      isPremium: false,
+      emailVerified: new Date(),
+    })
+    .onConflictDoUpdate({
+      target: users.email,
+      set: {
+        isAdmin: false,
+        isPremium: false,
+        emailVerified: new Date(),
+      },
+    })
+    .returning();
 
   // Generate session token
   const sessionToken = generateSessionToken();

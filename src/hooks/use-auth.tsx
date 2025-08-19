@@ -1,11 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createServerFn } from "@tanstack/react-start";
-import { getCurrentUser } from "~/utils/session";
-
-export const getUserInfoFn = createServerFn().handler(async () => {
-  const user = await getCurrentUser();
-  return { user };
-});
+import { getUserInfoFn } from "~/fn/users";
 
 export function useAuth() {
   const userInfo = useQuery({

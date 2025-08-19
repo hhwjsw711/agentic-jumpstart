@@ -160,7 +160,10 @@ export function ModuleAccordionHeader({
                 <div className="flex items-center gap-2 flex-shrink-0">
                   {!isAdmin && (
                     <div className="relative w-8 h-8">
-                      <svg className="w-8 h-8 transform" viewBox="0 0 36 36">
+                      <svg
+                        className="w-8 h-8 transform progress-ring"
+                        viewBox="0 0 36 36"
+                      >
                         <path
                           className="text-gray-200 dark:text-gray-700"
                           d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
@@ -169,7 +172,7 @@ export function ModuleAccordionHeader({
                           strokeWidth="2"
                         />
                         <path
-                          className="text-theme-500"
+                          className="text-theme-500 progress-ring-path"
                           d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                           fill="none"
                           stroke="currentColor"

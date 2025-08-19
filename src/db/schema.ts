@@ -342,9 +342,6 @@ export const appSettings = tableCreator(
     key: text("key").primaryKey(),
     value: text("value").notNull(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
-    updatedBy: serial("updatedBy").references(() => users.id, {
-      onDelete: "set null",
-    }),
   },
   (table) => [index("app_settings_key_idx").on(table.key)]
 );

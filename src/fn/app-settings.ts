@@ -16,7 +16,7 @@ export const toggleEarlyAccessModeFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
   .validator((data: { enabled: boolean }) => data)
   .handler(async ({ data, context }) => {
-    await toggleEarlyAccessModeUseCase(data.enabled, context.userId);
+    await toggleEarlyAccessModeUseCase(data.enabled);
     return { success: true };
   });
 

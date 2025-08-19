@@ -164,7 +164,6 @@ export function VideoControls({
 
       <Button
         onClick={async () => {
-          // Only mark as watched if logged in and segment is not coming soon
           if (isLoggedIn && !currentSegment.isComingSoon) {
             await markedAsWatchedFn({
               data: { segmentId: currentSegmentId },

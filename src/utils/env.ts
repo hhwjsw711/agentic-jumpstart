@@ -1,5 +1,7 @@
 export const env = {
-  DATABASE_URL: process.env.DATABASE_URL!,
+  DATABASE_URL: process.env.IS_TEST
+    ? process.env.DATABASE_URL_TEST!
+    : process.env.DATABASE_URL!,
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID!,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET!,
   HOST_NAME: process.env.HOST_NAME!,
