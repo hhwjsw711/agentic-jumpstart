@@ -7,3 +7,7 @@ export const AFFILIATE_CONFIG = {
   AFFILIATE_CODE_LENGTH: 8, // Length of generated affiliate codes
   AFFILIATE_CODE_RETRY_ATTEMPTS: 10, // Max attempts to generate unique code
 } as const;
+
+export const FLAGS = {
+  EARLY_ACCESS_MODE: "EARLY_ACCESS_MODE",
+};

@@ -129,6 +129,7 @@ export function ModuleAccordionHeader({
 
             <div className="flex-1 flex items-center gap-2">
               <button
+                aria-label={`Toggle module ${module.title}`}
                 onClick={onToggle}
                 className="flex items-center justify-between flex-1 text-left group/module"
               >
@@ -175,7 +176,7 @@ export function ModuleAccordionHeader({
                           strokeWidth="2"
                           strokeDasharray={`${moduleProgress.percentage}, 100`}
                           strokeLinecap="round"
-                          style={{ transition: 'stroke-dasharray 0.3s ease' }}
+                          style={{ transition: "stroke-dasharray 0.3s ease" }}
                         />
                       </svg>
                       <div className="absolute inset-0 flex items-center justify-center">
@@ -196,7 +197,7 @@ export function ModuleAccordionHeader({
                   />
                 </div>
               </button>
-              
+
               {isAdmin && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -237,7 +238,7 @@ export function ModuleAccordionHeader({
           </div>
         </div>
       </div>
-      
+
       <EditModuleDialog
         moduleId={module.id}
         moduleTitle={module.title}
@@ -261,8 +262,9 @@ export function ModuleAccordionHeader({
             </div>
             <AlertDialogDescription className="text-muted-foreground text-sm leading-relaxed">
               Are you sure you want to delete the module{" "}
-              <strong>"{module.title}"</strong>? This action cannot be undone and
-              will permanently delete the module and all its associated segments.
+              <strong>"{module.title}"</strong>? This action cannot be undone
+              and will permanently delete the module and all its associated
+              segments.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex gap-3 p-6 pt-0">

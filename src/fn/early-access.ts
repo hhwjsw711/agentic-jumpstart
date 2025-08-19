@@ -1,13 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
-import { env } from "~/utils/env";
 import { isAdminUseCase } from "~/use-cases/users";
+import { getEarlyAccessModeUseCase } from "~/use-cases/app-settings";
 
 export const checkEarlyAccessFn = createServerFn().handler(async () => {
-  return { earlyAccessEnabled: env.EARLY_ACCESS_MODE };
+  const earlyAccessEnabled = await getEarlyAccessModeUseCase();
+  return { earlyAccessEnabled };
 });
 
 export const shouldShowEarlyAccessFn = createServerFn().handler(async () => {
-  const earlyAccessMode = env.EARLY_ACCESS_MODE;
+  const earlyAccessMode = await getEarlyAccessModeUseCase();
   
   if (!earlyAccessMode) {
     return false;

@@ -336,6 +336,19 @@ export const newsletterSignups = tableCreator(
   ]
 );
 
+export const appSettings = tableCreator(
+  "app_setting",
+  {
+    key: text("key").primaryKey(),
+    value: text("value").notNull(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    updatedBy: serial("updatedBy").references(() => users.id, {
+      onDelete: "set null",
+    }),
+  },
+  (table) => [index("app_settings_key_idx").on(table.key)]
+);
+
 export const modulesRelations = relations(modules, ({ many }) => ({
   segments: many(segments),
 }));
@@ -549,3 +562,5 @@ export type AnalyticsSession = typeof analyticsSessions.$inferSelect;
 export type AnalyticsSessionCreate = typeof analyticsSessions.$inferInsert;
 export type NewsletterSignup = typeof newsletterSignups.$inferSelect;
 export type NewsletterSignupCreate = typeof newsletterSignups.$inferInsert;
+export type AppSetting = typeof appSettings.$inferSelect;
+export type AppSettingCreate = typeof appSettings.$inferInsert;

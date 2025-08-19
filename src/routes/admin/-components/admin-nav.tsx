@@ -7,6 +7,7 @@ import {
   Mail,
   Target,
   UserCheck,
+  Settings,
 } from "lucide-react";
 
 const navigation = [
@@ -34,6 +35,11 @@ const navigation = [
     name: "Emails",
     href: "/admin/emails",
     icon: Mail,
+  },
+  {
+    name: "Settings",
+    href: "/admin/settings",
+    icon: Settings,
   },
 ];
 

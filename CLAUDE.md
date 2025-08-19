@@ -117,6 +117,36 @@ getConversionMetricsFn({
 }),
 ```
 
+### Tanstack Server Functions with Authentication Middleware
+
+When making a tanstack server function which requires authentication, remember to use the following middleware:
+
+```typescript
+export const toggleEarlyAccessModeFn = createServerFn({
+  method: "POST",
+}).middleware([authenticatedMiddleware]);
+```
+
+### Tanstack Server Functions with Admin Middleware
+
+When making a tanstack server function which requires admin only permission, remember to use the following middleware:
+
+```typescript
+export const toggleEarlyAccessModeFn = createServerFn({
+  method: "POST",
+}).middleware([adminMiddleware]);
+```
+
+### Tanstack Server Functions with Unauthenticated Middleware
+
+When making a tanstack server function with optional authentication, remember to use the following middleware:
+
+```typescript
+export const toggleEarlyAccessModeFn = createServerFn({
+  method: "POST",
+}).middleware([unauthenticatedMiddleware]);
+```
+
 ## DO NOT RUN SERVER
 
 I always run my server in a separate terminal. NEVER TRY TO RUN `npm run dev`!

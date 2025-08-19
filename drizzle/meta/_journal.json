@@ -183,6 +183,13 @@
       "when": 1755494656004,
       "tag": "0025_safe_zodiak",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1755580602821,
+      "tag": "0026_condemned_meggan",
+      "breakpoints": true
     }
   ]
 }

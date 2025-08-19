@@ -1,9 +1,22 @@
 import "dotenv/config";
 import { database } from "./index";
-import { modules, segments } from "./schema";
-import type { ModuleCreate } from "./schema";
+import { modules, segments, appSettings } from "./schema";
+import { FLAGS } from "~/config";
 
 async function main() {
+  // Seed app settings
+  const earlyAccessMode = "false";
+  await database
+    .insert(appSettings)
+    .values({
+      key: FLAGS.EARLY_ACCESS_MODE,
+      value: earlyAccessMode,
+      updatedAt: new Date(),
+    })
+    .onConflictDoNothing();
+
+  console.log(`Seeded EARLY_ACCESS_MODE with value: ${earlyAccessMode}`);
+
   const moduleData = [
     {
       title: "Getting Started",
@@ -95,18 +108,16 @@ async function main() {
     const segments_data = moduleData[i].segments;
 
     for (const [segmentIndex, segment] of segments_data.entries()) {
-      await database
-        .insert(segments)
-        .values({
-          slug: segment.title.toLowerCase().replace(/\s+/g, "-"),
-          title: segment.title,
-          content: `Learn about ${segment.title.toLowerCase()} in this comprehensive lesson.`,
-          order: segmentIndex + 1,
-          length: segment.length,
-          isPremium: segment.isPremium,
-          moduleId: module.id,
-          videoKey: `${module.title.toLowerCase().replace(/\s+/g, "-")}-video-${segmentIndex + 1}`,
-        });
+      await database.insert(segments).values({
+        slug: segment.title.toLowerCase().replace(/\s+/g, "-"),
+        title: segment.title,
+        content: `Learn about ${segment.title.toLowerCase()} in this comprehensive lesson.`,
+        order: segmentIndex + 1,
+        length: segment.length,
+        isPremium: segment.isPremium,
+        moduleId: module.id,
+        videoKey: `${module.title.toLowerCase().replace(/\s+/g, "-")}-video-${segmentIndex + 1}`,
+      });
     }
   }
 }

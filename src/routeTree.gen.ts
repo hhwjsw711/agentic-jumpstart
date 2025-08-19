@@ -34,6 +34,7 @@ import { Route as LearnNotFoundRouteImport } from './routes/learn/not-found'
 import { Route as LearnNoSegmentsRouteImport } from './routes/learn/no-segments'
 import { Route as LearnCourseCompletedRouteImport } from './routes/learn/course-completed'
 import { Route as LearnAddRouteImport } from './routes/learn/add'
+import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
 import { Route as AdminEmailsRouteImport } from './routes/admin/emails'
 import { Route as AdminConversionsRouteImport } from './routes/admin/conversions'
 import { Route as AdminCommentsRouteImport } from './routes/admin/comments'
@@ -166,6 +167,11 @@ const LearnAddRoute = LearnAddRouteImport.update({
   path: '/learn/add',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminEmailsRoute = AdminEmailsRouteImport.update({
   id: '/emails',
   path: '/emails',
@@ -257,6 +263,7 @@ export interface FileRoutesByFullPath {
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/conversions': typeof AdminConversionsRoute
   '/admin/emails': typeof AdminEmailsRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/learn/add': typeof LearnAddRoute
   '/learn/course-completed': typeof LearnCourseCompletedRoute
   '/learn/no-segments': typeof LearnNoSegmentsRoute
@@ -289,6 +296,7 @@ export interface FileRoutesByTo {
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/conversions': typeof AdminConversionsRoute
   '/admin/emails': typeof AdminEmailsRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/learn/add': typeof LearnAddRoute
   '/learn/course-completed': typeof LearnCourseCompletedRoute
   '/learn/no-segments': typeof LearnNoSegmentsRoute
@@ -321,6 +329,7 @@ export interface FileRoutesById {
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/conversions': typeof AdminConversionsRoute
   '/admin/emails': typeof AdminEmailsRoute
+  '/admin/settings': typeof AdminSettingsRoute
   '/learn/add': typeof LearnAddRoute
   '/learn/course-completed': typeof LearnCourseCompletedRoute
   '/learn/no-segments': typeof LearnNoSegmentsRoute
@@ -356,6 +365,7 @@ export interface FileRouteTypes {
     | '/admin/comments'
     | '/admin/conversions'
     | '/admin/emails'
+    | '/admin/settings'
     | '/learn/add'
     | '/learn/course-completed'
     | '/learn/no-segments'
@@ -388,6 +398,7 @@ export interface FileRouteTypes {
     | '/admin/comments'
     | '/admin/conversions'
     | '/admin/emails'
+    | '/admin/settings'
     | '/learn/add'
     | '/learn/course-completed'
     | '/learn/no-segments'
@@ -419,6 +430,7 @@ export interface FileRouteTypes {
     | '/admin/comments'
     | '/admin/conversions'
     | '/admin/emails'
+    | '/admin/settings'
     | '/learn/add'
     | '/learn/course-completed'
     | '/learn/no-segments'
@@ -672,6 +684,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnAddRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/emails': {
       id: '/admin/emails'
       path: '/emails'
@@ -776,6 +795,7 @@ interface AdminRouteRouteChildren {
   AdminCommentsRoute: typeof AdminCommentsRoute
   AdminConversionsRoute: typeof AdminConversionsRoute
   AdminEmailsRoute: typeof AdminEmailsRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
 }
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
@@ -784,6 +804,7 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminCommentsRoute: AdminCommentsRoute,
   AdminConversionsRoute: AdminConversionsRoute,
   AdminEmailsRoute: AdminEmailsRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
 }
 
 const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
