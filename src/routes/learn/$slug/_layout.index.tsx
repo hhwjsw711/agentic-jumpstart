@@ -8,7 +8,6 @@ import { type Segment } from "~/db/schema";
 
 import { VideoPlayer } from "~/routes/learn/-components/video-player";
 
-
 import { unauthenticatedMiddleware } from "~/lib/auth";
 import { isAdminFn, isUserPremiumFn } from "~/fn/auth";
 import { getAllProgressForUserUseCase } from "~/use-cases/progress";
@@ -22,7 +21,6 @@ import { VideoHeader } from "./-components/video-header";
 import { VideoControls } from "./-components/video-controls";
 import { VideoContentTabsPanel } from "./-components/video-content-tabs-panel";
 import { UpgradePlaceholder } from "./-components/upgrade-placeholder";
-import { FloatingFeedbackButton } from "./-components/feedback-button";
 
 export const Route = createFileRoute("/learn/$slug/_layout/")({
   component: RouteComponent,
@@ -31,9 +29,12 @@ export const Route = createFileRoute("/learn/$slug/_layout/")({
     commentId: z.number().optional(),
   }),
   loader: async ({ context: { queryClient }, params }) => {
-    const { segment, segments, progress } = await getSegmentInfoFn({
-      data: { slug: params.slug },
-    });
+    const [{ segment, segments, progress }, isPremium, isAdmin] =
+      await Promise.all([
+        getSegmentInfoFn({ data: { slug: params.slug } }),
+        isUserPremiumFn(),
+        isAdminFn(),
+      ]);
 
     if (segments.length === 0) {
       throw redirect({ to: "/learn/no-segments" });
@@ -44,8 +45,6 @@ export const Route = createFileRoute("/learn/$slug/_layout/")({
     }
 
     queryClient.ensureQueryData(getCommentsQuery(segment.id));
-    const isPremium = await isUserPremiumFn();
-    const isAdmin = await isAdminFn();
 
     return { segment, segments, progress, isPremium, isAdmin };
   },
@@ -102,7 +101,7 @@ function ViewSegment({
         <UpgradePlaceholder currentSegment={currentSegment} />
       ) : showComingSoonPlaceholder ? (
         <div className="relative">
-          <div className="border border-theme-500 aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-background to-muted shadow-elevation-3 border border-border flex items-center justify-center">
+          <div className="border border-theme-500 aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-background to-muted shadow-elevation-3 flex items-center justify-center">
             <div className="text-center space-y-4">
               <div className="text-6xl opacity-20">🚀</div>
               <div>
@@ -119,7 +118,7 @@ function ViewSegment({
         </div>
       ) : currentSegment.videoKey ? (
         <div className="relative">
-          <div className="border border-theme-500 aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-background to-muted shadow-elevation-3 border border-border">
+          <div className="border border-theme-500 aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-background to-muted shadow-elevation-3">
             <VideoPlayer segmentId={currentSegment.id} />
           </div>
         </div>
