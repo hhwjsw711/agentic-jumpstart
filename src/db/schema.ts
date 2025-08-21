@@ -198,18 +198,31 @@ export const affiliates = tableCreator(
       .references(() => users.id, { onDelete: "cascade" })
       .unique(),
     affiliateCode: text("affiliateCode").notNull().unique(),
-    paymentLink: text("paymentLink").notNull(),
-    commissionRate: integer("commissionRate").notNull().default(30),
+    paymentLink: text("paymentLink"), // Made optional for Stripe Connect migration
+    commissionRate: integer("commissionRate").notNull().default(20), // Fixed to match config
     totalEarnings: integer("totalEarnings").notNull().default(0),
     paidAmount: integer("paidAmount").notNull().default(0),
     unpaidBalance: integer("unpaidBalance").notNull().default(0),
     isActive: boolean("isActive").notNull().default(true),
+    // Stripe Connect fields
+    stripeConnectAccountId: text("stripeConnectAccountId").unique(),
+    stripeConnectStatus: text("stripeConnectStatus"), // 'pending', 'complete', 'disabled'
+    stripeConnectOnboardingUrl: text("stripeConnectOnboardingUrl"),
+    stripeConnectDetailsSubmitted: boolean("stripeConnectDetailsSubmitted").notNull().default(false),
+    stripeConnectChargesEnabled: boolean("stripeConnectChargesEnabled").notNull().default(false),
+    stripeConnectPayoutsEnabled: boolean("stripeConnectPayoutsEnabled").notNull().default(false),
+    isRevoked: boolean("isRevoked").notNull().default(false), // For admin to revoke affiliates
+    revokedAt: timestamp("revoked_at"),
+    revokedBy: serial("revokedBy").references(() => users.id),
+    revokedReason: text("revokedReason"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
   (table) => [
     index("affiliates_user_id_idx").on(table.userId),
     index("affiliates_code_idx").on(table.affiliateCode),
+    index("affiliates_stripe_account_idx").on(table.stripeConnectAccountId),
+    index("affiliates_revoked_idx").on(table.isRevoked),
   ]
 );
 
@@ -227,6 +240,10 @@ export const affiliateReferrals = tableCreator(
     amount: integer("amount").notNull(),
     commission: integer("commission").notNull(),
     isPaid: boolean("isPaid").notNull().default(false),
+    // Stripe Connect transfer fields
+    stripeTransferId: text("stripeTransferId"), // Stripe transfer ID for Connect payments
+    transferStatus: text("transferStatus"), // 'pending', 'completed', 'failed', 'reversed'
+    paymentMethod: text("paymentMethod").notNull().default("stripe_connect"), // 'stripe_connect' or 'manual'
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => [
@@ -257,6 +274,30 @@ export const affiliatePayouts = tableCreator(
   },
   (table) => [
     index("payouts_affiliate_paid_idx").on(table.affiliateId, table.paidAt),
+  ]
+);
+
+export const affiliateRefunds = tableCreator(
+  "affiliate_refund",
+  {
+    id: serial("id").primaryKey(),
+    affiliateReferralId: serial("affiliateReferralId")
+      .notNull()
+      .references(() => affiliateReferrals.id, { onDelete: "cascade" }),
+    affiliateId: serial("affiliateId")
+      .notNull()
+      .references(() => affiliates.id, { onDelete: "cascade" }),
+    stripeRefundId: text("stripeRefundId").notNull().unique(),
+    refundAmount: integer("refundAmount").notNull(), // Total refund amount
+    commissionRefund: integer("commissionRefund").notNull(), // Commission that was reversed
+    stripeTransferReversalId: text("stripeTransferReversalId"), // If transfer was reversed
+    reversalStatus: text("reversalStatus"), // 'pending', 'completed', 'failed'
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("affiliate_refunds_referral_idx").on(table.affiliateReferralId),
+    index("affiliate_refunds_affiliate_idx").on(table.affiliateId),
+    index("affiliate_refunds_stripe_refund_idx").on(table.stripeRefundId),
   ]
 );
 
@@ -435,11 +476,16 @@ export const affiliatesRelations = relations(affiliates, ({ one, many }) => ({
   }),
   referrals: many(affiliateReferrals),
   payouts: many(affiliatePayouts),
+  refunds: many(affiliateRefunds),
+  revokedByUser: one(users, {
+    fields: [affiliates.revokedBy],
+    references: [users.id],
+  }),
 }));
 
 export const affiliateReferralsRelations = relations(
   affiliateReferrals,
-  ({ one }) => ({
+  ({ one, many }) => ({
     affiliate: one(affiliates, {
       fields: [affiliateReferrals.affiliateId],
       references: [affiliates.id],
@@ -448,6 +494,7 @@ export const affiliateReferralsRelations = relations(
       fields: [affiliateReferrals.purchaserId],
       references: [users.id],
     }),
+    refunds: many(affiliateRefunds),
   })
 );
 
@@ -461,6 +508,20 @@ export const affiliatePayoutsRelations = relations(
     paidByUser: one(users, {
       fields: [affiliatePayouts.paidBy],
       references: [users.id],
+    }),
+  })
+);
+
+export const affiliateRefundsRelations = relations(
+  affiliateRefunds,
+  ({ one }) => ({
+    affiliateReferral: one(affiliateReferrals, {
+      fields: [affiliateRefunds.affiliateReferralId],
+      references: [affiliateReferrals.id],
+    }),
+    affiliate: one(affiliates, {
+      fields: [affiliateRefunds.affiliateId],
+      references: [affiliates.id],
     }),
   })
 );
@@ -578,6 +639,8 @@ export type AffiliateReferral = typeof affiliateReferrals.$inferSelect;
 export type AffiliateReferralCreate = typeof affiliateReferrals.$inferInsert;
 export type AffiliatePayout = typeof affiliatePayouts.$inferSelect;
 export type AffiliatePayoutCreate = typeof affiliatePayouts.$inferInsert;
+export type AffiliateRefund = typeof affiliateRefunds.$inferSelect;
+export type AffiliateRefundCreate = typeof affiliateRefunds.$inferInsert;
 export type EmailBatch = typeof emailBatches.$inferSelect;
 export type EmailBatchCreate = typeof emailBatches.$inferInsert;
 export type UserEmailPreference = typeof userEmailPreferences.$inferSelect;

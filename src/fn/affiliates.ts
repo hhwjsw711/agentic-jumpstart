@@ -122,3 +122,44 @@ export const validateAffiliateCodeFn = createServerFn()
     const affiliate = await validateAffiliateCodeUseCase(data.code);
     return { valid: !!affiliate };
   });
+
+// Stripe Connect server functions
+export const createStripeConnectAccountFn = createServerFn()
+  .middleware([authenticatedMiddleware])
+  .handler(async ({ context }) => {
+    const {
+      createStripeConnectAccountUseCase,
+    } = await import("~/use-cases/affiliates");
+    const result = await createStripeConnectAccountUseCase(context.userId);
+    return result;
+  });
+
+export const getStripeConnectStatusFn = createServerFn()
+  .middleware([authenticatedMiddleware])
+  .handler(async ({ context }) => {
+    const {
+      getStripeConnectStatusUseCase,
+    } = await import("~/use-cases/affiliates");
+    const status = await getStripeConnectStatusUseCase(context.userId);
+    return status;
+  });
+
+const revokeAffiliateSchema = z.object({
+  affiliateId: z.number(),
+  reason: z.string().min(1, "Reason is required"),
+});
+
+export const adminRevokeAffiliateFn = createServerFn()
+  .middleware([adminMiddleware])
+  .validator(revokeAffiliateSchema)
+  .handler(async ({ data, context }) => {
+    const {
+      adminRevokeAffiliateUseCase,
+    } = await import("~/use-cases/affiliates");
+    const result = await adminRevokeAffiliateUseCase({
+      affiliateId: data.affiliateId,
+      reason: data.reason,
+      revokedBy: context.userId,
+    });
+    return result;
+  });

@@ -21,6 +21,8 @@ import {
   getAffiliateDashboardFn,
   updateAffiliatePaymentLinkFn,
   checkIfUserIsAffiliateFn,
+  createStripeConnectAccountFn,
+  getStripeConnectStatusFn,
 } from "~/fn/affiliates";
 import { authenticatedMiddleware } from "~/lib/auth";
 import {
@@ -37,6 +39,10 @@ import {
   CreditCard,
   ArrowUpRight,
   ArrowDownRight,
+  Link as LinkIcon,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { env } from "~/utils/env";

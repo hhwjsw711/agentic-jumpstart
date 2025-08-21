@@ -87,6 +87,41 @@ const checkoutFn = createServerFn()
       ];
     }
 
+    // Check if affiliate code corresponds to a Stripe Connect account
+    if (data.affiliateCode) {
+      try {
+        const { getAffiliateByCodeIncludingRevoked } = await import("~/data-access/affiliates");
+        const affiliate = await getAffiliateByCodeIncludingRevoked(data.affiliateCode);
+        
+        if (affiliate && 
+            affiliate.isActive && 
+            !affiliate.isRevoked && 
+            affiliate.stripeConnectAccountId && 
+            affiliate.stripeConnectChargesEnabled) {
+          
+          // Calculate commission amount (20% of the sale price)
+          const price = await stripe.prices.retrieve(env.STRIPE_PRICE_ID);
+          const commissionAmount = Math.floor((price.unit_amount || 0) * 0.20);
+          
+          // Set up transfer data for split payment
+          sessionConfig.payment_intent_data = {
+            transfer_data: {
+              destination: affiliate.stripeConnectAccountId,
+              amount: commissionAmount,
+            },
+            application_fee_amount: 0, // No application fee for now
+          };
+          
+          metadata.hasStripeConnect = "true";
+          metadata.stripeConnectAccountId = affiliate.stripeConnectAccountId;
+          metadata.commissionAmount = commissionAmount.toString();
+        }
+      } catch (error) {
+        console.error("Error checking affiliate Stripe Connect status:", error);
+        // Continue with regular payment if Connect check fails
+      }
+    }
+
     const session = await stripe.checkout.sessions.create(sessionConfig);
 
     return { sessionId: session.id };

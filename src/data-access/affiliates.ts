@@ -301,3 +301,94 @@ export async function getMonthlyAffiliateEarnings(
 
   return earnings;
 }
+
+// Stripe Connect data access functions
+export async function updateAffiliateStripeConnect(
+  affiliateId: number,
+  data: {
+    stripeConnectAccountId?: string;
+    stripeConnectStatus?: string;
+    stripeConnectOnboardingUrl?: string;
+    stripeConnectDetailsSubmitted?: boolean;
+    stripeConnectChargesEnabled?: boolean;
+    stripeConnectPayoutsEnabled?: boolean;
+  }
+) {
+  const [updated] = await database
+    .update(affiliates)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(eq(affiliates.id, affiliateId))
+    .returning();
+  return updated;
+}
+
+export async function revokeAffiliate(
+  affiliateId: number,
+  data: {
+    reason: string;
+    revokedBy: number;
+  }
+) {
+  const [updated] = await database
+    .update(affiliates)
+    .set({
+      isRevoked: true,
+      isActive: false, // Also disable the affiliate
+      revokedAt: new Date(),
+      revokedBy: data.revokedBy,
+      revokedReason: data.reason,
+      updatedAt: new Date(),
+    })
+    .where(eq(affiliates.id, affiliateId))
+    .returning();
+  return updated;
+}
+
+export async function getAffiliateByCodeIncludingRevoked(code: string) {
+  const [affiliate] = await database
+    .select()
+    .from(affiliates)
+    .where(eq(affiliates.affiliateCode, code));
+  return affiliate;
+}
+
+export async function createAffiliateRefund(data: {
+  affiliateReferralId: number;
+  affiliateId: number;
+  stripeRefundId: string;
+  refundAmount: number;
+  commissionRefund: number;
+  stripeTransferReversalId?: string | null;
+  reversalStatus?: string | null;
+}) {
+  const { affiliateRefunds } = await import("~/db/schema");
+  const [refund] = await database
+    .insert(affiliateRefunds)
+    .values(data)
+    .returning();
+  return refund;
+}
+
+export async function checkRefundAbusePattern(affiliateId: number): Promise<boolean> {
+  const { affiliateRefunds } = await import("~/db/schema");
+  
+  // Check if affiliate has more than 3 refunds in the last 30 days
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  
+  const recentRefunds = await database
+    .select({ count: sql<number>`count(*)::int` })
+    .from(affiliateRefunds)
+    .where(
+      and(
+        eq(affiliateRefunds.affiliateId, affiliateId),
+        gte(affiliateRefunds.createdAt, thirtyDaysAgo)
+      )
+    );
+  
+  const refundCount = recentRefunds[0]?.count || 0;
+  return refundCount > 3; // Threshold for abuse detection
+}

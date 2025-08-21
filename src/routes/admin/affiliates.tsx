@@ -27,6 +27,7 @@ import {
   adminGetAllAffiliatesFn,
   adminToggleAffiliateStatusFn,
   adminRecordPayoutFn,
+  adminRevokeAffiliateFn,
 } from "~/fn/affiliates";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -42,6 +43,7 @@ import {
   XCircle,
   AlertCircle,
   Copy,
+  Ban,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -90,7 +92,12 @@ const payoutSchema = z.object({
   notes: z.string().optional(),
 });
 
+const revokeSchema = z.object({
+  reason: z.string().min(1, "Reason is required"),
+});
+
 type PayoutFormValues = z.infer<typeof payoutSchema>;
+type RevokeFormValues = z.infer<typeof revokeSchema>;
 
 export const Route = createFileRoute("/admin/affiliates")({
   loader: ({ context }) => {
@@ -110,6 +117,11 @@ function AdminAffiliates() {
   );
   const [payoutAffiliateName, setPayoutAffiliateName] = useState<string>("");
   const [payoutUnpaidBalance, setPayoutUnpaidBalance] = useState<number>(0);
+  
+  const [revokeAffiliateId, setRevokeAffiliateId] = useState<number | null>(
+    null
+  );
+  const [revokeAffiliateName, setRevokeAffiliateName] = useState<string>("");
 
   const { data: affiliates, isLoading } = useQuery({
     queryKey: ["admin", "affiliates"],
@@ -123,6 +135,13 @@ function AdminAffiliates() {
       paymentMethod: "PayPal",
       transactionId: "",
       notes: "",
+    },
+  });
+
+  const revokeForm = useForm<RevokeFormValues>({
+    resolver: zodResolver(revokeSchema),
+    defaultValues: {
+      reason: "",
     },
   });
 
@@ -164,6 +183,26 @@ function AdminAffiliates() {
     },
   });
 
+  const revokeMutation = useMutation({
+    mutationFn: adminRevokeAffiliateFn,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "affiliates"] });
+      toast({
+        title: "Affiliate Revoked",
+        description: "The affiliate has been revoked successfully.",
+      });
+      setRevokeAffiliateId(null);
+      revokeForm.reset();
+    },
+    onError: (error) => {
+      toast({
+        title: "Revoke Failed",
+        description: error.message || "Failed to revoke affiliate.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleToggleStatus = async (
     affiliateId: number,
     currentStatus: boolean
@@ -192,6 +231,24 @@ function AdminAffiliates() {
         paymentMethod: values.paymentMethod,
         transactionId: values.transactionId || undefined,
         notes: values.notes || undefined,
+      },
+    });
+  };
+
+  const openRevokeDialog = (affiliate: any) => {
+    setRevokeAffiliateId(affiliate.id);
+    setRevokeAffiliateName(
+      affiliate.userName || affiliate.userEmail || "Unknown"
+    );
+  };
+
+  const onSubmitRevoke = async (values: RevokeFormValues) => {
+    if (!revokeAffiliateId) return;
+
+    await revokeMutation.mutateAsync({
+      data: {
+        affiliateId: revokeAffiliateId,
+        reason: values.reason,
       },
     });
   };
@@ -503,6 +560,16 @@ function AdminAffiliates() {
                             )}
                           </DropdownMenuItem>
                           <DropdownMenuItem
+                            onClick={() => openRevokeDialog(affiliate)}
+                            disabled={affiliate.isRevoked}
+                            className={
+                              affiliate.isRevoked ? "opacity-50" : ""
+                            }
+                          >
+                            <Ban className="mr-2 h-4 w-4" />
+                            {affiliate.isRevoked ? "Already Revoked" : "Revoke Affiliate"}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
                             onClick={() =>
                               handleToggleStatus(
                                 affiliate.id,
@@ -649,6 +716,86 @@ function AdminAffiliates() {
                     </div>
                   ) : (
                     "Record Payout"
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Revoke Dialog */}
+      <Dialog
+        open={revokeAffiliateId !== null}
+        onOpenChange={(open) => !open && setRevokeAffiliateId(null)}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold">
+              Revoke Affiliate
+            </DialogTitle>
+            <DialogDescription className="text-base">
+              Permanently revoke affiliate access for{" "}
+              <span className="font-medium text-foreground">
+                {revokeAffiliateName}
+              </span>
+              . This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...revokeForm}>
+            <form
+              onSubmit={revokeForm.handleSubmit(onSubmitRevoke)}
+              className="space-y-6"
+            >
+              <div className="p-4 rounded-xl bg-gradient-to-br from-red-50 to-red-100/50 dark:from-red-950 dark:to-red-900/50 border border-red-200/60 dark:border-red-700/60">
+                <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+                  <Ban className="h-5 w-5" />
+                  <span className="font-medium">Warning: Permanent Action</span>
+                </div>
+                <p className="text-sm text-red-600/80 dark:text-red-400/80 mt-1">
+                  Revoking this affiliate will disable their code and prevent future commissions.
+                </p>
+              </div>
+
+              <FormField
+                control={revokeForm.control}
+                name="reason"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Reason for Revocation</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Please provide a reason for revoking this affiliate..." 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter className="flex gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setRevokeAffiliateId(null)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={revokeMutation.isPending}
+                  variant="destructive"
+                  className="flex-1"
+                >
+                  {revokeMutation.isPending ? (
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white/70"></div>
+                      <span>Revoking...</span>
+                    </div>
+                  ) : (
+                    "Revoke Affiliate"
                   )}
                 </Button>
               </DialogFooter>

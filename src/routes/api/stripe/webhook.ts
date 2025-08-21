@@ -55,11 +55,17 @@ export const ServerRoute = createServerFileRoute("/api/stripe/webhook").methods(
               // Process affiliate referral if code exists
               if (affiliateCode && session.amount_total) {
                 try {
+                  // Check if this was a Stripe Connect payment
+                  const hasStripeConnect = session.metadata?.hasStripeConnect === "true";
+                  const stripeTransferId = session.metadata?.stripeTransferId || null;
+                  
                   const referral = await processAffiliateReferralUseCase({
                     affiliateCode,
                     purchaserId: parseInt(userId),
                     stripeSessionId: session.id,
                     amount: session.amount_total,
+                    hasStripeConnect,
+                    stripeTransferId,
                   });
                   
                   if (referral) {
@@ -82,6 +88,28 @@ export const ServerRoute = createServerFileRoute("/api/stripe/webhook").methods(
             }
 
             console.log("Payment successful:", session.id);
+            break;
+          }
+          
+          case "charge.dispute.created":
+          case "payment_intent.payment_failed": {
+            // Handle refunds and disputes for affiliate abuse prevention
+            const paymentIntent = event.data.object;
+            const stripeSessionId = paymentIntent.metadata?.stripe_session_id;
+            
+            if (stripeSessionId) {
+              try {
+                const { processAffiliateRefundUseCase } = await import("~/use-cases/affiliates");
+                await processAffiliateRefundUseCase({
+                  stripeSessionId,
+                  refundId: event.id,
+                  refundAmount: paymentIntent.amount,
+                });
+                console.log(`Processed affiliate refund for session ${stripeSessionId}`);
+              } catch (error) {
+                console.error(`Failed to process affiliate refund for session ${stripeSessionId}:`, error);
+              }
+            }
             break;
           }
         }
