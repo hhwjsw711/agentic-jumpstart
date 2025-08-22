@@ -5,15 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import {
-  Mail,
-  Send,
-  Users,
-  Clock,
-  CheckCircle,
-  BarChart3,
-} from "lucide-react";
-import { toast } from "~/hooks/use-toast";
+import { Mail, Send, Users, Clock, CheckCircle, BarChart3 } from "lucide-react";
 import { queryOptions } from "@tanstack/react-query";
 import {
   createEmailBatchFn,
@@ -22,14 +14,22 @@ import {
   getUsersForEmailingFn,
   getEmailAnalyticsFn,
 } from "~/fn/emails";
+import {
+  getWaitlistEmailTemplateFn,
+  updateWaitlistEmailTemplateFn,
+} from "~/fn/email-templates";
 import { PageHeader } from "./-components/page-header";
 import { Page } from "./-components/page";
 import { EmailComposer } from "./-components/email-composer";
 import { EmailHistory } from "./-components/email-history";
-import { EmailAnalytics, EmailAnalyticsHeader } from "./-components/email-analytics";
+import {
+  EmailAnalytics,
+  EmailAnalyticsHeader,
+} from "./-components/email-analytics";
 import { TestEmailDialog } from "./-components/test-email-dialog";
+import { WaitlistEmailEditor } from "./-components/waitlist-email-editor";
 import { HeaderStats, HeaderStatCard } from "./-components/header-stats";
-
+import { toast } from "sonner";
 
 // Form validation schema
 const emailFormSchema = z.object({
@@ -49,6 +49,16 @@ const testEmailSchema = z.object({
 
 type TestEmailData = z.infer<typeof testEmailSchema>;
 
+const waitlistEmailSchema = z.object({
+  subject: z
+    .string()
+    .min(1, "Subject is required")
+    .max(200, "Subject too long"),
+  content: z.string().min(1, "Content is required"),
+});
+
+type WaitlistEmailData = z.infer<typeof waitlistEmailSchema>;
+
 // Query options
 const emailBatchesQueryOptions = queryOptions({
   queryKey: ["admin", "emailBatches"],
@@ -60,15 +70,26 @@ const usersForEmailingQueryOptions = queryOptions({
   queryFn: () => getUsersForEmailingFn(),
 });
 
-const emailAnalyticsQueryOptions = (year: number, month: number, type: "waitlist" | "newsletter") => queryOptions({
-  queryKey: ["admin", "emailAnalytics", year, month, type],
-  queryFn: () => getEmailAnalyticsFn({ data: { year, month, type } }),
+const emailAnalyticsQueryOptions = (
+  year: number,
+  month: number,
+  type: "waitlist" | "newsletter"
+) =>
+  queryOptions({
+    queryKey: ["admin", "emailAnalytics", year, month, type],
+    queryFn: () => getEmailAnalyticsFn({ data: { year, month, type } }),
+  });
+
+const waitlistEmailTemplateQueryOptions = queryOptions({
+  queryKey: ["admin", "waitlistEmailTemplate"],
+  queryFn: () => getWaitlistEmailTemplateFn(),
 });
 
 export const Route = createFileRoute("/admin/emails")({
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(emailBatchesQueryOptions);
     context.queryClient.ensureQueryData(usersForEmailingQueryOptions);
+    context.queryClient.ensureQueryData(waitlistEmailTemplateQueryOptions);
   },
   component: AdminEmailsPage,
 });
@@ -76,14 +97,16 @@ export const Route = createFileRoute("/admin/emails")({
 function AdminEmailsPage() {
   const [testEmailOpen, setTestEmailOpen] = useState(false);
   const [showMarkdownGuide, setShowMarkdownGuide] = useState(false);
-  
+
   // Analytics state
   const currentDate = new Date();
   const [analyticsDate, setAnalyticsDate] = useState({
     year: currentDate.getFullYear(),
     month: currentDate.getMonth() + 1,
   });
-  const [analyticsType, setAnalyticsType] = useState<"waitlist" | "newsletter">("waitlist");
+  const [analyticsType, setAnalyticsType] = useState<"waitlist" | "newsletter">(
+    "waitlist"
+  );
 
   const queryClient = useQueryClient();
   const { data: emailBatches, isLoading: emailBatchesLoading } = useQuery(
@@ -92,11 +115,19 @@ function AdminEmailsPage() {
   const { data: usersForEmailing, isLoading: usersLoading } = useQuery(
     usersForEmailingQueryOptions
   );
-  
+
   // Analytics query
   const { data: analyticsData, isLoading: analyticsLoading } = useQuery(
-    emailAnalyticsQueryOptions(analyticsDate.year, analyticsDate.month, analyticsType)
+    emailAnalyticsQueryOptions(
+      analyticsDate.year,
+      analyticsDate.month,
+      analyticsType
+    )
   );
+
+  // Waitlist email template query
+  const { data: waitlistTemplate, isLoading: waitlistTemplateLoading } =
+    useQuery(waitlistEmailTemplateQueryOptions);
 
   // Main email form
   const form = useForm<EmailFormData>({
@@ -108,22 +139,38 @@ function AdminEmailsPage() {
     },
   });
 
+  // Waitlist email form
+  const waitlistForm = useForm<WaitlistEmailData>({
+    resolver: zodResolver(waitlistEmailSchema),
+    defaultValues: {
+      subject: waitlistTemplate?.subject || "",
+      content: waitlistTemplate?.content || "",
+    },
+  });
+
+  // Update waitlist form when template loads
+  useEffect(() => {
+    if (waitlistTemplate) {
+      waitlistForm.reset({
+        subject: waitlistTemplate.subject,
+        content: waitlistTemplate.content,
+      });
+    }
+  }, [waitlistTemplate, waitlistForm]);
+
   // Create email batch mutation
   const createEmailBatch = useMutation({
     mutationFn: (data: EmailFormData) => createEmailBatchFn({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "emailBatches"] });
       form.reset();
-      toast({
-        title: "Email batch created!",
+      toast.success("Email batch created!", {
         description: "Your email is being sent to recipients.",
       });
     },
     onError: (error) => {
-      toast({
-        title: "Failed to create email batch",
+      toast.error("Failed to create email batch", {
         description: error.message,
-        variant: "destructive",
       });
     },
   });
@@ -134,16 +181,32 @@ function AdminEmailsPage() {
       sendTestEmailFn({ data }),
     onSuccess: () => {
       setTestEmailOpen(false);
-      toast({
-        title: "Test email sent!",
+      toast.success("Test email sent!", {
         description: "Check your inbox for the test email.",
       });
     },
     onError: (error) => {
-      toast({
-        title: "Failed to send test email",
+      toast.error("Failed to send test email", {
         description: error.message,
-        variant: "destructive",
+      });
+    },
+  });
+
+  // Update waitlist email template mutation
+  const updateWaitlistTemplate = useMutation({
+    mutationFn: (data: WaitlistEmailData) =>
+      updateWaitlistEmailTemplateFn({ data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["admin", "waitlistEmailTemplate"],
+      });
+      toast.success("Template saved!", {
+        description: "Waitlist email template has been updated.",
+      });
+    },
+    onError: (error) => {
+      toast.error("Failed to save template", {
+        description: error.message,
       });
     },
   });
@@ -186,11 +249,9 @@ function AdminEmailsPage() {
     const content = form.getValues("content");
 
     if (!subject || !content) {
-      toast({
-        title: "Missing content",
+      toast.error("Missing content", {
         description:
           "Please enter both subject and content before sending test email.",
-        variant: "destructive",
       });
       return;
     }
@@ -200,6 +261,10 @@ function AdminEmailsPage() {
       subject,
       content,
     });
+  };
+
+  const onWaitlistTemplateSubmit = (data: WaitlistEmailData) => {
+    updateWaitlistTemplate.mutate(data);
   };
 
   return (
@@ -255,14 +320,18 @@ function AdminEmailsPage() {
         className="w-full animate-in fade-in slide-in-from-bottom-2 duration-500"
         style={{ animationDelay: "0.1s", animationFillMode: "both" }}
       >
-        <TabsList className="grid w-full grid-cols-3 max-w-lg">
+        <TabsList className="grid w-full grid-cols-4 max-w-2xl">
           <TabsTrigger value="compose" className="flex items-center gap-2">
             <Send className="h-4 w-4" />
-            Compose & Preview
+            Compose
+          </TabsTrigger>
+          <TabsTrigger value="waitlist" className="flex items-center gap-2">
+            <Mail className="h-4 w-4" />
+            Waitlist
           </TabsTrigger>
           <TabsTrigger value="history" className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
-            Email History
+            History
           </TabsTrigger>
           <TabsTrigger value="analytics" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
@@ -286,6 +355,26 @@ function AdminEmailsPage() {
               onTestEmail={() => setTestEmailOpen(true)}
               getRecipientCount={getRecipientCount}
               createEmailBatchPending={createEmailBatch.isPending}
+              showMarkdownGuide={showMarkdownGuide}
+              setShowMarkdownGuide={setShowMarkdownGuide}
+            />
+          </div>
+        </TabsContent>
+
+        {/* Waitlist Tab */}
+        <TabsContent
+          value="waitlist"
+          className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500"
+          style={{ animationDelay: "0.2s", animationFillMode: "both" }}
+        >
+          <div
+            className="animate-in fade-in slide-in-from-bottom-2 duration-500"
+            style={{ animationDelay: "0.3s", animationFillMode: "both" }}
+          >
+            <WaitlistEmailEditor
+              form={waitlistForm}
+              onSubmit={onWaitlistTemplateSubmit}
+              isSaving={updateWaitlistTemplate.isPending}
               showMarkdownGuide={showMarkdownGuide}
               setShowMarkdownGuide={setShowMarkdownGuide}
             />

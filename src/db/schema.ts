@@ -365,6 +365,27 @@ export const newsletterSignups = tableCreator(
   ]
 );
 
+export const emailTemplates = tableCreator(
+  "email_template",
+  {
+    id: serial("id").primaryKey(),
+    key: text("key").notNull().unique(), // 'waitlist_welcome', 'newsletter_welcome', etc.
+    name: text("name").notNull(),
+    subject: text("subject").notNull(),
+    content: text("content").notNull(), // Markdown content
+    isActive: boolean("isActive").notNull().default(true),
+    updatedBy: serial("updatedBy")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("email_templates_key_idx").on(table.key),
+    index("email_templates_active_idx").on(table.isActive),
+  ]
+);
+
 export const appSettings = tableCreator(
   "app_setting",
   {
@@ -656,6 +677,16 @@ export const userEmailPreferencesRelations = relations(
   })
 );
 
+export const emailTemplatesRelations = relations(
+  emailTemplates,
+  ({ one }) => ({
+    updatedByUser: one(users, {
+      fields: [emailTemplates.updatedBy],
+      references: [users.id],
+    }),
+  })
+);
+
 export const analyticsEvents = tableCreator(
   "analytics_event",
   {
@@ -890,6 +921,8 @@ export type AnalyticsSession = typeof analyticsSessions.$inferSelect;
 export type AnalyticsSessionCreate = typeof analyticsSessions.$inferInsert;
 export type NewsletterSignup = typeof newsletterSignups.$inferSelect;
 export type NewsletterSignupCreate = typeof newsletterSignups.$inferInsert;
+export type EmailTemplate = typeof emailTemplates.$inferSelect;
+export type EmailTemplateCreate = typeof emailTemplates.$inferInsert;
 export type AppSetting = typeof appSettings.$inferSelect;
 export type AppSettingCreate = typeof appSettings.$inferInsert;
 export type Agent = typeof agents.$inferSelect;

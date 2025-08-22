@@ -232,6 +232,13 @@
       "when": 1755837791549,
       "tag": "0032_naive_talisman",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1755866465165,
+      "tag": "0033_mighty_slayback",
+      "breakpoints": true
     }
   ]
 }

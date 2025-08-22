@@ -7,6 +7,8 @@ import {
   updateNewsletterSignup,
   getNewsletterSignupsCount,
 } from "~/data-access/newsletter";
+import { getActiveEmailTemplate } from "~/data-access/email-templates";
+import { sendEmail, renderEmailTemplate } from "~/utils/email";
 
 const newsletterSubscribeSchema = z.object({
   email: z.email("Please enter a valid email address"),
@@ -42,7 +44,7 @@ export const subscribeToNewsletterFn = createServerFn()
 
     // Check if email already exists
     const existingSignup = await getNewsletterSignupByEmail(data.email);
-    
+
     if (existingSignup) {
       // Update existing signup if needed
       await updateNewsletterSignup(data.email, {
@@ -57,6 +59,39 @@ export const subscribeToNewsletterFn = createServerFn()
         source: data.source,
         isVerified: true, // Auto-verify since they passed reCAPTCHA
       });
+
+      // Send welcome email if joining waitlist
+      if (data.subscriptionType === "waitlist") {
+        try {
+          const template = await getActiveEmailTemplate("waitlist_welcome");
+
+          if (template) {
+            // Render email HTML
+            const htmlContent = await renderEmailTemplate({
+              subject: template.subject,
+              content: template.content,
+              isMarketingEmail: true,
+            });
+
+            // Add unsubscribe link for newsletter signups
+            const unsubscribeUrl = `${env.HOST_NAME}/unsubscribe?email=${encodeURIComponent(data.email)}`;
+            const finalHtmlContent = htmlContent.replace(
+              /{{unsubscribeUrl}}/g,
+              unsubscribeUrl
+            );
+
+            // Send the email
+            await sendEmail({
+              to: data.email,
+              subject: template.subject,
+              html: finalHtmlContent,
+            });
+          }
+        } catch (error) {
+          // Log error but don't fail the signup
+          console.error("Failed to send waitlist welcome email:", error);
+        }
+      }
     }
 
     return { success: true };
