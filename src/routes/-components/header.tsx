@@ -40,7 +40,11 @@ import { useAuth } from "~/hooks/use-auth";
 import { ModeToggle } from "~/components/ModeToggle";
 import { useQuery } from "@tanstack/react-query";
 import { checkIfUserIsAffiliateFn } from "~/fn/affiliates";
-import { getAgentsFeatureEnabledFn, getAffiliatesFeatureEnabledFn, getLaunchKitsFeatureEnabledFn } from "~/fn/app-settings";
+import {
+  getAgentsFeatureEnabledFn,
+  getAffiliatesFeatureEnabledFn,
+  getLaunchKitsFeatureEnabledFn,
+} from "~/fn/app-settings";
 
 interface NavLink {
   to: string;
@@ -73,6 +77,12 @@ const NAVIGATION_LINKS: NavLink[] = [
     to: "/purchase",
     label: "Pricing",
     icon: Tag,
+    priority: "primary",
+  },
+  {
+    to: "/blog",
+    label: "Blog",
+    icon: Video,
     priority: "primary",
   },
   {
@@ -129,7 +139,8 @@ const NAVIGATION_LINKS: NavLink[] = [
     to: "/affiliates",
     label: "Affiliate Program",
     icon: DollarSign,
-    condition: ({ user, affiliatesFeatureEnabled }) => !user && !!affiliatesFeatureEnabled,
+    condition: ({ user, affiliatesFeatureEnabled }) =>
+      !user && !!affiliatesFeatureEnabled,
     priority: "secondary",
   },
   {
@@ -137,13 +148,17 @@ const NAVIGATION_LINKS: NavLink[] = [
     label: "Become an Affiliate",
     icon: DollarSign,
     condition: ({ user, affiliateStatus, affiliatesFeatureEnabled }) =>
-      user && !user.isAdmin && !affiliateStatus?.isAffiliate && !!affiliatesFeatureEnabled,
+      user &&
+      !user.isAdmin &&
+      !affiliateStatus?.isAffiliate &&
+      !!affiliatesFeatureEnabled,
     priority: "secondary",
   },
 ];
 
 const ADMIN_MENU_ITEMS: AdminMenuItem[] = [
   { to: "/admin/comments", label: "Comments", icon: MessageCircle },
+  { to: "/admin/blog", label: "Blog", icon: Video },
   { to: "/admin/launch-kits", label: "Launch Kits", icon: Rocket },
   { to: "/admin/affiliates", label: "Affiliates", icon: Users },
   { to: "/admin/analytics", label: "Analytics", icon: TrendingUp },

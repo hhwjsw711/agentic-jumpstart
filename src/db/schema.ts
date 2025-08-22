@@ -401,7 +401,9 @@ export const launchKitTags = tableCreator(
     name: varchar("name", { length: 100 }).notNull().unique(),
     slug: varchar("slug", { length: 100 }).notNull().unique(),
     color: varchar("color", { length: 7 }).notNull().default("#3B82F6"), // hex color
-    category: varchar("category", { length: 50 }).notNull().default("framework"), // framework, language, database, tool, etc.
+    category: varchar("category", { length: 50 })
+      .notNull()
+      .default("framework"), // framework, language, database, tool, etc.
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => [
@@ -424,7 +426,10 @@ export const launchKitTagRelations = tableCreator(
   (table) => [
     index("launch_kit_tag_relations_kit_idx").on(table.launchKitId),
     index("launch_kit_tag_relations_tag_idx").on(table.tagId),
-    uniqueIndex("launch_kit_tag_relations_unique").on(table.launchKitId, table.tagId),
+    uniqueIndex("launch_kit_tag_relations_unique").on(
+      table.launchKitId,
+      table.tagId
+    ),
   ]
 );
 
@@ -438,16 +443,25 @@ export const launchKitComments = tableCreator(
     launchKitId: serial("launch_kit_id")
       .notNull()
       .references(() => launchKits.id, { onDelete: "cascade" }),
-    parentId: integer("parent_id").references((): AnyPgColumn => launchKitComments.id, {
-      onDelete: "cascade",
-    }),
+    parentId: integer("parent_id").references(
+      (): AnyPgColumn => launchKitComments.id,
+      {
+        onDelete: "cascade",
+      }
+    ),
     content: text("content").notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
   (table) => [
-    index("launch_kit_comments_kit_created_idx").on(table.launchKitId, table.createdAt),
-    index("launch_kit_comments_user_created_idx").on(table.userId, table.createdAt),
+    index("launch_kit_comments_kit_created_idx").on(
+      table.launchKitId,
+      table.createdAt
+    ),
+    index("launch_kit_comments_user_created_idx").on(
+      table.userId,
+      table.createdAt
+    ),
     index("launch_kit_comments_parent_idx").on(table.parentId),
   ]
 );
@@ -459,7 +473,9 @@ export const launchKitAnalytics = tableCreator(
     launchKitId: serial("launch_kit_id")
       .notNull()
       .references(() => launchKits.id, { onDelete: "cascade" }),
-    userId: serial("user_id").references(() => users.id, { onDelete: "cascade" }), // null for anonymous users
+    userId: serial("user_id").references(() => users.id, {
+      onDelete: "cascade",
+    }), // null for anonymous users
     eventType: varchar("event_type", { length: 50 }).notNull(), // view, clone, demo_visit
     ipAddress: text("ip_address"), // hashed for privacy
     userAgent: text("user_agent"),
@@ -633,6 +649,56 @@ export const analyticsSessions = tableCreator(
   ]
 );
 
+export const blogPosts = tableCreator(
+  "blog_post",
+  {
+    id: serial("id").primaryKey(),
+    title: text("title").notNull(),
+    slug: text("slug").notNull().unique(),
+    content: text("content").notNull(),
+    excerpt: text("excerpt"),
+    isPublished: boolean("isPublished").notNull().default(false),
+    authorId: serial("authorId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    featuredImage: text("featuredImage"),
+    tags: text("tags"), // JSON array of tags as string
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    publishedAt: timestamp("published_at"),
+  },
+  (table) => [
+    index("blog_posts_slug_idx").on(table.slug),
+    index("blog_posts_author_idx").on(table.authorId),
+    index("blog_posts_published_idx").on(table.isPublished, table.publishedAt),
+    index("blog_posts_created_idx").on(table.createdAt),
+  ]
+);
+
+export const blogPostViews = tableCreator(
+  "blog_post_view",
+  {
+    id: serial("id").primaryKey(),
+    blogPostId: serial("blogPostId")
+      .notNull()
+      .references(() => blogPosts.id, { onDelete: "cascade" }),
+    sessionId: text("sessionId").notNull(),
+    ipAddressHash: text("ipAddressHash"),
+    userAgent: text("userAgent"),
+    referrer: text("referrer"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("blog_post_views_post_idx").on(table.blogPostId),
+    index("blog_post_views_session_idx").on(table.sessionId),
+    index("blog_post_views_created_idx").on(table.createdAt),
+    uniqueIndex("blog_post_views_session_post_unique").on(
+      table.sessionId,
+      table.blogPostId
+    ),
+  ]
+);
+
 export const unsubscribeTokensRelations = relations(
   unsubscribeTokens,
   ({ one }) => ({
@@ -659,6 +725,21 @@ export const analyticsSessionsRelations = relations(
     events: many(analyticsEvents),
   })
 );
+
+export const blogPostsRelations = relations(blogPosts, ({ one, many }) => ({
+  author: one(users, {
+    fields: [blogPosts.authorId],
+    references: [users.id],
+  }),
+  views: many(blogPostViews),
+}));
+
+export const blogPostViewsRelations = relations(blogPostViews, ({ one }) => ({
+  blogPost: one(blogPosts, {
+    fields: [blogPostViews.blogPostId],
+    references: [blogPosts.id],
+  }),
+}));
 
 export const launchKitsRelations = relations(launchKits, ({ many }) => ({
   tags: many(launchKitTagRelations),
@@ -758,12 +839,17 @@ export type AppSetting = typeof appSettings.$inferSelect;
 export type AppSettingCreate = typeof appSettings.$inferInsert;
 export type Agent = typeof agents.$inferSelect;
 export type AgentCreate = typeof agents.$inferInsert;
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type BlogPostCreate = typeof blogPosts.$inferInsert;
+export type BlogPostView = typeof blogPostViews.$inferSelect;
+export type BlogPostViewCreate = typeof blogPostViews.$inferInsert;
 export type LaunchKit = typeof launchKits.$inferSelect;
 export type LaunchKitCreate = typeof launchKits.$inferInsert;
 export type LaunchKitTag = typeof launchKitTags.$inferSelect;
 export type LaunchKitTagCreate = typeof launchKitTags.$inferInsert;
 export type LaunchKitTagRelation = typeof launchKitTagRelations.$inferSelect;
-export type LaunchKitTagRelationCreate = typeof launchKitTagRelations.$inferInsert;
+export type LaunchKitTagRelationCreate =
+  typeof launchKitTagRelations.$inferInsert;
 export type LaunchKitComment = typeof launchKitComments.$inferSelect;
 export type LaunchKitCommentCreate = typeof launchKitComments.$inferInsert;
 export type LaunchKitAnalytics = typeof launchKitAnalytics.$inferSelect;
