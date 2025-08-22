@@ -40,6 +40,7 @@ fi
 
 TRANSCRIPT_PATH=$(echo "$HOOK_DATA" | jq -r '.transcript_path')
 
+
 # Extract the actual user prompt from the JSONL transcript
 PROMPT=""
 if [[ -f "$TRANSCRIPT_PATH" ]]; then
