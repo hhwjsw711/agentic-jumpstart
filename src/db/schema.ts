@@ -536,6 +536,14 @@ export const projectsRelations = relations(projects, ({ one }) => ({
   }),
 }));
 
+export const usersRelations = relations(users, ({ one, many }) => ({
+  profile: one(profiles, {
+    fields: [users.id],
+    references: [profiles.userId],
+  }),
+  accounts: many(accounts),
+}));
+
 export const profilesRelations = relations(profiles, ({ one, many }) => ({
   user: one(users, {
     fields: [profiles.userId],

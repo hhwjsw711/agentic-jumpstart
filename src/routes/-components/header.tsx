@@ -159,6 +159,7 @@ const NAVIGATION_LINKS: NavLink[] = [
 const ADMIN_MENU_ITEMS: AdminMenuItem[] = [
   { to: "/admin/comments", label: "Comments", icon: MessageCircle },
   { to: "/admin/blog", label: "Blog", icon: Video },
+  { to: "/admin/users", label: "Users", icon: Users },
   { to: "/admin/launch-kits", label: "Launch Kits", icon: Rocket },
   { to: "/admin/affiliates", label: "Affiliates", icon: Users },
   { to: "/admin/analytics", label: "Analytics", icon: TrendingUp },
@@ -468,7 +469,10 @@ export function Header() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                          <Link to="/profile/edit" className="flex items-center">
+                          <Link
+                            to="/profile/edit"
+                            className="flex items-center"
+                          >
                             <User className="mr-2 h-4 w-4" />
                             Edit Profile
                           </Link>
@@ -513,7 +517,10 @@ export function Header() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                          <Link to="/profile/edit" className="flex items-center">
+                          <Link
+                            to="/profile/edit"
+                            className="flex items-center"
+                          >
                             <User className="mr-2 h-4 w-4" />
                             Edit Profile
                           </Link>

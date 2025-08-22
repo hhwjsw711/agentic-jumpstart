@@ -1,7 +1,7 @@
 import { database } from "~/db";
 import { newsletterSignups } from "~/db/schema";
 import { NewsletterSignupCreate, NewsletterSignup } from "~/db/schema";
-import { eq, desc, and, or } from "drizzle-orm";
+import { eq, desc, and, or, gte, lt, sql } from "drizzle-orm";
 
 // Create a new newsletter signup
 export async function createNewsletterSignup(
@@ -109,4 +109,47 @@ export async function getNewsletterSignupsCount(): Promise<{
     waitlist,
     total: allSignups.length,
   };
+}
+
+// Get email signup analytics for a specific month
+export async function getEmailSignupAnalytics(
+  year: number,
+  month: number,
+  subscriptionType: "newsletter" | "waitlist" = "waitlist"
+): Promise<Array<{ date: string; count: number }>> {
+  // Calculate the start and end of the month
+  const startDate = new Date(year, month - 1, 1);
+  const endDate = new Date(year, month, 1);
+
+  const result = await database
+    .select({
+      date: sql<string>`DATE(${newsletterSignups.createdAt})`,
+      count: sql<number>`COUNT(*)`,
+    })
+    .from(newsletterSignups)
+    .where(
+      and(
+        eq(newsletterSignups.subscriptionType, subscriptionType),
+        gte(newsletterSignups.createdAt, startDate),
+        lt(newsletterSignups.createdAt, endDate)
+      )
+    )
+    .groupBy(sql`DATE(${newsletterSignups.createdAt})`)
+    .orderBy(sql`DATE(${newsletterSignups.createdAt})`);
+
+  // Fill in missing dates with 0 count
+  const dailyData: Array<{ date: string; count: number }> = [];
+  const currentDate = new Date(startDate);
+  
+  while (currentDate < endDate) {
+    const dateStr = currentDate.toISOString().split('T')[0];
+    const existing = result.find(r => r.date === dateStr);
+    dailyData.push({
+      date: dateStr,
+      count: existing ? existing.count : 0,
+    });
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  return dailyData;
 }
