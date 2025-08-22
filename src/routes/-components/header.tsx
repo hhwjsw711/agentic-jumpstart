@@ -17,6 +17,7 @@ import {
   MoreHorizontal,
   Tag,
   LogIn,
+  Newspaper,
 } from "lucide-react";
 import {
   Sheet,
@@ -88,6 +89,12 @@ const NAVIGATION_LINKS: NavLink[] = [
     priority: "primary",
   },
   {
+    to: "/news",
+    label: "AI News",
+    icon: Newspaper,
+    priority: "primary",
+  },
+  {
     to: "/community",
     label: "Community",
     icon: Users,
@@ -132,6 +139,7 @@ const ADMIN_MENU_ITEMS: AdminMenuItem[] = [
   { to: "/admin/affiliates", label: "Affiliates", icon: Users },
   { to: "/admin/analytics", label: "Analytics", icon: TrendingUp },
   { to: "/admin/conversions", label: "Conversions", icon: Target },
+  { to: "/admin/news", label: "News", icon: Video },
   { to: "/admin/emails", label: "Emails", icon: Mail },
 ];
 

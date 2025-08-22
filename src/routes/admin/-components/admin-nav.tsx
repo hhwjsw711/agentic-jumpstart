@@ -8,6 +8,7 @@ import {
   Target,
   UserCheck,
   Settings,
+  Newspaper,
 } from "lucide-react";
 
 const navigation = [
@@ -30,6 +31,11 @@ const navigation = [
     name: "Comments",
     href: "/admin/comments",
     icon: MessageSquare,
+  },
+  {
+    name: "News",
+    href: "/admin/news",
+    icon: Newspaper,
   },
   {
     name: "Emails",

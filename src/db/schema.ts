@@ -371,10 +371,91 @@ export const agents = tableCreator(
   ]
 );
 
+export const newsEntries = tableCreator(
+  "news_entry",
+  {
+    id: serial("id").primaryKey(),
+    title: varchar("title", { length: 255 }).notNull(),
+    description: text("description"),
+    url: text("url").notNull(),
+    type: varchar("type", { length: 50 }).notNull(), // video, blog, changelog
+    imageUrl: text("image_url"),
+    publishedAt: timestamp("published_at").notNull(),
+    authorId: serial("author_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    isPublished: boolean("is_published").default(true),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("news_entries_author_idx").on(table.authorId),
+    index("news_entries_type_idx").on(table.type),
+    index("news_entries_published_idx").on(table.isPublished),
+    index("news_entries_published_at_idx").on(table.publishedAt),
+  ]
+);
+
+export const newsTags = tableCreator(
+  "news_tag", 
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 100 }).notNull().unique(),
+    slug: varchar("slug", { length: 100 }).notNull().unique(),
+    color: varchar("color", { length: 7 }).notNull().default("#3B82F6"), // hex color
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("news_tags_slug_idx").on(table.slug),
+    index("news_tags_name_idx").on(table.name),
+  ]
+);
+
+export const newsEntryTags = tableCreator(
+  "news_entry_tag",
+  {
+    id: serial("id").primaryKey(),
+    newsEntryId: serial("news_entry_id")
+      .notNull()
+      .references(() => newsEntries.id, { onDelete: "cascade" }),
+    newsTagId: serial("news_tag_id")
+      .notNull()
+      .references(() => newsTags.id, { onDelete: "cascade" }),
+  },
+  (table) => [
+    index("news_entry_tags_entry_idx").on(table.newsEntryId),
+    index("news_entry_tags_tag_idx").on(table.newsTagId),
+    uniqueIndex("news_entry_tags_unique").on(table.newsEntryId, table.newsTagId),
+  ]
+);
+
 export const agentsRelations = relations(agents, ({ one }) => ({
   author: one(users, {
     fields: [agents.authorId],
     references: [users.id],
+  }),
+}));
+
+export const newsEntriesRelations = relations(newsEntries, ({ one, many }) => ({
+  author: one(users, {
+    fields: [newsEntries.authorId],
+    references: [users.id],
+  }),
+  newsEntryTags: many(newsEntryTags),
+}));
+
+export const newsTagsRelations = relations(newsTags, ({ many }) => ({
+  newsEntryTags: many(newsEntryTags),
+}));
+
+export const newsEntryTagsRelations = relations(newsEntryTags, ({ one }) => ({
+  newsEntry: one(newsEntries, {
+    fields: [newsEntryTags.newsEntryId],
+    references: [newsEntries.id],
+  }),
+  newsTag: one(newsTags, {
+    fields: [newsEntryTags.newsTagId],
+    references: [newsTags.id],
   }),
 }));
 
@@ -595,3 +676,9 @@ export type AppSetting = typeof appSettings.$inferSelect;
 export type AppSettingCreate = typeof appSettings.$inferInsert;
 export type Agent = typeof agents.$inferSelect;
 export type AgentCreate = typeof agents.$inferInsert;
+export type NewsEntry = typeof newsEntries.$inferSelect;
+export type NewsEntryCreate = typeof newsEntries.$inferInsert;
+export type NewsTag = typeof newsTags.$inferSelect;
+export type NewsTagCreate = typeof newsTags.$inferInsert;
+export type NewsEntryTag = typeof newsEntryTags.$inferSelect;
+export type NewsEntryTagCreate = typeof newsEntryTags.$inferInsert;
