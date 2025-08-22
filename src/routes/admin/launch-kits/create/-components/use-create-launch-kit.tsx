@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { z } from "zod";
 import { createLaunchKitFn } from "~/fn/launch-kits";
@@ -28,7 +27,6 @@ const createLaunchKitSchema = z.object({
 export type CreateLaunchKitForm = z.infer<typeof createLaunchKitSchema>;
 
 export function useCreateLaunchKit() {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [formError, setFormError] = useState("");
@@ -52,7 +50,6 @@ export function useCreateLaunchKit() {
       queryClient.invalidateQueries({ queryKey: ["launch-kits"] });
       queryClient.invalidateQueries({ queryKey: ["launch-kit-stats"] });
       toast.success("Launch kit created successfully!");
-      navigate({ to: "/admin/launch-kits" });
     },
     onError: (error: any) => {
       setFormError(error?.message || "Failed to create launch kit");

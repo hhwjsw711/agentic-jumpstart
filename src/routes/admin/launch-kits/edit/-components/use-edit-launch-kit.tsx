@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { z } from "zod";
 import { updateLaunchKitFn } from "~/fn/launch-kits";
@@ -23,7 +22,6 @@ const editLaunchKitSchema = z.object({
 export type EditLaunchKitForm = z.infer<typeof editLaunchKitSchema>;
 
 export function useEditLaunchKit(launchKit?: any) {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [formError, setFormError] = useState("");
@@ -66,7 +64,6 @@ export function useEditLaunchKit(launchKit?: any) {
         queryKey: ["admin", "launch-kit", launchKit?.id.toString()],
       });
       toast.success("Launch kit updated successfully!");
-      navigate({ to: "/admin/launch-kits" });
     },
     onError: (error: any) => {
       setFormError(error?.message || "Failed to update launch kit");
