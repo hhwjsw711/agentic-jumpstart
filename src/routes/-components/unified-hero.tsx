@@ -225,6 +225,14 @@ function EarlyAccessHeroContent() {
                 deployed applications in hours, not weeks.
               </p>
             </ScrollAnimation>
+            
+            <ScrollAnimation direction="up" delay={0.45}>
+              <div className="mt-6 p-4 rounded-lg bg-theme-50/50 dark:bg-theme-900/20 border border-theme-200 dark:border-theme-500/30 max-w-lg mx-auto">
+                <p className="text-sm md:text-base text-theme-700 dark:text-theme-300 font-medium">
+                  🎁 <strong>Bonus:</strong> Waitlist members get access to a free Hans hook that reads your completed features out loud!
+                </p>
+              </div>
+            </ScrollAnimation>
           </div>
 
           <ScrollAnimation direction="up" delay={0.5}>

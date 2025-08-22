@@ -22,7 +22,6 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { toast } from "sonner";
 
 interface WaitlistEmailEditorProps {
   form: ReturnType<typeof useForm<any>>;
