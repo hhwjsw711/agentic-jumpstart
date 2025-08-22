@@ -421,6 +421,12 @@ export function Header() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
+                          <Link to="/profile/edit" className="flex items-center">
+                            <User className="mr-2 h-4 w-4" />
+                            Edit Profile
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
                           <Link to="/settings" className="flex items-center">
                             <Settings className="mr-2 h-4 w-4" />
                             Settings
@@ -459,6 +465,12 @@ export function Header() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link to="/profile/edit" className="flex items-center">
+                            <User className="mr-2 h-4 w-4" />
+                            Edit Profile
+                          </Link>
+                        </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link to="/settings" className="flex items-center">
                             <Settings className="mr-2 h-4 w-4" />
@@ -576,17 +588,30 @@ export function Header() {
                         {user ? (
                           <div className="border-t border-border pt-4">
                             {!user.isAdmin && !affiliateStatus?.isAffiliate && (
-                              <Link
-                                to="/settings"
-                                className={buttonVariants({
-                                  variant: "ghost",
-                                  className: "w-full justify-start mb-2",
-                                })}
-                                onClick={() => setIsOpen(false)}
-                              >
-                                <Settings className="mr-2 h-4 w-4" />
-                                Settings
-                              </Link>
+                              <>
+                                <Link
+                                  to="/profile/edit"
+                                  className={buttonVariants({
+                                    variant: "ghost",
+                                    className: "w-full justify-start mb-2",
+                                  })}
+                                  onClick={() => setIsOpen(false)}
+                                >
+                                  <User className="mr-2 h-4 w-4" />
+                                  Edit Profile
+                                </Link>
+                                <Link
+                                  to="/settings"
+                                  className={buttonVariants({
+                                    variant: "ghost",
+                                    className: "w-full justify-start mb-2",
+                                  })}
+                                  onClick={() => setIsOpen(false)}
+                                >
+                                  <Settings className="mr-2 h-4 w-4" />
+                                  Settings
+                                </Link>
+                              </>
                             )}
                             <a
                               href="/api/logout"
