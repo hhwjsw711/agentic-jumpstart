@@ -4,7 +4,7 @@ import { z } from "zod";
 import { Button, buttonVariants } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
-import { useToast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 import { useRouter, Link } from "@tanstack/react-router";
 import { createTestimonialUseCase } from "~/use-cases/testimonials";
 import { authenticatedMiddleware } from "~/lib/auth";
@@ -83,7 +83,6 @@ function SuccessMessage() {
 }
 
 function CreateTestimonial() {
-  const { toast } = useToast();
   const router = useRouter();
   const [selectedEmojis, setSelectedEmojis] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -138,10 +137,8 @@ function CreateTestimonial() {
       setIsSubmitted(true);
     } catch (error) {
       console.error("Failed to submit testimonial:", error);
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "Failed to submit testimonial. Please try again.",
-        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);

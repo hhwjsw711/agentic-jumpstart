@@ -22,7 +22,7 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
-import { useToast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 import {
   adminGetAllAffiliatesFn,
   adminToggleAffiliateStatusFn,
@@ -104,7 +104,6 @@ export const Route = createFileRoute("/admin/affiliates")({
 });
 
 function AdminAffiliates() {
-  const { toast } = useToast();
   const queryClient = useQueryClient();
   const [payoutAffiliateId, setPayoutAffiliateId] = useState<number | null>(
     null
@@ -131,16 +130,13 @@ function AdminAffiliates() {
     mutationFn: adminToggleAffiliateStatusFn,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "affiliates"] });
-      toast({
-        title: "Status Updated",
+      toast.success("Status Updated", {
         description: "Affiliate status has been updated successfully.",
       });
     },
     onError: (error) => {
-      toast({
-        title: "Update Failed",
+      toast.error("Update Failed", {
         description: error.message || "Failed to update affiliate status.",
-        variant: "destructive",
       });
     },
   });
@@ -149,18 +145,15 @@ function AdminAffiliates() {
     mutationFn: adminRecordPayoutFn,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "affiliates"] });
-      toast({
-        title: "Payout Recorded",
+      toast.success("Payout Recorded", {
         description: "The payout has been recorded successfully.",
       });
       setPayoutAffiliateId(null);
       form.reset();
     },
     onError: (error) => {
-      toast({
-        title: "Payout Failed",
+      toast.error("Payout Failed", {
         description: error.message || "Failed to record payout.",
-        variant: "destructive",
       });
     },
   });
@@ -215,8 +208,7 @@ function AdminAffiliates() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast({
-      title: "Copied!",
+    toast.success("Copied!", {
       description: "Link copied to clipboard.",
     });
   };

@@ -48,7 +48,7 @@ import {
   FolderOpen,
   Award,
 } from "lucide-react";
-import { toast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 import { authenticatedMiddleware } from "~/lib/auth";
 import { assertAuthenticatedFn } from "~/fn/auth";
 
@@ -133,16 +133,13 @@ function EditProfilePage() {
     mutationFn: updateProfileFn,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
-      toast({
-        title: "Profile updated",
+      toast.success("Profile updated", {
         description: "Your profile has been updated successfully.",
       });
     },
     onError: () => {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "Failed to update profile. Please try again.",
-        variant: "destructive",
       });
     },
   });
@@ -153,16 +150,13 @@ function EditProfilePage() {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
       setIsAddingProject(false);
       projectForm.reset();
-      toast({
-        title: "Project added",
+      toast.success("Project added", {
         description: "Your project has been added successfully.",
       });
     },
     onError: () => {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "Failed to add project. Please try again.",
-        variant: "destructive",
       });
     },
   });
@@ -172,16 +166,13 @@ function EditProfilePage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
       setEditingProject(null);
-      toast({
-        title: "Project updated",
+      toast.success("Project updated", {
         description: "Your project has been updated successfully.",
       });
     },
     onError: () => {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "Failed to update project. Please try again.",
-        variant: "destructive",
       });
     },
   });
@@ -190,16 +181,13 @@ function EditProfilePage() {
     mutationFn: deleteProjectFn,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
-      toast({
-        title: "Project deleted",
+      toast.success("Project deleted", {
         description: "Your project has been deleted successfully.",
       });
     },
     onError: () => {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "Failed to delete project. Please try again.",
-        variant: "destructive",
       });
     },
   });
@@ -249,10 +237,8 @@ function EditProfilePage() {
       // Clear preview after successful upload
       setPreviewImage(null);
     } catch (error) {
-      toast({
-        title: "Upload failed",
+      toast.error("Upload failed", {
         description: "Failed to upload image. Please try again.",
-        variant: "destructive",
       });
       // Clear preview on error
       setPreviewImage(null);

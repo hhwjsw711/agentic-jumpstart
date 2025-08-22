@@ -4,7 +4,7 @@ import { Textarea } from "~/components/ui/textarea";
 import { useAuth } from "~/hooks/use-auth";
 import { useLoaderData } from "@tanstack/react-router";
 import { useCreateComment } from "~/hooks/mutations/use-create-comment";
-import { toast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 import { Send, MessageSquarePlus, Sparkles } from "lucide-react";
 import { useProfile } from "~/hooks/use-profile";
 
@@ -54,17 +54,14 @@ export function CommentForm({ autoFocus = false }: { autoFocus?: boolean }) {
         onSuccess: () => {
           setCommentText("");
           setIsFocused(false);
-          toast({
-            title: "Comment posted! 🎉",
+          toast.success("Comment posted! 🎉", {
             description: "Your comment has been added to the discussion.",
           });
         },
         onError: () => {
-          toast({
-            title: "Something went wrong",
+          toast.error("Something went wrong", {
             description:
               "We couldn't post your comment. Please try again or contact support.",
-            variant: "destructive",
           });
         },
       }

@@ -37,7 +37,7 @@ import {
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
-import { toast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 import { queryOptions } from "@tanstack/react-query";
 import { AllCommentsWithDetails } from "~/data-access/comments";
 import { Switch } from "~/components/ui/switch";
@@ -81,16 +81,13 @@ function AdminComments() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "comments"] });
       setDeleteCommentId(null);
-      toast({
-        title: "Comment deleted",
+      toast.success("Comment deleted", {
         description: "The comment has been successfully deleted.",
       });
     },
     onError: () => {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "Failed to delete the comment. Please try again.",
-        variant: "destructive",
       });
     },
   });
@@ -112,16 +109,13 @@ function AdminComments() {
       queryClient.invalidateQueries({ queryKey: ["admin", "comments"] });
       setReplyingToCommentId(null);
       setReplyContent("");
-      toast({
-        title: "Reply posted",
+      toast.success("Reply posted", {
         description: "Your reply has been posted successfully.",
       });
     },
     onError: () => {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "Failed to post reply. Please try again.",
-        variant: "destructive",
       });
     },
   });
@@ -137,30 +131,24 @@ function AdminComments() {
     const trimmedContent = replyContent.trim();
 
     if (!trimmedContent) {
-      toast({
-        title: "Validation Error",
+      toast.error("Validation Error", {
         description: "Please enter a reply message before posting.",
-        variant: "destructive",
       });
       return;
     }
 
     // Check if reply content is too short
     if (trimmedContent.length < 3) {
-      toast({
-        title: "Validation Error",
+      toast.error("Validation Error", {
         description: "Reply must be at least 3 characters long.",
-        variant: "destructive",
       });
       return;
     }
 
     // Check if reply content is too long
     if (trimmedContent.length > 5000) {
-      toast({
-        title: "Validation Error",
+      toast.error("Validation Error", {
         description: "Reply must be less than 5000 characters.",
-        variant: "destructive",
       });
       return;
     }

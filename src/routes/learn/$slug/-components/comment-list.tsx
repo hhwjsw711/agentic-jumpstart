@@ -36,7 +36,7 @@ import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
 import { useState } from "react";
 import { useDeleteComment } from "~/hooks/mutations/use-delete-comment";
-import { toast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 import { useEditComment } from "~/hooks/mutations/use-edit-comment";
 import { useCreateComment } from "~/hooks/mutations/use-create-comment";
 import { CommentsWithUser } from "~/data-access/comments";
@@ -81,18 +81,14 @@ function CommentItem({ comment, level = 0 }: CommentItemProps) {
           onSuccess: () => {
             setEditingCommentId(null);
             setEditContent("");
-            toast({
-              title: "Comment updated",
+            toast.success("Comment updated", {
               description: "Your comment has been updated.",
-              variant: "default",
             });
           },
           onError: () => {
-            toast({
-              title: "Error",
+            toast.error("Error", {
               description:
                 "Something went wrong, please try again later or contact support.",
-              variant: "destructive",
             });
           },
         }
@@ -116,18 +112,14 @@ function CommentItem({ comment, level = 0 }: CommentItemProps) {
         {
           onSuccess: () => {
             setDeleteCommentId(null);
-            toast({
-              title: "Comment deleted",
+            toast.success("Comment deleted", {
               description: "Your comment has been deleted.",
-              variant: "default",
             });
           },
           onError: () => {
-            toast({
-              title: "Error",
+            toast.error("Error", {
               description:
                 "Something went wrong, please try again later or contact support.",
-              variant: "destructive",
             });
           },
         }
@@ -159,10 +151,8 @@ function CommentItem({ comment, level = 0 }: CommentItemProps) {
           onSuccess: () => {
             setReplyingToCommentId(null);
             setReplyContent("");
-            toast({
-              title: "Reply posted",
+            toast.success("Reply posted", {
               description: "Your reply has been posted.",
-              variant: "default",
             });
           },
         }

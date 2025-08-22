@@ -2,12 +2,9 @@
 import {
   Outlet,
   createRootRouteWithContext,
-  useRouter,
   useRouterState,
   redirect,
 } from "@tanstack/react-router";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { HeadContent, Scripts } from "@tanstack/react-router";
 import * as React from "react";
 import { type QueryClient } from "@tanstack/react-query";
@@ -29,7 +26,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
     beforeLoad: async ({ location }) => {
       const shouldShowEarlyAccess = await shouldShowEarlyAccessFn();
-      if (shouldShowEarlyAccess && location.pathname !== "/") {
+      if (
+        shouldShowEarlyAccess &&
+        location.pathname !== "/" &&
+        location.pathname !== "/unsubscribe"
+      ) {
         throw redirect({ to: "/" });
       }
     },
@@ -106,10 +107,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   const showFooter =
     !routerState.location.pathname.startsWith("/learn") &&
     !routerState.location.pathname.startsWith("/admin") &&
+    !routerState.location.pathname.startsWith("/unsubscribe") &&
     !shouldShowEarlyAccess;
   const showHeader =
     !routerState.location.pathname.startsWith("/learn") &&
     !routerState.location.pathname.startsWith("/admin") &&
+    !routerState.location.pathname.startsWith("/unsubscribe") &&
     !shouldShowEarlyAccess;
   const showThemeToggle =
     routerState.location.pathname === "/" && shouldShowEarlyAccess;

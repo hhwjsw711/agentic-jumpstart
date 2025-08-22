@@ -30,7 +30,7 @@ import {
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
 import { buttonVariants } from "~/components/ui/button";
-import { useToast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { deleteModuleFn } from "./delete-module-button";
 
@@ -59,7 +59,6 @@ export function ModuleAccordionHeader({
 }: ModuleAccordionHeaderProps) {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   // Early return if module data is incomplete
@@ -94,18 +93,15 @@ export function ModuleAccordionHeader({
     try {
       await deleteModuleFn({ data: { moduleId: module.id } });
 
-      toast({
-        title: "Module deleted successfully!",
+      toast.success("Module deleted successfully!", {
         description: `"${module.title}" has been permanently deleted.`,
       });
 
       await queryClient.invalidateQueries({ queryKey: ["modules"] });
       setDeleteDialogOpen(false);
     } catch (error) {
-      toast({
-        title: "Failed to delete module",
+      toast.error("Failed to delete module", {
         description: "Please try again.",
-        variant: "destructive",
       });
     }
   };

@@ -165,6 +165,7 @@ const ADMIN_MENU_ITEMS: AdminMenuItem[] = [
   { to: "/admin/analytics", label: "Analytics", icon: TrendingUp },
   { to: "/admin/conversions", label: "Conversions", icon: Target },
   { to: "/admin/emails", label: "Emails", icon: Mail },
+  { to: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
 function getFilteredNavLinks(data: {

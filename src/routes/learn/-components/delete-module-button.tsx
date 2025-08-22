@@ -15,7 +15,7 @@ import {
 } from "~/components/ui/alert-dialog";
 import { adminMiddleware } from "~/lib/auth";
 import { deleteModuleUseCase } from "~/use-cases/modules";
-import { useToast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 import { useRouter } from "@tanstack/react-router";
 
 export const deleteModuleFn = createServerFn()
@@ -34,25 +34,21 @@ export function DeleteModuleButton({
   moduleId,
   moduleTitle,
 }: DeleteModuleButtonProps) {
-  const { toast } = useToast();
   const router = useRouter();
 
   const handleDeleteModule = async () => {
     try {
       await deleteModuleFn({ data: { moduleId } });
 
-      toast({
-        title: "Module deleted successfully!",
+      toast.success("Module deleted successfully!", {
         description: `"${moduleTitle}" has been permanently deleted.`,
       });
 
       // Refresh the page to update the module list
       router.invalidate();
     } catch (error) {
-      toast({
-        title: "Failed to delete module",
+      toast.error("Failed to delete module", {
         description: "Please try again.",
-        variant: "destructive",
       });
     }
   };
