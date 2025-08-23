@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { queryOptions } from "@tanstack/react-query";
 import { PageHeader } from "../-components/page-header";
 import { Page } from "../-components/page";
@@ -7,6 +7,7 @@ import { Users, CheckCircle, Mail, Clock, Send, BarChart3 } from "lucide-react";
 import { getUsersForEmailingFn } from "~/fn/emails";
 import { useQuery } from "@tanstack/react-query";
 import { assertIsAdminFn } from "~/fn/auth";
+import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
 const usersForEmailingQueryOptions = queryOptions({
   queryKey: ["admin", "usersForEmailing"],
@@ -25,6 +26,7 @@ function EmailsLayout() {
   const { data: usersForEmailing, isLoading: usersLoading } = useQuery(
     usersForEmailingQueryOptions
   );
+  const location = useLocation();
 
   const getRecipientCount = (type: string) => {
     if (!usersForEmailing || usersLoading) return 0;
@@ -43,6 +45,15 @@ function EmailsLayout() {
       default:
         return 0;
     }
+  };
+
+  const getCurrentTab = () => {
+    const path = location.pathname;
+    if (path.includes('/compose')) return 'compose';
+    if (path.includes('/waitlist')) return 'waitlist';
+    if (path.includes('/history')) return 'history';
+    if (path.includes('/analytics')) return 'analytics';
+    return 'compose'; // default
   };
 
   return (
@@ -94,46 +105,34 @@ function EmailsLayout() {
 
       <div className="w-full">
         <div className="flex flex-col gap-6">
-          <div className="border-b">
-            <nav className="flex gap-4">
-              <Link
-                to="/admin/emails/compose"
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors hover:text-primary border-b-2 data-[status=active]:border-primary data-[status=active]:text-primary data-[status=inactive]:border-transparent"
-                activeProps={{ "data-status": "active" }}
-                inactiveProps={{ "data-status": "inactive" }}
-              >
-                <Send className="h-4 w-4" />
-                Compose
+          <Tabs value={getCurrentTab()} className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <Link to="/admin/emails/compose">
+                <TabsTrigger value="compose" className="flex items-center gap-2 w-full">
+                  <Send className="h-4 w-4" />
+                  Compose
+                </TabsTrigger>
               </Link>
-              <Link
-                to="/admin/emails/waitlist"
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors hover:text-primary border-b-2 data-[status=active]:border-primary data-[status=active]:text-primary data-[status=inactive]:border-transparent"
-                activeProps={{ "data-status": "active" }}
-                inactiveProps={{ "data-status": "inactive" }}
-              >
-                <Mail className="h-4 w-4" />
-                Waitlist
+              <Link to="/admin/emails/waitlist">
+                <TabsTrigger value="waitlist" className="flex items-center gap-2 w-full">
+                  <Mail className="h-4 w-4" />
+                  Waitlist
+                </TabsTrigger>
               </Link>
-              <Link
-                to="/admin/emails/history"
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors hover:text-primary border-b-2 data-[status=active]:border-primary data-[status=active]:text-primary data-[status=inactive]:border-transparent"
-                activeProps={{ "data-status": "active" }}
-                inactiveProps={{ "data-status": "inactive" }}
-              >
-                <Clock className="h-4 w-4" />
-                History
+              <Link to="/admin/emails/history">
+                <TabsTrigger value="history" className="flex items-center gap-2 w-full">
+                  <Clock className="h-4 w-4" />
+                  History
+                </TabsTrigger>
               </Link>
-              <Link
-                to="/admin/emails/analytics"
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors hover:text-primary border-b-2 data-[status=active]:border-primary data-[status=active]:text-primary data-[status=inactive]:border-transparent"
-                activeProps={{ "data-status": "active" }}
-                inactiveProps={{ "data-status": "inactive" }}
-              >
-                <BarChart3 className="h-4 w-4" />
-                Analytics
+              <Link to="/admin/emails/analytics">
+                <TabsTrigger value="analytics" className="flex items-center gap-2 w-full">
+                  <BarChart3 className="h-4 w-4" />
+                  Analytics
+                </TabsTrigger>
               </Link>
-            </nav>
-          </div>
+            </TabsList>
+          </Tabs>
 
           <Outlet />
         </div>

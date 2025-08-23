@@ -100,25 +100,32 @@ function AdminBlog() {
           }
         />
 
-        <Tabs
-          value={filter}
-          onValueChange={(value) =>
-            setFilter(value as "all" | "published" | "draft")
-          }
-          className="mb-6"
+        <div
+          className="animate-in fade-in slide-in-from-bottom-2 duration-500"
+          style={{ animationDelay: "0.1s", animationFillMode: "both" }}
         >
-          <TabsList>
-            <TabsTrigger value="all">All Posts</TabsTrigger>
-            <TabsTrigger value="published">Published</TabsTrigger>
-            <TabsTrigger value="draft">Drafts</TabsTrigger>
-          </TabsList>
-        </Tabs>
+          <Tabs
+            value={filter}
+            onValueChange={(value) =>
+              setFilter(value as "all" | "published" | "draft")
+            }
+            className="mb-6"
+          >
+            <TabsList>
+              <TabsTrigger value="all">All Posts</TabsTrigger>
+              <TabsTrigger value="published">Published</TabsTrigger>
+              <TabsTrigger value="draft">Drafts</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
 
         <AppCard
           icon={FileText}
           iconColor="blue"
           title="Blog Posts"
           description="Manage all your blog posts"
+          className="animate-in fade-in slide-in-from-bottom-2 duration-500"
+          style={{ animationDelay: "0.2s", animationFillMode: "both" }}
         >
           {isLoading ? (
             <div className="space-y-4">

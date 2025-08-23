@@ -169,8 +169,14 @@ function SettingsPage() {
         description="Manage application settings and feature flags"
         highlightedWord="Settings"
       />
-      <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
-        <Card className="flex flex-col h-full">
+      <div
+        className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 animate-in fade-in slide-in-from-bottom-2 duration-500"
+        style={{ animationDelay: "0.1s", animationFillMode: "both" }}
+      >
+        <Card
+          className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-2 duration-500"
+          style={{ animationDelay: "0.2s", animationFillMode: "both" }}
+        >
           <CardHeader className="flex-shrink-0">
             <CardTitle className="flex items-center gap-2">
               <Shield className="h-5 w-5" />
@@ -203,7 +209,10 @@ function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="flex flex-col h-full">
+        <Card
+          className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-2 duration-500"
+          style={{ animationDelay: "0.3s", animationFillMode: "both" }}
+        >
           <CardHeader className="flex-shrink-0">
             <CardTitle className="flex items-center gap-2">
               <Bot className="h-5 w-5" />
@@ -236,7 +245,10 @@ function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="flex flex-col h-full">
+        <Card
+          className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-2 duration-500"
+          style={{ animationDelay: "0.4s", animationFillMode: "both" }}
+        >
           <CardHeader className="flex-shrink-0">
             <CardTitle className="flex items-center gap-2">
               <Package className="h-5 w-5" />
@@ -270,15 +282,19 @@ function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="flex flex-col h-full">
+        <Card
+          className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-2 duration-500"
+          style={{ animationDelay: "0.5s", animationFillMode: "both" }}
+        >
           <CardHeader className="flex-shrink-0">
             <CardTitle className="flex items-center gap-2">
               <DollarSign className="h-5 w-5" />
               Affiliates Feature
             </CardTitle>
             <CardDescription className="h-20 overflow-hidden">
-              Control whether the affiliate program features are available to users.
-              When disabled, affiliate-related functionality will be hidden.
+              Control whether the affiliate program features are available to
+              users. When disabled, affiliate-related functionality will be
+              hidden.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col justify-between">
@@ -304,7 +320,10 @@ function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="flex flex-col h-full">
+        <Card
+          className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-2 duration-500"
+          style={{ animationDelay: "0.6s", animationFillMode: "both" }}
+        >
           <CardHeader className="flex-shrink-0">
             <CardTitle className="flex items-center gap-2">
               <Newspaper className="h-5 w-5" />
@@ -321,10 +340,7 @@ function SettingsPage() {
                 id="blog-feature"
                 checked={blogFeature || false}
                 onCheckedChange={handleToggleBlogFeature}
-                disabled={
-                  isLoadingBlog ||
-                  toggleBlogFeatureMutation.isPending
-                }
+                disabled={isLoadingBlog || toggleBlogFeatureMutation.isPending}
               />
               <Label htmlFor="blog-feature" className="cursor-pointer">
                 {blogFeature ? "Enabled" : "Disabled"}

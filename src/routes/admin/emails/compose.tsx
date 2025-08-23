@@ -10,8 +10,8 @@ import {
   sendTestEmailFn,
   getUsersForEmailingFn,
 } from "~/fn/emails";
-import { EmailComposer } from "../-components/email-composer";
-import { TestEmailDialog } from "../-components/test-email-dialog";
+import { EmailComposer } from "./-components/email-composer";
+import { TestEmailDialog } from "./-components/test-email-dialog";
 import { toast } from "sonner";
 
 const emailFormSchema = z.object({

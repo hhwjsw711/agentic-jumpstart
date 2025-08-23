@@ -14,12 +14,37 @@ const sendBtn = document.getElementById("send");
 const spinnerEl = document.getElementById("spinner");
 const statusEl = document.getElementById("status");
 const jobsEl = document.getElementById("jobs");
+const outputPanel = document.getElementById("outputPanel");
+const outputHeader = document.getElementById("outputHeader");
+const outputTitle = document.getElementById("outputTitle");
+const outputStatus = document.getElementById("outputStatus");
+const outputContent = document.getElementById("outputContent");
+const emptyState = document.getElementById("emptyState");
+const closeOutput = document.getElementById("closeOutput");
+const includePathCheckbox = document.getElementById("includePath");
+const currentPathLabel = document.getElementById("currentPath");
+const modelSelect = document.getElementById("modelSelect");
 
 let jobCounter = 0;
 const jobs = new Map(); // id -> { id, color, text, startedAt, finishedAt, status, prompt }
 
 const POLLING_INTERVAL_MS = 1000;
 let pollingIntervalId = null;
+
+// Output panel state
+let currentOutputJobId = null;
+let outputPollingIntervalId = null;
+let lastOutputTimestamp = 0;
+
+// Path tracking
+let currentPagePath = "/loading...";
+
+function updatePathLabel(path) {
+  currentPagePath = path || "/unknown";
+  if (currentPathLabel) {
+    currentPathLabel.textContent = currentPagePath;
+  }
+}
 
 // Load jobs from server on startup
 async function loadJobsFromServer() {
@@ -121,6 +146,30 @@ function clearLastInput() {
   }
 }
 
+// Save model selection to localStorage
+function saveModelSelection(model) {
+  try {
+    localStorage.setItem("vibert-model-selection", model);
+  } catch (error) {
+    console.error("Failed to save model selection to localStorage:", error);
+  }
+}
+
+// Restore model selection from localStorage
+function restoreModelSelection() {
+  try {
+    const savedModel = localStorage.getItem("vibert-model-selection");
+    if (savedModel && modelSelect) {
+      modelSelect.value = savedModel;
+    }
+  } catch (error) {
+    console.error(
+      "Failed to restore model selection from localStorage:",
+      error
+    );
+  }
+}
+
 // Dismiss a job from both UI and server
 async function dismissJob(jobId, clickedElement) {
   try {
@@ -129,6 +178,11 @@ async function dismissJob(jobId, clickedElement) {
     });
     if (!response.ok) {
       throw new Error(`Failed to dismiss job ${jobId}`);
+    }
+
+    // If this is the currently selected job, reset the output panel
+    if (currentOutputJobId === jobId) {
+      showEmptyState();
     }
 
     // Remove from local state
@@ -150,9 +204,26 @@ async function dismissJob(jobId, clickedElement) {
 // No details view in simplified UI
 
 // Load jobs and restore last input when popup opens
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   loadJobsFromServer();
   restoreLastInput();
+  restoreModelSelection();
+
+  // Show empty state initially
+  showEmptyState();
+
+  // Load initial path
+  try {
+    const tab = await getActiveTab();
+    if (tab) {
+      collectContext(tab.id).catch(() => {
+        // Fallback if collectContext fails
+        updatePathLabel("/unknown");
+      });
+    }
+  } catch (error) {
+    updatePathLabel("/unknown");
+  }
 
   // Save input on every change
   const promptEl = document.getElementById("prompt");
@@ -162,7 +233,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Minimal interaction: allow dismissing completed/failed jobs
+  // Save model selection on every change
+  if (modelSelect) {
+    modelSelect.addEventListener("change", (e) => {
+      saveModelSelection(e.target.value);
+    });
+  }
+
+  // Handle job interactions: dismiss buttons and row clicks
   if (jobsEl) {
     jobsEl.addEventListener("click", (e) => {
       const dismissButton = e.target.closest("[data-dismiss-job]");
@@ -171,7 +249,24 @@ document.addEventListener("DOMContentLoaded", () => {
         e.stopPropagation();
         const jobId = dismissButton.getAttribute("data-dismiss-job");
         dismissJob(jobId, dismissButton);
+        return;
       }
+
+      // Handle job row clicks to show output
+      const jobRow = e.target.closest("[data-job-id]");
+      if (jobRow) {
+        e.preventDefault();
+        e.stopPropagation();
+        const jobId = jobRow.getAttribute("data-job-id");
+        showJobOutput(jobId);
+      }
+    });
+  }
+
+  // Close output panel
+  if (closeOutput) {
+    closeOutput.addEventListener("click", () => {
+      showEmptyState();
     });
   }
 
@@ -219,6 +314,8 @@ async function collectContext(tabId) {
       type: "collectContext",
     });
     if (!response?.ok) throw new Error(response?.error || "Failed");
+    // Update path label when we get the context
+    updatePathLabel(response.context?.path);
     return response.context;
   } catch (err) {
     // Try to inject content script if not already present (MV3 scripting API)
@@ -231,6 +328,8 @@ async function collectContext(tabId) {
         type: "collectContext",
       });
       if (!response?.ok) throw new Error(response?.error || "Failed");
+      // Update path label when we get the context
+      updatePathLabel(response.context?.path);
       return response.context;
     } catch (_) {
       // Some pages (e.g., chrome://, Web Store, PDF viewer) won't allow scripts
@@ -248,6 +347,8 @@ async function collectContext(tabId) {
           } catch (_) {
             path = tab.url;
           }
+          // Update path label with fallback path
+          updatePathLabel(path);
           return {
             path,
             url: tab.url || "",
@@ -257,6 +358,7 @@ async function collectContext(tabId) {
           };
         }
       } catch (_) {}
+      updatePathLabel("");
       return { path: "", url: "", title: "", selection: "", components: [] };
     }
   }
@@ -268,16 +370,29 @@ function buildPrompt(userPrompt, pageContext) {
 
   const url = safeString(pageContext?.url) || "<unknown>";
   const path = safeString(pageContext?.path) || "<unknown>";
-  return `I need you to look at the route located at ${url} and path ${path} and do the following change: ${userPrompt}`;
+
+  const includePathInPrompt = includePathCheckbox?.checked ?? true;
+
+  if (includePathInPrompt) {
+    return `I need you to look at the route located at ${url} and path ${path} and implement the following code change: ${userPrompt}\n\n UPDATE MY CODE BASED ON YOUR SUGGESTIONS`;
+  } else {
+    return `I need you to implement the following code change: ${userPrompt}\n\n UPDATE MY CODE BASED ON YOUR SUGGESTIONS`;
+  }
 }
 
 async function invokeLocalAgent({ userPrompt, pageContext, requestId }) {
   const headers = { "content-type": "application/json" };
   const composedPrompt = buildPrompt(userPrompt, pageContext);
+  const selectedModel = modelSelect?.value || "claude-3-5-haiku-20241022";
+
   const res = await fetch("http://localhost:1337/prompt", {
     method: "POST",
     headers,
-    body: JSON.stringify({ prompt: composedPrompt, jobId: requestId }),
+    body: JSON.stringify({
+      prompt: composedPrompt,
+      jobId: requestId,
+      options: { model: selectedModel },
+    }),
   });
 
   if (!res.ok) {
@@ -345,6 +460,9 @@ document.getElementById("send").addEventListener("click", async () => {
         });
         startPolling();
 
+        // Auto-select the new job
+        showJobOutput(requestId);
+
         const { jobId } = await invokeLocalAgent({
           userPrompt: prompt,
           pageContext,
@@ -357,6 +475,11 @@ document.getElementById("send").addEventListener("click", async () => {
           jobs.delete(requestId);
           jobs.set(jobId, { ...optimistic, id: jobId });
           renderJobs();
+
+          // Update the selected job to the new ID
+          if (currentOutputJobId === requestId) {
+            currentOutputJobId = jobId;
+          }
         }
       } catch (error) {
         setStatus(String(error?.message || error));
@@ -422,11 +545,11 @@ function renderJobs() {
       circleColor = "#ef4444"; // Red for failed
     }
 
-    // Create job row element
+    // Create job row element (now clickable)
     const jobRow = document.createElement("div");
     jobRow.style.cssText = `display:flex; align-items:center; gap:6px; padding: 4px; border-radius: 4px;`;
     jobRow.setAttribute("data-job-id", job.id);
-    // No nested details or clickable rows
+    jobRow.classList.add("clickable-job");
 
     // Create circle indicator
     const circle = document.createElement("span");
@@ -462,4 +585,139 @@ function renderJobs() {
 
   jobsEl.style.display = sortedJobs.length ? "block" : "none";
 }
-// No alert UI in simplified version
+
+// Output panel functions
+async function showJobOutput(jobId) {
+  const job = jobs.get(jobId);
+  if (!job) return;
+
+  currentOutputJobId = jobId;
+  lastOutputTimestamp = 0;
+
+  // Show header and hide empty state
+  outputHeader.style.display = "flex";
+  emptyState.style.display = "none";
+
+  // Update panel header
+  outputTitle.textContent = `${job.prompt?.substring(job.prompt.length - 50) || jobId}...`;
+  outputStatus.textContent =
+    job.status === "completed"
+      ? "Done"
+      : job.status === "failed"
+        ? "Failed"
+        : "Running";
+  outputStatus.className = `output-status ${job.status}`;
+
+  // Show the panel
+  outputPanel.style.display = "flex";
+
+  // Load initial output
+  await loadJobOutput(jobId);
+
+  // Start polling for updates if job is running
+  if (job.status === "running") {
+    startOutputPolling();
+  }
+}
+
+function showEmptyState() {
+  currentOutputJobId = null;
+  stopOutputPolling();
+  outputContent.innerHTML = "";
+  lastOutputTimestamp = 0;
+
+  // Hide header and show empty state
+  outputHeader.style.display = "none";
+  emptyState.style.display = "flex";
+
+  // Keep the panel visible to show empty state
+  outputPanel.style.display = "flex";
+}
+
+function hideJobOutput() {
+  outputPanel.style.display = "none";
+  currentOutputJobId = null;
+  stopOutputPolling();
+  outputContent.innerHTML = "";
+  lastOutputTimestamp = 0;
+}
+
+async function loadJobOutput(jobId) {
+  try {
+    const response = await fetch(
+      `http://localhost:1337/jobs/${jobId}/stream?since=${lastOutputTimestamp}`
+    );
+    if (!response.ok) return;
+
+    const data = await response.json();
+
+    // Update status
+    const job = jobs.get(jobId);
+    if (job && job.status !== data.status) {
+      job.status = data.status;
+      jobs.set(jobId, job);
+      renderJobs();
+
+      // Update output panel status
+      outputStatus.textContent =
+        data.status === "completed"
+          ? "Done"
+          : data.status === "failed"
+            ? "Failed"
+            : "Running";
+      outputStatus.className = `output-status ${data.status}`;
+
+      // Stop polling if job is done
+      if (data.status === "completed" || data.status === "failed") {
+        stopOutputPolling();
+      }
+    }
+
+    // Append new chunks
+    if (data.chunks && data.chunks.length > 0) {
+      const wasScrolledToBottom = isScrolledToBottom();
+
+      data.chunks.forEach((chunk) => {
+        const chunkDiv = document.createElement("div");
+        chunkDiv.className = `output-chunk ${chunk.type}`;
+        chunkDiv.textContent = chunk.text;
+        outputContent.appendChild(chunkDiv);
+      });
+
+      // Auto-scroll to bottom if user was already at bottom
+      if (wasScrolledToBottom) {
+        scrollToBottom();
+      }
+
+      // Update timestamp for next poll
+      lastOutputTimestamp = data.lastUpdate;
+    }
+  } catch (error) {
+    console.error("Failed to load job output:", error);
+  }
+}
+
+function startOutputPolling() {
+  if (outputPollingIntervalId || !currentOutputJobId) return;
+
+  outputPollingIntervalId = setInterval(() => {
+    if (currentOutputJobId) {
+      loadJobOutput(currentOutputJobId);
+    }
+  }, 500); // Poll output more frequently for better UX
+}
+
+function stopOutputPolling() {
+  if (!outputPollingIntervalId) return;
+  clearInterval(outputPollingIntervalId);
+  outputPollingIntervalId = null;
+}
+
+function isScrolledToBottom() {
+  const { scrollTop, scrollHeight, clientHeight } = outputContent;
+  return scrollTop + clientHeight >= scrollHeight - 5; // 5px tolerance
+}
+
+function scrollToBottom() {
+  outputContent.scrollTop = outputContent.scrollHeight;
+}

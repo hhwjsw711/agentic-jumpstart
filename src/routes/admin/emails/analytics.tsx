@@ -6,7 +6,7 @@ import { getEmailAnalyticsFn } from "~/fn/emails";
 import {
   EmailAnalytics,
   EmailAnalyticsHeader,
-} from "../-components/email-analytics";
+} from "./-components/email-analytics";
 
 const emailAnalyticsQueryOptions = (
   year: number,

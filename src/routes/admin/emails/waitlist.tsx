@@ -9,7 +9,7 @@ import {
   getWaitlistEmailTemplateFn,
   updateWaitlistEmailTemplateFn,
 } from "~/fn/email-templates";
-import { WaitlistEmailEditor } from "../-components/waitlist-email-editor";
+import { WaitlistEmailEditor } from "./-components/waitlist-email-editor";
 import { toast } from "sonner";
 
 const waitlistEmailSchema = z.object({

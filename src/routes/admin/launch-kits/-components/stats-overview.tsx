@@ -2,18 +2,27 @@ import { BarChart3, GitFork, MessageSquare, Tag } from "lucide-react";
 import { StatsCard } from "~/components/stats-card";
 
 interface StatsOverviewProps {
-  stats: {
-    totalKits?: number;
-    totalClones?: number;
-    totalComments?: number;
-  } | undefined;
+  stats:
+    | {
+        totalKits?: number;
+        totalClones?: number;
+        totalComments?: number;
+      }
+    | undefined;
   tagsCount: number | undefined;
   isLoading: boolean;
 }
 
-export function StatsOverview({ stats, tagsCount, isLoading }: StatsOverviewProps) {
+export function StatsOverview({
+  stats,
+  tagsCount,
+  isLoading,
+}: StatsOverviewProps) {
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+    <div
+      className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8 animate-in fade-in slide-in-from-bottom-2 duration-500"
+      style={{ animationDelay: "0.1s", animationFillMode: "both" }}
+    >
       <StatsCard
         icon={BarChart3}
         iconColor="text-blue-500 dark:text-blue-400"

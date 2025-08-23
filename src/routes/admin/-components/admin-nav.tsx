@@ -1,5 +1,6 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { cn } from "~/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 import {
   BarChart3,
   Users,
@@ -13,7 +14,13 @@ import {
   ExternalLink,
   Home,
   LogOut,
+  AlertCircle,
 } from "lucide-react";
+import {
+  getLaunchKitsFeatureEnabledFn,
+  getAffiliatesFeatureEnabledFn,
+  getBlogFeatureEnabledFn,
+} from "~/fn/app-settings";
 
 const navigation = [
   {
@@ -33,6 +40,7 @@ const navigation = [
     href: "/admin/blog",
     icon: FileText,
     description: "Manage posts",
+    featureKey: "blog",
   },
   {
     name: "Conversions",
@@ -45,12 +53,14 @@ const navigation = [
     href: "/admin/launch-kits",
     icon: Rocket,
     description: "Startup resources",
+    featureKey: "launchKits",
   },
   {
     name: "Affiliates",
     href: "/admin/affiliates",
     icon: UserCheck,
     description: "Partner program",
+    featureKey: "affiliates",
   },
   {
     name: "Comments",
@@ -74,6 +84,29 @@ const navigation = [
 
 export function AdminNav() {
   const location = useLocation();
+
+  // Fetch feature states
+  const { data: launchKitsEnabled } = useQuery({
+    queryKey: ["launchKitsFeature"],
+    queryFn: () => getLaunchKitsFeatureEnabledFn(),
+  });
+
+  const { data: affiliatesEnabled } = useQuery({
+    queryKey: ["affiliatesFeature"],
+    queryFn: () => getAffiliatesFeatureEnabledFn(),
+  });
+
+  const { data: blogEnabled } = useQuery({
+    queryKey: ["blogFeature"],
+    queryFn: () => getBlogFeatureEnabledFn(),
+  });
+
+  // Map feature keys to their enabled states
+  const featureStates = {
+    launchKits: launchKitsEnabled,
+    affiliates: affiliatesEnabled,
+    blog: blogEnabled,
+  };
 
   return (
     <nav className="w-64 relative h-full flex flex-col">
@@ -117,6 +150,8 @@ export function AdminNav() {
         <ul className="space-y-1 flex-1">
           {navigation.map((item) => {
             const isActive = location.pathname === item.href;
+            const isDisabled = item.featureKey && !featureStates[item.featureKey];
+            
             return (
               <li key={item.name}>
                 <Link
@@ -125,11 +160,13 @@ export function AdminNav() {
                     "flex flex-col px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group relative",
                     isActive
                       ? "text-theme-600 dark:text-theme-400 bg-theme-500/15 dark:bg-theme-500/10 shadow-sm"
+                      : isDisabled
+                      ? "text-muted-foreground/40 hover:text-muted-foreground/60 hover:bg-muted/30"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   )}
                 >
                   {/* Subtle glow for active state */}
-                  {isActive && (
+                  {isActive && !isDisabled && (
                     <div className="absolute inset-0 rounded-lg bg-theme-500/5 blur-sm"></div>
                   )}
 
@@ -137,29 +174,45 @@ export function AdminNav() {
                     <item.icon
                       className={cn(
                         "mr-3 h-4 w-4 transition-colors duration-200",
-                        isActive
+                        isActive && !isDisabled
                           ? "text-theme-500 dark:text-theme-400"
+                          : isDisabled
+                          ? "text-muted-foreground/40"
                           : "text-muted-foreground group-hover:text-theme-400"
                       )}
                     />
                     <span
                       className={cn(
-                        "relative z-10",
-                        isActive && "font-semibold"
+                        "relative z-10 flex-1",
+                        isActive && !isDisabled && "font-semibold",
+                        isDisabled && "opacity-60"
                       )}
                     >
                       {item.name}
                     </span>
+                    {isDisabled && (
+                      <div className="flex items-center gap-1 ml-auto">
+                        <span className="text-xs text-muted-foreground/50 font-normal">
+                          Disabled
+                        </span>
+                        <AlertCircle className="h-3 w-3 text-muted-foreground/50" />
+                      </div>
+                    )}
                   </div>
 
                   {item.description && (
-                    <span className="text-xs text-muted-foreground/70 ml-7 mt-0.5">
+                    <span className={cn(
+                      "text-xs text-muted-foreground/70 ml-7 mt-0.5",
+                      isDisabled && "opacity-50"
+                    )}>
                       {item.description}
                     </span>
                   )}
 
                   {/* Hover indicator */}
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 bg-theme-500 rounded-r-full transition-all duration-200 group-hover:h-8 opacity-0 group-hover:opacity-100"></div>
+                  {!isDisabled && (
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 bg-theme-500 rounded-r-full transition-all duration-200 group-hover:h-8 opacity-0 group-hover:opacity-100"></div>
+                  )}
                 </Link>
               </li>
             );
@@ -167,7 +220,7 @@ export function AdminNav() {
         </ul>
 
         {/* Sign Out Button - stays at bottom */}
-        <div className="mt-8 pt-6 border-t border-border/40">
+        <div className="mt-8 pt-6 mb-6 border-t border-border/40">
           <a
             href="/api/logout"
             className="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group relative text-muted-foreground hover:text-foreground hover:bg-muted/50"

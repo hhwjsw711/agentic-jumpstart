@@ -37,6 +37,8 @@ export function LaunchKitsList({
         title="No Launch Kits Found"
         description="Get started by creating your first launch kit."
         icon={GitFork}
+        className="animate-in fade-in slide-in-from-bottom-2 duration-500"
+        style={{ animationDelay: "0.5s", animationFillMode: "both" }}
       >
         <div className="text-center py-4">
           <Button asChild>
@@ -51,13 +53,24 @@ export function LaunchKitsList({
   }
 
   return (
-    <div className="space-y-4">
-      {launchKits?.map((kit) => (
-        <LaunchKitCard
+    <div 
+      className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500"
+      style={{ animationDelay: "0.5s", animationFillMode: "both" }}
+    >
+      {launchKits?.map((kit, index) => (
+        <div
           key={kit.id}
-          kit={kit}
-          onDelete={onDeleteKit}
-        />
+          className="animate-in fade-in slide-in-from-bottom-2 duration-500"
+          style={{ 
+            animationDelay: `${0.6 + index * 0.1}s`, 
+            animationFillMode: "both" 
+          }}
+        >
+          <LaunchKitCard
+            kit={kit}
+            onDelete={onDeleteKit}
+          />
+        </div>
       ))}
     </div>
   );

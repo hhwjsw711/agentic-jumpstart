@@ -3,7 +3,7 @@ import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { queryOptions } from "@tanstack/react-query";
 import { getEmailBatchesFn } from "~/fn/emails";
-import { EmailHistory } from "../-components/email-history";
+import { EmailHistory } from "./-components/email-history";
 
 const emailBatchesQueryOptions = queryOptions({
   queryKey: ["admin", "emailBatches"],

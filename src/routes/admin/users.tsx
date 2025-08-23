@@ -12,7 +12,10 @@ import { PageHeader } from "~/routes/admin/-components/page-header";
 import { AppCard } from "~/components/app-card";
 import { Page } from "~/routes/admin/-components/page";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { HeaderStats, HeaderStatCard } from "~/routes/admin/-components/header-stats";
+import {
+  HeaderStats,
+  HeaderStatCard,
+} from "~/routes/admin/-components/header-stats";
 import {
   Table,
   TableBody,
@@ -47,8 +50,10 @@ function AdminUsers() {
 
   const premiumCount = users.filter((user) => user.isPremium).length;
   const freeCount = users.filter((user) => !user.isPremium).length;
-  const conversionRate = users.length > 0 ? Math.round((premiumCount / users.length) * 100) : 0;
-  const freeRate = users.length > 0 ? Math.round((freeCount / users.length) * 100) : 0;
+  const conversionRate =
+    users.length > 0 ? Math.round((premiumCount / users.length) * 100) : 0;
+  const freeRate =
+    users.length > 0 ? Math.round((freeCount / users.length) * 100) : 0;
 
   const getUserInitials = (
     displayName?: string | null,
@@ -116,12 +121,17 @@ function AdminUsers() {
         }
       />
 
-      <div className="space-y-6">
+      <div
+        className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500"
+        style={{ animationDelay: "0.1s", animationFillMode: "both" }}
+      >
         {/* Users Table */}
         <AppCard
           icon={Users}
           title="Users"
           description="All users in the system"
+          className="animate-in fade-in slide-in-from-bottom-2 duration-500"
+          style={{ animationDelay: "0.2s", animationFillMode: "both" }}
         >
           <div className="p-6">
             <Tabs
