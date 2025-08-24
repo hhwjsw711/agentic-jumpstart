@@ -125,42 +125,42 @@ function AdminUsers() {
         className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500"
         style={{ animationDelay: "0.1s", animationFillMode: "both" }}
       >
-        {/* Users Table */}
-        <AppCard
-          icon={Users}
-          title="Users"
-          description="All users in the system"
-          className="animate-in fade-in slide-in-from-bottom-2 duration-500"
-          style={{ animationDelay: "0.2s", animationFillMode: "both" }}
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as any)}
         >
-          <div className="p-6">
-            <Tabs
-              value={activeTab}
-              onValueChange={(value) => setActiveTab(value as any)}
-            >
-              <div className="flex items-center justify-between mb-6">
-                <TabsList>
-                  <TabsTrigger value="all" className="flex items-center gap-2">
-                    <Users className="h-4 w-4" />
-                    All Users
-                    <Badge variant="secondary">{users.length}</Badge>
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="premium"
-                    className="flex items-center gap-2"
-                  >
-                    <Crown className="h-4 w-4" />
-                    Premium
-                    <Badge variant="secondary">{premiumCount}</Badge>
-                  </TabsTrigger>
-                  <TabsTrigger value="free" className="flex items-center gap-2">
-                    <User className="h-4 w-4" />
-                    Free
-                    <Badge variant="secondary">{freeCount}</Badge>
-                  </TabsTrigger>
-                </TabsList>
-              </div>
+          <div className="flex items-center justify-between mb-6">
+            <TabsList>
+              <TabsTrigger value="all" className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                All Users
+                <Badge variant="secondary">{users.length}</Badge>
+              </TabsTrigger>
+              <TabsTrigger
+                value="premium"
+                className="flex items-center gap-2"
+              >
+                <Crown className="h-4 w-4" />
+                Premium
+                <Badge variant="secondary">{premiumCount}</Badge>
+              </TabsTrigger>
+              <TabsTrigger value="free" className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                Free
+                <Badge variant="secondary">{freeCount}</Badge>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
+          {/* Users Table */}
+          <AppCard
+            icon={Users}
+            title="Users"
+            description="All users in the system"
+            className="animate-in fade-in slide-in-from-bottom-2 duration-500"
+            style={{ animationDelay: "0.2s", animationFillMode: "both" }}
+          >
+            <div className="p-6">
               <TabsContent value={activeTab} className="mt-0">
                 {isLoading ? (
                   <UserTableSkeleton />
@@ -280,9 +280,9 @@ function AdminUsers() {
                   </div>
                 )}
               </TabsContent>
-            </Tabs>
-          </div>
-        </AppCard>
+            </div>
+          </AppCard>
+        </Tabs>
       </div>
     </Page>
   );

@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "Headless Claude Agent",
+  "name": "Cletus - The Headless Claude Extension",
   "version": "0.2.0",
-  "description": "Prompt your local headless Claude with page path and React components to kickstart feature work.",
+  "description": "Prompt your local headless Claude with page path and React components to kickstart feature work. Powered by Claude.",
   "action": {
-    "default_title": "Claude Agent",
+    "default_title": "Cletus",
     "default_popup": "popup.html"
   },
   "options_page": "options.html",
