@@ -25,43 +25,14 @@ import { useAnalytics } from "~/hooks/use-analytics";
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
     beforeLoad: async ({ location }) => {
-      try {
-        const shouldShowEarlyAccess = await shouldShowEarlyAccessFn();
-        if (
-          shouldShowEarlyAccess &&
-          location.pathname !== "/" &&
-          location.pathname !== "/unsubscribe"
-        ) {
-          throw redirect({ to: "/" });
-        }
-      } catch (error) {
-        // If there's an error checking early access, log it but don't block the app
-        console.error("Error in beforeLoad:", error);
-        // Only redirect if it's actually a redirect error
-        if (error instanceof Error && error.message.includes("redirect")) {
-          throw error;
-        }
+      const shouldShowEarlyAccess = await shouldShowEarlyAccessFn();
+      if (shouldShowEarlyAccess && location.pathname !== "/") {
+        throw redirect({ to: "/" });
       }
     },
     loader: async () => {
-      try {
-        // Add a timeout to prevent hanging
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error("Loader timeout")), 5000);
-        });
-
-        const loaderPromise = shouldShowEarlyAccessFn();
-        const shouldShowEarlyAccess = await Promise.race([
-          loaderPromise,
-          timeoutPromise,
-        ]);
-
-        return { shouldShowEarlyAccess };
-      } catch (error) {
-        console.error("Error in root loader:", error);
-        // Return a safe default value
-        return { shouldShowEarlyAccess: false };
-      }
+      const shouldShowEarlyAccess = await shouldShowEarlyAccessFn();
+      return { shouldShowEarlyAccess };
     },
     head: () => ({
       meta: [
