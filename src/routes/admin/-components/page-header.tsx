@@ -28,7 +28,8 @@ export function PageHeader({
           </h1>
           <div className="text-description max-w-2xl">{description}</div>
         </div>
-        {actions && <div>{actions}</div>}
+
+        {actions && <>{actions}</>}
       </div>
     </div>
   );

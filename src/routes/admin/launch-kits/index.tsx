@@ -13,7 +13,9 @@ import { DeleteLaunchKitDialog } from "./-components/delete-launch-kit-dialog";
 import { useLaunchKitDeletion } from "./-components/use-launch-kit-deletion";
 import { Page } from "../-components/page";
 import { HeaderStats, HeaderStatCard } from "../-components/header-stats";
-import { BarChart3, GitFork, MessageSquare, Tag } from "lucide-react";
+import { BarChart3, GitFork, MessageSquare, Tag, Settings } from "lucide-react";
+import { Button } from "~/components/ui/button";
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/admin/launch-kits/")({
   beforeLoad: () => assertIsAdminFn(),
@@ -60,36 +62,55 @@ function AdminLaunchKits() {
         highlightedWord="Management"
         description="Manage launch kits and monitor analytics for starter repositories"
         actions={
-          <HeaderStats columns={4}>
-            <HeaderStatCard
-              icon={BarChart3}
-              iconColor="blue"
-              value={stats?.totalKits ?? 0}
-              label="Total Kits"
-              loading={statsLoading}
-            />
-            <HeaderStatCard
-              icon={GitFork}
-              iconColor="green"
-              value={stats?.totalClones ?? 0}
-              label="Clones"
-              loading={statsLoading}
-            />
-            <HeaderStatCard
-              icon={MessageSquare}
-              iconColor="orange"
-              value={stats?.totalComments ?? 0}
-              label="Comments"
-              loading={statsLoading}
-            />
-            <HeaderStatCard
-              icon={Tag}
-              iconColor="purple"
-              value={tags?.length ?? 0}
-              label="Tags"
-              loading={statsLoading}
-            />
-          </HeaderStats>
+          <div className="space-y-4">
+            {/* Stats Cards */}
+            <HeaderStats columns={4}>
+              <HeaderStatCard
+                icon={BarChart3}
+                iconColor="blue"
+                value={stats?.totalKits ?? 0}
+                label="Total Kits"
+                loading={statsLoading}
+              />
+              <HeaderStatCard
+                icon={GitFork}
+                iconColor="green"
+                value={stats?.totalClones ?? 0}
+                label="Clones"
+                loading={statsLoading}
+              />
+              <HeaderStatCard
+                icon={MessageSquare}
+                iconColor="orange"
+                value={stats?.totalComments ?? 0}
+                label="Comments"
+                loading={statsLoading}
+              />
+              <HeaderStatCard
+                icon={Tag}
+                iconColor="purple"
+                value={tags?.length ?? 0}
+                label="Tags"
+                loading={statsLoading}
+              />
+            </HeaderStats>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3">
+              <Button asChild variant="outline">
+                <Link to="/admin/launch-kits/create">
+                  <GitFork className="mr-2 h-4 w-4" />
+                  Create Launch Kit
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link to="/admin/launch-kits/tags">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Manage Tags & Categories
+                </Link>
+              </Button>
+            </div>
+          </div>
         }
       />
 

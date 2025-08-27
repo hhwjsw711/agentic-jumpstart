@@ -56,6 +56,7 @@ import { Route as AdminConversionsIndexRouteImport } from './routes/admin/conver
 import { Route as AdminBlogIndexRouteImport } from './routes/admin/blog/index'
 import { Route as LearnSlugEditRouteImport } from './routes/learn/$slug/edit'
 import { Route as LearnSlugLayoutRouteImport } from './routes/learn/$slug/_layout'
+import { Route as AdminLaunchKitsTagsRouteImport } from './routes/admin/launch-kits/tags'
 import { Route as AdminEmailsWaitlistRouteImport } from './routes/admin/emails/waitlist'
 import { Route as AdminEmailsHistoryRouteImport } from './routes/admin/emails/history'
 import { Route as AdminEmailsComposeRouteImport } from './routes/admin/emails/compose'
@@ -301,6 +302,11 @@ const LearnSlugLayoutRoute = LearnSlugLayoutRouteImport.update({
   id: '/_layout',
   getParentRoute: () => LearnSlugRoute,
 } as any)
+const AdminLaunchKitsTagsRoute = AdminLaunchKitsTagsRouteImport.update({
+  id: '/launch-kits/tags',
+  path: '/launch-kits/tags',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminEmailsWaitlistRoute = AdminEmailsWaitlistRouteImport.update({
   id: '/waitlist',
   path: '/waitlist',
@@ -439,6 +445,7 @@ export interface FileRoutesByFullPath {
   '/admin/emails/compose': typeof AdminEmailsComposeRoute
   '/admin/emails/history': typeof AdminEmailsHistoryRoute
   '/admin/emails/waitlist': typeof AdminEmailsWaitlistRoute
+  '/admin/launch-kits/tags': typeof AdminLaunchKitsTagsRoute
   '/learn/$slug': typeof LearnSlugLayoutRouteWithChildren
   '/learn/$slug/edit': typeof LearnSlugEditRoute
   '/admin/blog': typeof AdminBlogIndexRoute
@@ -495,6 +502,7 @@ export interface FileRoutesByTo {
   '/admin/emails/compose': typeof AdminEmailsComposeRoute
   '/admin/emails/history': typeof AdminEmailsHistoryRoute
   '/admin/emails/waitlist': typeof AdminEmailsWaitlistRoute
+  '/admin/launch-kits/tags': typeof AdminLaunchKitsTagsRoute
   '/learn/$slug': typeof LearnSlugLayoutIndexRoute
   '/learn/$slug/edit': typeof LearnSlugEditRoute
   '/admin/blog': typeof AdminBlogIndexRoute
@@ -553,6 +561,7 @@ export interface FileRoutesById {
   '/admin/emails/compose': typeof AdminEmailsComposeRoute
   '/admin/emails/history': typeof AdminEmailsHistoryRoute
   '/admin/emails/waitlist': typeof AdminEmailsWaitlistRoute
+  '/admin/launch-kits/tags': typeof AdminLaunchKitsTagsRoute
   '/learn/$slug': typeof LearnSlugRouteWithChildren
   '/learn/$slug/_layout': typeof LearnSlugLayoutRouteWithChildren
   '/learn/$slug/edit': typeof LearnSlugEditRoute
@@ -614,6 +623,7 @@ export interface FileRouteTypes {
     | '/admin/emails/compose'
     | '/admin/emails/history'
     | '/admin/emails/waitlist'
+    | '/admin/launch-kits/tags'
     | '/learn/$slug'
     | '/learn/$slug/edit'
     | '/admin/blog'
@@ -670,6 +680,7 @@ export interface FileRouteTypes {
     | '/admin/emails/compose'
     | '/admin/emails/history'
     | '/admin/emails/waitlist'
+    | '/admin/launch-kits/tags'
     | '/learn/$slug'
     | '/learn/$slug/edit'
     | '/admin/blog'
@@ -727,6 +738,7 @@ export interface FileRouteTypes {
     | '/admin/emails/compose'
     | '/admin/emails/history'
     | '/admin/emails/waitlist'
+    | '/admin/launch-kits/tags'
     | '/learn/$slug'
     | '/learn/$slug/_layout'
     | '/learn/$slug/edit'
@@ -1145,6 +1157,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnSlugLayoutRouteImport
       parentRoute: typeof LearnSlugRoute
     }
+    '/admin/launch-kits/tags': {
+      id: '/admin/launch-kits/tags'
+      path: '/launch-kits/tags'
+      fullPath: '/admin/launch-kits/tags'
+      preLoaderRoute: typeof AdminLaunchKitsTagsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/emails/waitlist': {
       id: '/admin/emails/waitlist'
       path: '/waitlist'
@@ -1318,6 +1337,7 @@ interface AdminRouteRouteChildren {
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminBlogNewRoute: typeof AdminBlogNewRoute
+  AdminLaunchKitsTagsRoute: typeof AdminLaunchKitsTagsRoute
   AdminBlogIndexRoute: typeof AdminBlogIndexRoute
   AdminLaunchKitsIndexRoute: typeof AdminLaunchKitsIndexRoute
   AdminBlogIdEditRoute: typeof AdminBlogIdEditRoute
@@ -1334,6 +1354,7 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminSettingsRoute: AdminSettingsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminBlogNewRoute: AdminBlogNewRoute,
+  AdminLaunchKitsTagsRoute: AdminLaunchKitsTagsRoute,
   AdminBlogIndexRoute: AdminBlogIndexRoute,
   AdminLaunchKitsIndexRoute: AdminLaunchKitsIndexRoute,
   AdminBlogIdEditRoute: AdminBlogIdEditRoute,

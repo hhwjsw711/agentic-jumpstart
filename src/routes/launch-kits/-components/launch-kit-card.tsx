@@ -19,7 +19,9 @@ export function LaunchKitCard({ kit, onClone }: LaunchKitCardProps) {
   const kitTags = kit.tags || [];
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 border-border/50 hover:border-theme-200 h-full flex flex-col">
+    <Card 
+      className="group hover:shadow-lg transition-all duration-300 border-border/50 hover:border-theme-200 h-full flex flex-col"
+      data-kit-id={kit.id}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
@@ -57,6 +59,7 @@ export function LaunchKitCard({ kit, onClone }: LaunchKitCardProps) {
                   color: tag.color,
                   backgroundColor: tag.color + "08",
                 }}
+                data-tag={tag.slug || tag.name.toLowerCase().replace(/\s+/g, '-')}
               >
                 {tag.name}
               </Badge>

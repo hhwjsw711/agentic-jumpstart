@@ -3,6 +3,19 @@ import { AppCard } from "~/components/app-card";
 import { ExternalLink, Trash2, GitFork, Eye, Edit } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
+interface LaunchKitTag {
+  id: number;
+  name: string;
+  slug: string;
+  color: string;
+  categoryId: number | null;
+  category?: {
+    id: number;
+    name: string;
+    slug: string;
+  } | null;
+}
+
 interface LaunchKit {
   id: number;
   name: string;
@@ -10,7 +23,8 @@ interface LaunchKit {
   repositoryUrl: string;
   cloneCount: number;
   slug: string;
-  createdAt: string;
+  createdAt: Date;
+  tags?: LaunchKitTag[];
 }
 
 interface LaunchKitCardProps {
@@ -33,7 +47,10 @@ export function LaunchKitCard({ kit, onDelete }: LaunchKitCardProps) {
             <ExternalLink className="h-4 w-4" />
           </Button>
           <Button size="sm" variant="outline" asChild>
-            <Link to="/admin/launch-kits/edit/$id" params={{ id: kit.id.toString() }}>
+            <Link
+              to="/admin/launch-kits/edit/$id"
+              params={{ id: kit.id.toString() }}
+            >
               <Edit className="h-4 w-4" />
             </Link>
           </Button>
@@ -47,16 +64,35 @@ export function LaunchKitCard({ kit, onDelete }: LaunchKitCardProps) {
         </div>
       }
     >
-      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-        <span className="flex items-center gap-1">
-          <GitFork className="h-4 w-4" />
-          {kit.cloneCount} clones
-        </span>
-        <span className="flex items-center gap-1">
-          <Eye className="h-4 w-4" />
-          {kit.slug}
-        </span>
-        <span>{new Date(kit.createdAt).toLocaleDateString()}</span>
+      <div className="space-y-3">
+        {kit.tags && kit.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {kit.tags.map((tag) => (
+              <span
+                key={tag.id}
+                className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium"
+                style={{
+                  backgroundColor: `${tag.color}20`,
+                  color: tag.color,
+                  border: `1px solid ${tag.color}40`,
+                }}
+              >
+                {tag.name}
+              </span>
+            ))}
+          </div>
+        )}
+        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <span className="flex items-center gap-1">
+            <GitFork className="h-4 w-4" />
+            {kit.cloneCount} clones
+          </span>
+          <span className="flex items-center gap-1">
+            <Eye className="h-4 w-4" />
+            {kit.slug}
+          </span>
+          <span>{kit.createdAt.toLocaleDateString()}</span>
+        </div>
       </div>
     </AppCard>
   );

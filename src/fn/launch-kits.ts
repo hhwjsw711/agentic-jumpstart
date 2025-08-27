@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
-import { 
-  authenticatedMiddleware, 
+import {
+  authenticatedMiddleware,
   adminMiddleware,
-  unauthenticatedMiddleware 
+  unauthenticatedMiddleware,
 } from "~/lib/auth";
 import {
   createLaunchKitUseCase,
@@ -12,10 +12,15 @@ import {
   getLaunchKitByIdUseCase,
   getLaunchKitBySlugUseCase,
   cloneLaunchKitUseCase,
+  createCategoryUseCase,
+  updateCategoryUseCase,
+  deleteCategoryUseCase,
+  getAllCategoriesUseCase,
   createTagUseCase,
+  updateTagUseCase,
+  deleteTagUseCase,
   getAllTagsUseCase,
   getTagsByCategoryUseCase,
-  deleteTagUseCase,
   getLaunchKitCommentsUseCase,
   createLaunchKitCommentUseCase,
   updateLaunchKitCommentUseCase,
@@ -24,7 +29,10 @@ import {
   getLaunchKitStatsUseCase,
   type CreateLaunchKitInput,
   type UpdateLaunchKitInput,
+  type CreateCategoryInput,
+  type UpdateCategoryInput,
   type CreateTagInput,
+  type UpdateTagInput,
   type CreateCommentInput,
 } from "~/use-cases/launch-kits";
 
@@ -33,10 +41,7 @@ export const getAllLaunchKitsFn = createServerFn({
   method: "POST",
 })
   .middleware([unauthenticatedMiddleware])
-  .validator((data: {
-    tags?: string[];
-    search?: string;
-  }) => data)
+  .validator((data: { tags?: string[]; search?: string }) => data)
   .handler(async ({ data }) => {
     return getAllLaunchKitsUseCase(data);
   });
@@ -113,6 +118,42 @@ export const getLaunchKitStatsFn = createServerFn({
     return getLaunchKitStatsUseCase(context.userId);
   });
 
+// Category management (Admin)
+export const createCategoryFn = createServerFn({
+  method: "POST",
+})
+  .middleware([adminMiddleware])
+  .validator((data: CreateCategoryInput) => data)
+  .handler(async ({ data, context }) => {
+    return createCategoryUseCase(context.userId, data);
+  });
+
+export const updateCategoryFn = createServerFn({
+  method: "POST",
+})
+  .middleware([adminMiddleware])
+  .validator((data: { id: number; updates: UpdateCategoryInput }) => data)
+  .handler(async ({ data, context }) => {
+    return updateCategoryUseCase(context.userId, data.id, data.updates);
+  });
+
+export const deleteCategoryFn = createServerFn({
+  method: "POST",
+})
+  .middleware([adminMiddleware])
+  .validator((data: { id: number }) => data)
+  .handler(async ({ data, context }) => {
+    return deleteCategoryUseCase(context.userId, data.id);
+  });
+
+export const getAllCategoriesFn = createServerFn({
+  method: "GET",
+})
+  .middleware([unauthenticatedMiddleware])
+  .handler(async () => {
+    return getAllCategoriesUseCase();
+  });
+
 // Tag management (Admin)
 export const createTagFn = createServerFn({
   method: "POST",
@@ -121,6 +162,15 @@ export const createTagFn = createServerFn({
   .validator((data: CreateTagInput) => data)
   .handler(async ({ data, context }) => {
     return createTagUseCase(context.userId, data);
+  });
+
+export const updateTagFn = createServerFn({
+  method: "POST",
+})
+  .middleware([adminMiddleware])
+  .validator((data: { id: number; updates: UpdateTagInput }) => data)
+  .handler(async ({ data, context }) => {
+    return updateTagUseCase(context.userId, data.id, data.updates);
   });
 
 export const getAllTagsFn = createServerFn({
@@ -164,14 +214,10 @@ export const createLaunchKitCommentFn = createServerFn({
   .middleware([authenticatedMiddleware])
   .validator((data: { launchKitId: number } & CreateCommentInput) => data)
   .handler(async ({ data, context }) => {
-    return createLaunchKitCommentUseCase(
-      context.userId,
-      data.launchKitId,
-      {
-        content: data.content,
-        parentId: data.parentId,
-      }
-    );
+    return createLaunchKitCommentUseCase(context.userId, data.launchKitId, {
+      content: data.content,
+      parentId: data.parentId,
+    });
   });
 
 export const updateLaunchKitCommentFn = createServerFn({

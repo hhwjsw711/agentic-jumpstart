@@ -443,6 +443,18 @@ export const launchKits = tableCreator(
   ]
 );
 
+export const launchKitCategories = tableCreator(
+  "launch_kit_category",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 50 }).notNull().unique(),
+    slug: varchar("slug", { length: 50 }).notNull().unique(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [index("launch_kit_categories_slug_idx").on(table.slug)]
+);
+
 export const launchKitTags = tableCreator(
   "launch_kit_tag",
   {
@@ -450,13 +462,14 @@ export const launchKitTags = tableCreator(
     name: varchar("name", { length: 100 }).notNull().unique(),
     slug: varchar("slug", { length: 100 }).notNull().unique(),
     color: varchar("color", { length: 7 }).notNull().default("#3B82F6"), // hex color
-    category: varchar("category", { length: 50 })
-      .notNull()
-      .default("framework"), // framework, language, database, tool, etc.
+    categoryId: serial("category_id").references(() => launchKitCategories.id, {
+      onDelete: "cascade",
+    }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
   (table) => [
-    index("launch_kit_tags_category_idx").on(table.category),
+    index("launch_kit_tags_category_idx").on(table.categoryId),
     index("launch_kit_tags_slug_idx").on(table.slug),
   ]
 );
@@ -677,15 +690,12 @@ export const userEmailPreferencesRelations = relations(
   })
 );
 
-export const emailTemplatesRelations = relations(
-  emailTemplates,
-  ({ one }) => ({
-    updatedByUser: one(users, {
-      fields: [emailTemplates.updatedBy],
-      references: [users.id],
-    }),
-  })
-);
+export const emailTemplatesRelations = relations(emailTemplates, ({ one }) => ({
+  updatedByUser: one(users, {
+    fields: [emailTemplates.updatedBy],
+    references: [users.id],
+  }),
+}));
 
 export const analyticsEvents = tableCreator(
   "analytics_event",
@@ -833,9 +843,23 @@ export const launchKitsRelations = relations(launchKits, ({ many }) => ({
   analytics: many(launchKitAnalytics),
 }));
 
-export const launchKitTagsRelations = relations(launchKitTags, ({ many }) => ({
-  launchKits: many(launchKitTagRelations),
-}));
+export const launchKitCategoriesRelations = relations(
+  launchKitCategories,
+  ({ many }) => ({
+    tags: many(launchKitTags),
+  })
+);
+
+export const launchKitTagsRelations = relations(
+  launchKitTags,
+  ({ one, many }) => ({
+    category: one(launchKitCategories, {
+      fields: [launchKitTags.categoryId],
+      references: [launchKitCategories.id],
+    }),
+    launchKits: many(launchKitTagRelations),
+  })
+);
 
 export const launchKitTagRelationsRelations = relations(
   launchKitTagRelations,
@@ -887,6 +911,13 @@ export const launchKitAnalyticsRelations = relations(
   })
 );
 
+export const appLaunchKitCategories = relations(
+  launchKitCategories,
+  ({ many }) => ({
+    tags: many(launchKitTags),
+  })
+);
+
 export type User = typeof users.$inferSelect;
 export type Profile = typeof profiles.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
@@ -935,6 +966,8 @@ export type BlogPostView = typeof blogPostViews.$inferSelect;
 export type BlogPostViewCreate = typeof blogPostViews.$inferInsert;
 export type LaunchKit = typeof launchKits.$inferSelect;
 export type LaunchKitCreate = typeof launchKits.$inferInsert;
+export type LaunchKitCategory = typeof launchKitCategories.$inferSelect;
+export type LaunchKitCategoryCreate = typeof launchKitCategories.$inferInsert;
 export type LaunchKitTag = typeof launchKitTags.$inferSelect;
 export type LaunchKitTagCreate = typeof launchKitTags.$inferInsert;
 export type LaunchKitTagRelation = typeof launchKitTagRelations.$inferSelect;

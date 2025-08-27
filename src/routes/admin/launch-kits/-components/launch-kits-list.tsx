@@ -4,14 +4,31 @@ import { AppCard } from "~/components/app-card";
 import { LaunchKitCard } from "./launch-kit-card";
 import { Plus, GitFork } from "lucide-react";
 
+interface LaunchKitTag {
+  id: number;
+  name: string;
+  slug: string;
+  color: string;
+  categoryId: number | null;
+  category?: {
+    id: number;
+    name: string;
+    slug: string;
+  } | null;
+}
+
 interface LaunchKit {
   id: number;
   name: string;
-  description: string;
-  repositoryUrl: string;
-  cloneCount: number;
   slug: string;
-  createdAt: string;
+  description: string;
+  longDescription: string | null;
+  repositoryUrl: string;
+  demoUrl: string | null;
+  imageUrl: string | null;
+  cloneCount: number;
+  createdAt: Date;
+  tags?: LaunchKitTag[];
 }
 
 interface LaunchKitsListProps {
@@ -26,9 +43,7 @@ export function LaunchKitsList({
   onDeleteKit,
 }: LaunchKitsListProps) {
   if (isLoading) {
-    return (
-      <div className="text-center py-8">Loading launch kits...</div>
-    );
+    return <div className="text-center py-8">Loading launch kits...</div>;
   }
 
   if (launchKits?.length === 0) {
@@ -53,7 +68,7 @@ export function LaunchKitsList({
   }
 
   return (
-    <div 
+    <div
       className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500"
       style={{ animationDelay: "0.5s", animationFillMode: "both" }}
     >
@@ -61,15 +76,12 @@ export function LaunchKitsList({
         <div
           key={kit.id}
           className="animate-in fade-in slide-in-from-bottom-2 duration-500"
-          style={{ 
-            animationDelay: `${0.6 + index * 0.1}s`, 
-            animationFillMode: "both" 
+          style={{
+            animationDelay: `${0.6 + index * 0.1}s`,
+            animationFillMode: "both",
           }}
         >
-          <LaunchKitCard
-            kit={kit}
-            onDelete={onDeleteKit}
-          />
+          <LaunchKitCard kit={kit} onDelete={onDeleteKit} />
         </div>
       ))}
     </div>
