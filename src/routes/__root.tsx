@@ -2,12 +2,9 @@
 import {
   Outlet,
   createRootRouteWithContext,
-  useRouter,
   useRouterState,
   redirect,
 } from "@tanstack/react-router";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { HeadContent, Scripts } from "@tanstack/react-router";
 import * as React from "react";
 import { type QueryClient } from "@tanstack/react-query";
@@ -19,24 +16,52 @@ import { Header } from "~/routes/-components/header";
 import { FooterSection } from "~/routes/-components/footer";
 import { ThemeProvider } from "~/components/ThemeProvider";
 import { ThemeToggle } from "~/components/theme-toggle";
-import { Toaster } from "~/components/ui/toaster";
+import { Toaster } from "sonner";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
-import { env } from "~/utils/env";
 import { shouldShowEarlyAccessFn } from "~/fn/early-access";
 import { useAnalytics } from "~/hooks/use-analytics";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
     beforeLoad: async ({ location }) => {
-      const shouldShowEarlyAccess = await shouldShowEarlyAccessFn();
-      if (shouldShowEarlyAccess && location.pathname !== "/") {
-        throw redirect({ to: "/" });
+      try {
+        const shouldShowEarlyAccess = await shouldShowEarlyAccessFn();
+        if (
+          shouldShowEarlyAccess &&
+          location.pathname !== "/" &&
+          location.pathname !== "/unsubscribe"
+        ) {
+          throw redirect({ to: "/" });
+        }
+      } catch (error) {
+        // If there's an error checking early access, log it but don't block the app
+        console.error("Error in beforeLoad:", error);
+        // Only redirect if it's actually a redirect error
+        if (error instanceof Error && error.message.includes("redirect")) {
+          throw error;
+        }
       }
     },
     loader: async () => {
-      const shouldShowEarlyAccess = await shouldShowEarlyAccessFn();
-      return { shouldShowEarlyAccess };
+      try {
+        // Add a timeout to prevent hanging
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error("Loader timeout")), 5000);
+        });
+
+        const loaderPromise = shouldShowEarlyAccessFn();
+        const shouldShowEarlyAccess = await Promise.race([
+          loaderPromise,
+          timeoutPromise,
+        ]);
+
+        return { shouldShowEarlyAccess };
+      } catch (error) {
+        console.error("Error in root loader:", error);
+        // Return a safe default value
+        return { shouldShowEarlyAccess: false };
+      }
     },
     head: () => ({
       meta: [
@@ -103,14 +128,17 @@ function RootComponent() {
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   const routerState = useRouterState();
-  const { shouldShowEarlyAccess } = Route.useLoaderData();
+  const loaderData = Route.useLoaderData();
+  const shouldShowEarlyAccess = loaderData?.shouldShowEarlyAccess ?? false;
   const showFooter =
     !routerState.location.pathname.startsWith("/learn") &&
     !routerState.location.pathname.startsWith("/admin") &&
+    !routerState.location.pathname.startsWith("/unsubscribe") &&
     !shouldShowEarlyAccess;
   const showHeader =
     !routerState.location.pathname.startsWith("/learn") &&
     !routerState.location.pathname.startsWith("/admin") &&
+    !routerState.location.pathname.startsWith("/unsubscribe") &&
     !shouldShowEarlyAccess;
   const showThemeToggle =
     routerState.location.pathname === "/" && shouldShowEarlyAccess;

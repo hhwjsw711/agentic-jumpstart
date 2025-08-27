@@ -1,7 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { cn } from "~/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 import {
-  BarChart3,
   Users,
   MessageSquare,
   Mail,
@@ -9,54 +9,128 @@ import {
   UserCheck,
   Settings,
   Newspaper,
+  Home,
+  FileText,
+  Rocket,
+  ExternalLink,
+  LogOut,
+  AlertCircle,
 } from "lucide-react";
+import {
+  getLaunchKitsFeatureEnabledFn,
+  getAffiliatesFeatureEnabledFn,
+  getBlogFeatureEnabledFn,
+  getNewsFeatureEnabledFn,
+} from "~/fn/app-settings";
 
 const navigation = [
   {
-    name: "Analytics",
+    name: "Dashboard",
     href: "/admin/analytics",
-    icon: BarChart3,
+    icon: Home,
+    description: "Overview & Analytics",
+  },
+  {
+    name: "Users",
+    href: "/admin/users",
+    icon: Users,
+    description: "Manage users",
+  },
+  {
+    name: "Blog",
+    href: "/admin/blog",
+    icon: FileText,
+    description: "Manage posts",
+    featureKey: "blog",
   },
   {
     name: "Conversions",
     href: "/admin/conversions",
     icon: Target,
+    description: "Track performance",
+  },
+  {
+    name: "Launch Kits",
+    href: "/admin/launch-kits",
+    icon: Rocket,
+    description: "Startup resources",
+    featureKey: "launchKits",
   },
   {
     name: "Affiliates",
     href: "/admin/affiliates",
     icon: UserCheck,
+    description: "Partner program",
+    featureKey: "affiliates",
   },
   {
     name: "Comments",
     href: "/admin/comments",
     icon: MessageSquare,
+    description: "User feedback",
   },
   {
     name: "News",
     href: "/admin/news",
     icon: Newspaper,
+    description: "News posts",
+    featureKey: "news",
   },
   {
     name: "Emails",
     href: "/admin/emails",
     icon: Mail,
+    description: "Email campaigns",
   },
   {
     name: "Settings",
     href: "/admin/settings",
     icon: Settings,
+    description: "Site configuration",
   },
 ];
 
-export function AdminNav() {
+interface AdminNavProps {
+  onItemClick?: () => void;
+}
+
+export function AdminNav({ onItemClick }: AdminNavProps = {}) {
   const location = useLocation();
 
+  // Fetch feature states
+  const { data: launchKitsEnabled } = useQuery({
+    queryKey: ["launchKitsFeature"],
+    queryFn: () => getLaunchKitsFeatureEnabledFn(),
+  });
+
+  const { data: affiliatesEnabled } = useQuery({
+    queryKey: ["affiliatesFeature"],
+    queryFn: () => getAffiliatesFeatureEnabledFn(),
+  });
+
+  const { data: blogEnabled } = useQuery({
+    queryKey: ["blogFeature"],
+    queryFn: () => getBlogFeatureEnabledFn(),
+  });
+
+  const { data: newsEnabled } = useQuery({
+    queryKey: ["newsFeature"],
+    queryFn: () => getNewsFeatureEnabledFn(),
+  });
+
+  // Map feature keys to their enabled states
+  const featureStates = {
+    launchKits: launchKitsEnabled,
+    affiliates: affiliatesEnabled,
+    blog: blogEnabled,
+    news: newsEnabled,
+  };
+
   return (
-    <nav className="w-64 relative">
+    <nav className="w-64 relative h-full flex flex-col">
       {/* Sophisticated gradient background matching header */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-background"></div>
-      
+
       {/* Floating theme elements for visual consistency */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
         <div className="absolute top-1/4 left-1/2 w-24 h-24 bg-theme-500/10 dark:bg-theme-500/5 rounded-full blur-2xl"></div>
@@ -66,59 +140,126 @@ export function AdminNav() {
       {/* Glass morphism overlay with better contrast */}
       <div className="absolute inset-0 backdrop-blur-md bg-white/85 dark:bg-background/20 border-r border-border/60"></div>
 
-      <div className="relative z-10 p-6">
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2">
+      <div className="relative z-10 p-6 h-full flex flex-col">
+        {/* View Site Link at the top */}
+        <div className="mb-6">
+          <Link
+            to="/"
+            onClick={onItemClick}
+            className="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group relative bg-theme-500/10 hover:bg-theme-500/20 border border-theme-500/30 text-theme-600 dark:text-theme-400 hover:text-theme-700 dark:hover:text-theme-300"
+          >
+            <ExternalLink className="mr-3 h-4 w-4 transition-colors duration-200 text-theme-500 group-hover:text-theme-600 dark:group-hover:text-theme-400" />
+            <span className="relative z-10 font-semibold">View Site</span>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-theme-500/60">
+              →
+            </div>
+          </Link>
+        </div>
+
+        {/* Admin Panel Header - now clickable */}
+        <Link
+          to="/admin/analytics"
+          onClick={onItemClick}
+          className="block mb-8 group"
+        >
+          <h2 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2 cursor-pointer transition-colors duration-200 group-hover:text-theme-500">
             <div className="w-2 h-2 rounded-full bg-theme-500 animate-pulse"></div>
             Admin Panel
           </h2>
           <div className="h-px bg-gradient-to-r from-theme-500/20 via-theme-400/30 to-transparent"></div>
-        </div>
-        
-        <ul className="space-y-1">
+        </Link>
+
+        {/* Navigation links - flex-1 to take available space */}
+        <ul className="space-y-1 flex-1">
           {navigation.map((item) => {
-            const isActive = location.pathname === item.href;
+            const isActive =
+              item.href === "/admin/conversions"
+                ? location.pathname.startsWith("/admin/conversions")
+                : location.pathname === item.href;
+            const isDisabled =
+              item.featureKey &&
+              !featureStates[item.featureKey as keyof typeof featureStates];
+
             return (
               <li key={item.name}>
                 <Link
                   to={item.href}
+                  onClick={onItemClick}
                   className={cn(
-                    "flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group relative",
+                    "flex flex-col px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group relative",
                     isActive
-                      ? "text-theme-600 dark:text-theme-400 bg-theme-500/15 dark:bg-theme-500/10 font-semibold shadow-sm"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      ? "text-theme-600 dark:text-theme-400 bg-theme-500/15 dark:bg-theme-500/10 shadow-sm"
+                      : isDisabled
+                        ? "text-muted-foreground/40 hover:text-muted-foreground/60 hover:bg-muted/30"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   )}
                 >
                   {/* Subtle glow for active state */}
-                  {isActive && (
+                  {isActive && !isDisabled && (
                     <div className="absolute inset-0 rounded-lg bg-theme-500/5 blur-sm"></div>
                   )}
-                  
-                  <item.icon 
-                    className={cn(
-                      "mr-3 h-4 w-4 transition-colors duration-200",
-                      isActive 
-                        ? "text-theme-500 dark:text-theme-400" 
-                        : "text-muted-foreground group-hover:text-theme-400"
-                    )} 
-                  />
-                  <span className="relative z-10">{item.name}</span>
-                  
+
+                  <div className="flex items-center w-full">
+                    <item.icon
+                      className={cn(
+                        "mr-3 h-4 w-4 transition-colors duration-200",
+                        isActive && !isDisabled
+                          ? "text-theme-500 dark:text-theme-400"
+                          : isDisabled
+                            ? "text-muted-foreground/40"
+                            : "text-muted-foreground group-hover:text-theme-400"
+                      )}
+                    />
+                    <span
+                      className={cn(
+                        "relative z-10 flex-1",
+                        isActive && !isDisabled && "font-semibold",
+                        isDisabled && "opacity-60"
+                      )}
+                    >
+                      {item.name}
+                    </span>
+                    {isDisabled && (
+                      <div className="flex items-center gap-1 ml-auto">
+                        <span className="text-xs text-muted-foreground/50 font-normal">
+                          Disabled
+                        </span>
+                        <AlertCircle className="h-3 w-3 text-muted-foreground/50" />
+                      </div>
+                    )}
+                  </div>
+
+                  {item.description && (
+                    <span
+                      className={cn(
+                        "text-xs text-muted-foreground/70 ml-7 mt-0.5",
+                        isDisabled && "opacity-50"
+                      )}
+                    >
+                      {item.description}
+                    </span>
+                  )}
+
                   {/* Hover indicator */}
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 bg-theme-500 rounded-r-full transition-all duration-200 group-hover:h-6 opacity-0 group-hover:opacity-100"></div>
+                  {!isDisabled && (
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 bg-theme-500 rounded-r-full transition-all duration-200 group-hover:h-8 opacity-0 group-hover:opacity-100"></div>
+                  )}
                 </Link>
               </li>
             );
           })}
         </ul>
 
-        {/* Decorative bottom element */}
-        <div className="mt-8 pt-6 border-t border-border/40">
-          <div className="flex items-center justify-center space-x-1 opacity-40">
-            <div className="w-1 h-1 rounded-full bg-theme-400 animate-pulse"></div>
-            <div className="w-1 h-1 rounded-full bg-theme-500 animate-pulse" style={{ animationDelay: "0.5s" }}></div>
-            <div className="w-1 h-1 rounded-full bg-theme-600 animate-pulse" style={{ animationDelay: "1s" }}></div>
-          </div>
+        {/* Sign Out Button - stays at bottom */}
+        <div className="mt-8 pt-6 mb-6 border-t border-border/40">
+          <a
+            href="/api/logout"
+            onClick={onItemClick}
+            className="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group relative text-muted-foreground hover:text-foreground hover:bg-muted/50"
+          >
+            <LogOut className="mr-3 h-4 w-4 transition-colors duration-200 text-muted-foreground group-hover:text-red-500" />
+            <span className="relative z-10">Sign Out</span>
+          </a>
         </div>
       </div>
     </nav>

@@ -25,7 +25,7 @@ import {
   FormLabel,
 } from "~/components/ui/form";
 import { Settings, Mail, Bell, Save, Loader2, Check } from "lucide-react";
-import { toast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 import { authenticatedMiddleware } from "~/lib/auth";
 import { queryOptions } from "@tanstack/react-query";
 import {
@@ -81,16 +81,13 @@ function SettingsPage() {
       updateEmailPreferencesFn({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user", "emailPreferences"] });
-      toast({
-        title: "Settings saved!",
+      toast.success("Settings saved!", {
         description: "Your email preferences have been updated.",
       });
     },
     onError: (error) => {
-      toast({
-        title: "Failed to save settings",
+      toast.error("Failed to save settings", {
         description: error.message,
-        variant: "destructive",
       });
     },
   });

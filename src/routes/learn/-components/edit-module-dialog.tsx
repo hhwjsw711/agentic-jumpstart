@@ -24,7 +24,7 @@ import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { adminMiddleware } from "~/lib/auth";
 import { updateModuleUseCase } from "~/use-cases/modules";
-import { useToast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
 const editModuleSchema = z.object({
@@ -58,7 +58,6 @@ export function EditModuleDialog({
   open,
   onOpenChange,
 }: EditModuleDialogProps) {
-  const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -74,18 +73,15 @@ export function EditModuleDialog({
       setIsSubmitting(true);
       await updateModuleFn({ data: { moduleId, title: data.title } });
 
-      toast({
-        title: "Module updated successfully!",
+      toast.success("Module updated successfully!", {
         description: `Module title has been updated to "${data.title}".`,
       });
 
       await queryClient.invalidateQueries({ queryKey: ["modules"] });
       onOpenChange(false);
     } catch (error) {
-      toast({
-        title: "Failed to update module",
+      toast.error("Failed to update module", {
         description: "Please try again.",
-        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);

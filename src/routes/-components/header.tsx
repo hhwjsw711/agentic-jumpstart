@@ -18,6 +18,7 @@ import {
   Tag,
   LogIn,
   Newspaper,
+  Rocket,
 } from "lucide-react";
 import {
   Sheet,
@@ -40,7 +41,11 @@ import { useAuth } from "~/hooks/use-auth";
 import { ModeToggle } from "~/components/ModeToggle";
 import { useQuery } from "@tanstack/react-query";
 import { checkIfUserIsAffiliateFn } from "~/fn/affiliates";
-import { getAgentsFeatureEnabledFn } from "~/fn/app-settings";
+import {
+  getAgentsFeatureEnabledFn,
+  getAffiliatesFeatureEnabledFn,
+  getLaunchKitsFeatureEnabledFn,
+} from "~/fn/app-settings";
 
 interface NavLink {
   to: string;
@@ -55,6 +60,9 @@ interface NavLink {
     continueSlug: string | null;
     affiliateStatus?: { isAffiliate: boolean };
     agentsFeatureEnabled?: boolean;
+    affiliatesFeatureEnabled?: boolean;
+    launchKitsFeatureEnabled?: boolean;
+    newsFeatureEnabled?: boolean;
   }) => boolean;
   params?: any;
   priority?: "primary" | "secondary";
@@ -71,6 +79,12 @@ const NAVIGATION_LINKS: NavLink[] = [
     to: "/purchase",
     label: "Pricing",
     icon: Tag,
+    priority: "primary",
+  },
+  {
+    to: "/blog",
+    label: "Blog",
+    icon: Video,
     priority: "primary",
   },
   {
@@ -92,6 +106,23 @@ const NAVIGATION_LINKS: NavLink[] = [
     to: "/news",
     label: "AI News",
     icon: Newspaper,
+    badge: {
+      text: "NEW",
+      className:
+        "ml-2 px-1.5 py-0.5 text-xs bg-theme-500/20 text-theme-600 dark:text-theme-400 rounded-md font-medium",
+    },
+    condition: ({ newsFeatureEnabled }) => !!newsFeatureEnabled,
+  },
+  {
+    to: "/launch-kits",
+    label: "Launch Kits",
+    icon: Rocket,
+    badge: {
+      text: "NEW",
+      className:
+        "ml-2 px-1.5 py-0.5 text-xs bg-theme-500/20 text-theme-600 dark:text-theme-400 rounded-md font-medium",
+    },
+    condition: ({ launchKitsFeatureEnabled }) => !!launchKitsFeatureEnabled,
     priority: "primary",
   },
   {
@@ -121,26 +152,34 @@ const NAVIGATION_LINKS: NavLink[] = [
     to: "/affiliates",
     label: "Affiliate Program",
     icon: DollarSign,
-    condition: ({ user }) => !user,
+    condition: ({ user, affiliatesFeatureEnabled }) =>
+      !user && !!affiliatesFeatureEnabled,
     priority: "secondary",
   },
   {
     to: "/affiliates",
     label: "Become an Affiliate",
     icon: DollarSign,
-    condition: ({ user, affiliateStatus }) =>
-      user && !user.isAdmin && !affiliateStatus?.isAffiliate,
+    condition: ({ user, affiliateStatus, affiliatesFeatureEnabled }) =>
+      user &&
+      !user.isAdmin &&
+      !affiliateStatus?.isAffiliate &&
+      !!affiliatesFeatureEnabled,
     priority: "secondary",
   },
 ];
 
 const ADMIN_MENU_ITEMS: AdminMenuItem[] = [
   { to: "/admin/comments", label: "Comments", icon: MessageCircle },
+  { to: "/admin/blog", label: "Blog", icon: Video },
+  { to: "/admin/users", label: "Users", icon: Users },
+  { to: "/admin/launch-kits", label: "Launch Kits", icon: Rocket },
   { to: "/admin/affiliates", label: "Affiliates", icon: Users },
   { to: "/admin/analytics", label: "Analytics", icon: TrendingUp },
   { to: "/admin/conversions", label: "Conversions", icon: Target },
   { to: "/admin/news", label: "News", icon: Video },
   { to: "/admin/emails", label: "Emails", icon: Mail },
+  { to: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
 function getFilteredNavLinks(data: {
@@ -148,6 +187,9 @@ function getFilteredNavLinks(data: {
   continueSlug: string | null;
   affiliateStatus?: { isAffiliate: boolean };
   agentsFeatureEnabled?: boolean;
+  affiliatesFeatureEnabled?: boolean;
+  launchKitsFeatureEnabled?: boolean;
+  newsFeatureEnabled?: boolean;
 }) {
   return NAVIGATION_LINKS.filter(
     (link) => !link.condition || link.condition(data)
@@ -324,11 +366,25 @@ export function Header() {
     queryFn: () => getAgentsFeatureEnabledFn(),
   });
 
+  // Check if affiliates feature is enabled
+  const { data: affiliatesFeatureEnabled } = useQuery({
+    queryKey: ["affiliatesFeatureEnabled"],
+    queryFn: () => getAffiliatesFeatureEnabledFn(),
+  });
+
+  // Check if launch kits feature is enabled
+  const { data: launchKitsFeatureEnabled } = useQuery({
+    queryKey: ["launchKitsFeatureEnabled"],
+    queryFn: () => getLaunchKitsFeatureEnabledFn(),
+  });
+
   const navData = {
     user,
     continueSlug,
     affiliateStatus,
     agentsFeatureEnabled,
+    affiliatesFeatureEnabled,
+    launchKitsFeatureEnabled,
   };
 
   const filteredNavLinks = getFilteredNavLinks(navData);
@@ -429,6 +485,15 @@ export function Header() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
+                          <Link
+                            to="/profile/edit"
+                            className="flex items-center"
+                          >
+                            <User className="mr-2 h-4 w-4" />
+                            Edit Profile
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
                           <Link to="/settings" className="flex items-center">
                             <Settings className="mr-2 h-4 w-4" />
                             Settings
@@ -467,6 +532,15 @@ export function Header() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link
+                            to="/profile/edit"
+                            className="flex items-center"
+                          >
+                            <User className="mr-2 h-4 w-4" />
+                            Edit Profile
+                          </Link>
+                        </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link to="/settings" className="flex items-center">
                             <Settings className="mr-2 h-4 w-4" />
@@ -584,17 +658,30 @@ export function Header() {
                         {user ? (
                           <div className="border-t border-border pt-4">
                             {!user.isAdmin && !affiliateStatus?.isAffiliate && (
-                              <Link
-                                to="/settings"
-                                className={buttonVariants({
-                                  variant: "ghost",
-                                  className: "w-full justify-start mb-2",
-                                })}
-                                onClick={() => setIsOpen(false)}
-                              >
-                                <Settings className="mr-2 h-4 w-4" />
-                                Settings
-                              </Link>
+                              <>
+                                <Link
+                                  to="/profile/edit"
+                                  className={buttonVariants({
+                                    variant: "ghost",
+                                    className: "w-full justify-start mb-2",
+                                  })}
+                                  onClick={() => setIsOpen(false)}
+                                >
+                                  <User className="mr-2 h-4 w-4" />
+                                  Edit Profile
+                                </Link>
+                                <Link
+                                  to="/settings"
+                                  className={buttonVariants({
+                                    variant: "ghost",
+                                    className: "w-full justify-start mb-2",
+                                  })}
+                                  onClick={() => setIsOpen(false)}
+                                >
+                                  <Settings className="mr-2 h-4 w-4" />
+                                  Settings
+                                </Link>
+                              </>
                             )}
                             <a
                               href="/api/logout"

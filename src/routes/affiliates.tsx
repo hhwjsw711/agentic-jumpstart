@@ -24,7 +24,7 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
-import { useToast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 import { useAuth } from "~/hooks/use-auth";
 import { registerAffiliateFn, checkIfUserIsAffiliateFn } from "~/fn/affiliates";
 import { useSuspenseQuery, useMutation } from "@tanstack/react-query";
@@ -65,7 +65,6 @@ export const Route = createFileRoute("/affiliates")({
 function AffiliatesPage() {
   const user = useAuth();
   const router = useRouter();
-  const { toast } = useToast();
   const [termsOpen, setTermsOpen] = useState(false);
   const { data: affiliateStatus } = useSuspenseQuery({
     queryKey: ["user", "isAffiliate"],
@@ -83,20 +82,17 @@ function AffiliatesPage() {
   const registerMutation = useMutation({
     mutationFn: registerAffiliateFn,
     onSuccess: () => {
-      toast({
-        title: "Welcome to the Affiliate Program!",
+      toast.success("Welcome to the Affiliate Program!", {
         description:
           "You can now access your affiliate dashboard to get your unique link.",
       });
       router.navigate({ to: "/affiliate-dashboard" });
     },
     onError: (error) => {
-      toast({
-        title: "Registration Failed",
+      toast.error("Registration Failed", {
         description:
           error.message ||
           "Failed to register as an affiliate. Please try again.",
-        variant: "destructive",
       });
     },
   });

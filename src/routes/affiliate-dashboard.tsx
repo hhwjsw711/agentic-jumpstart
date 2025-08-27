@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
-import { useToast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 import { useAuth } from "~/hooks/use-auth";
 import {
   getAffiliateDashboardFn,
@@ -156,7 +156,6 @@ function AffiliateDashboard() {
   }
 
   const user = useAuth();
-  const { toast } = useToast();
   const queryClient = useQueryClient();
   const [copied, setCopied] = useState(false);
   const [editPaymentOpen, setEditPaymentOpen] = useState(false);
@@ -175,17 +174,14 @@ function AffiliateDashboard() {
     mutationFn: updateAffiliatePaymentLinkFn,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["affiliate", "dashboard"] });
-      toast({
-        title: "Payment Link Updated",
+      toast.success("Payment Link Updated", {
         description: "Your payment link has been successfully updated.",
       });
       setEditPaymentOpen(false);
     },
     onError: (error) => {
-      toast({
-        title: "Update Failed",
+      toast.error("Update Failed", {
         description: error.message || "Failed to update payment link.",
-        variant: "destructive",
       });
     },
   });
@@ -199,8 +195,7 @@ function AffiliateDashboard() {
   const copyToClipboard = () => {
     navigator.clipboard.writeText(affiliateLink);
     setCopied(true);
-    toast({
-      title: "Link Copied!",
+    toast.success("Link Copied!", {
       description: "Your affiliate link has been copied to clipboard.",
     });
     setTimeout(() => setCopied(false), 2000);

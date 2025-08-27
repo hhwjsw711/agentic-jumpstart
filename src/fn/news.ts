@@ -40,7 +40,11 @@ export const getNewsEntriesWithTagsFn = createServerFn({
 })
   .middleware([adminMiddleware])
   .handler(async () => {
-    return getNewsEntriesWithTagsUseCase();
+    const start = Date.now();
+    const result = await getNewsEntriesWithTagsUseCase();
+    const end = Date.now();
+    console.log(`getNewsEntriesWithTagsUseCase took ${end - start}ms`);
+    return result;
   });
 
 export const getNewsEntryByIdFn = createServerFn({

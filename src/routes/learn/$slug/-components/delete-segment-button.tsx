@@ -19,7 +19,7 @@ import {
 } from "~/components/ui/alert-dialog";
 import { adminMiddleware } from "~/lib/auth";
 import { deleteSegmentUseCase } from "~/use-cases/segments";
-import { useToast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 import { modulesQueryOptions } from "../_layout";
 
 // TODO: there is a bug when trying to delet a segment
@@ -37,7 +37,6 @@ interface DeleteVideoButtonProps {
 export function DeleteSegmentButton({
   currentSegmentId,
 }: DeleteVideoButtonProps) {
-  const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -126,16 +125,14 @@ export function DeleteSegmentButton({
           replace: true, // Replace history entry to prevent back navigation to deleted segment
         });
 
-        toast({
-          title: "Content deleted successfully!",
+        toast.success("Content deleted successfully!", {
           description: `Redirected to: ${fallbackSegment.title}`,
         });
       } else {
         // If no fallback segment exists, navigate to the main learning page
         navigate({ to: "/learn", replace: true });
 
-        toast({
-          title: "Content deleted successfully!",
+        toast.success("Content deleted successfully!", {
           description: "Redirected to content list.",
         });
       }
@@ -143,10 +140,8 @@ export function DeleteSegmentButton({
       // close the dialog manually
       setOpen(false);
     } catch (error) {
-      toast({
-        title: "Failed to delete content",
+      toast.error("Failed to delete content", {
         description: "Please try again.",
-        variant: "destructive",
       });
     }
   };

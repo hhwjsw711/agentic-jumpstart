@@ -46,7 +46,35 @@ export const profiles = tableCreator("profile", {
   imageId: text("imageId"),
   image: text("image"),
   bio: text("bio").notNull().default(""),
+  twitterHandle: text("twitterHandle"),
+  githubHandle: text("githubHandle"),
+  websiteUrl: text("websiteUrl"),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
+export const projects = tableCreator(
+  "project",
+  {
+    id: serial("id").primaryKey(),
+    userId: serial("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    description: text("description").notNull(),
+    imageUrl: text("imageUrl"),
+    projectUrl: text("projectUrl"),
+    repositoryUrl: text("repositoryUrl"),
+    technologies: text("technologies"), // JSON string of tech stack
+    order: integer("order").notNull().default(0),
+    isVisible: boolean("isVisible").notNull().default(true),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("projects_user_order_idx").on(table.userId, table.order),
+    index("projects_user_visible_idx").on(table.userId, table.isVisible),
+  ]
+);
 
 export const sessions = tableCreator(
   "session",
@@ -337,6 +365,27 @@ export const newsletterSignups = tableCreator(
   ]
 );
 
+export const emailTemplates = tableCreator(
+  "email_template",
+  {
+    id: serial("id").primaryKey(),
+    key: text("key").notNull().unique(), // 'waitlist_welcome', 'newsletter_welcome', etc.
+    name: text("name").notNull(),
+    subject: text("subject").notNull(),
+    content: text("content").notNull(), // Markdown content
+    isActive: boolean("isActive").notNull().default(true),
+    updatedBy: serial("updatedBy")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("email_templates_key_idx").on(table.key),
+    index("email_templates_active_idx").on(table.isActive),
+  ]
+);
+
 export const appSettings = tableCreator(
   "app_setting",
   {
@@ -396,8 +445,43 @@ export const newsEntries = tableCreator(
   ]
 );
 
+export const launchKits = tableCreator(
+  "launch_kit",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 255 }).notNull(),
+    slug: varchar("slug", { length: 255 }).notNull().unique(),
+    description: text("description").notNull(),
+    longDescription: text("long_description"),
+    repositoryUrl: text("repository_url").notNull(),
+    demoUrl: text("demo_url"),
+    imageUrl: text("image_url"),
+    cloneCount: integer("clone_count").notNull().default(0),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("launch_kits_active_idx").on(table.isActive),
+    index("launch_kits_slug_idx").on(table.slug),
+    index("launch_kits_created_idx").on(table.createdAt),
+  ]
+);
+
+export const launchKitCategories = tableCreator(
+  "launch_kit_category",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 50 }).notNull().unique(),
+    slug: varchar("slug", { length: 50 }).notNull().unique(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [index("launch_kit_categories_slug_idx").on(table.slug)]
+);
+
 export const newsTags = tableCreator(
-  "news_tag", 
+  "news_tag",
   {
     id: serial("id").primaryKey(),
     name: varchar("name", { length: 100 }).notNull().unique(),
@@ -408,6 +492,25 @@ export const newsTags = tableCreator(
   (table) => [
     index("news_tags_slug_idx").on(table.slug),
     index("news_tags_name_idx").on(table.name),
+  ]
+);
+
+export const launchKitTags = tableCreator(
+  "launch_kit_tag",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 100 }).notNull().unique(),
+    slug: varchar("slug", { length: 100 }).notNull().unique(),
+    color: varchar("color", { length: 7 }).notNull().default("#3B82F6"), // hex color
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    categoryId: serial("category_id").references(() => launchKitCategories.id, {
+      onDelete: "cascade",
+    }),
+  },
+  (table) => [
+    index("launch_kit_tags_category_idx").on(table.categoryId),
+    index("launch_kit_tags_slug_idx").on(table.slug),
   ]
 );
 
@@ -425,7 +528,88 @@ export const newsEntryTags = tableCreator(
   (table) => [
     index("news_entry_tags_entry_idx").on(table.newsEntryId),
     index("news_entry_tags_tag_idx").on(table.newsTagId),
-    uniqueIndex("news_entry_tags_unique").on(table.newsEntryId, table.newsTagId),
+    uniqueIndex("news_entry_tags_unique").on(
+      table.newsEntryId,
+      table.newsTagId
+    ),
+  ]
+);
+
+export const launchKitTagRelations = tableCreator(
+  "launch_kit_tag_relation",
+  {
+    id: serial("id").primaryKey(),
+    launchKitId: serial("launch_kit_id")
+      .notNull()
+      .references(() => launchKits.id, { onDelete: "cascade" }),
+    tagId: serial("tag_id")
+      .notNull()
+      .references(() => launchKitTags.id, { onDelete: "cascade" }),
+  },
+  (table) => [
+    index("launch_kit_tag_relations_kit_idx").on(table.launchKitId),
+    index("launch_kit_tag_relations_tag_idx").on(table.tagId),
+    uniqueIndex("launch_kit_tag_relations_unique").on(
+      table.launchKitId,
+      table.tagId
+    ),
+  ]
+);
+
+export const launchKitComments = tableCreator(
+  "launch_kit_comment",
+  {
+    id: serial("id").primaryKey(),
+    userId: serial("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    launchKitId: serial("launch_kit_id")
+      .notNull()
+      .references(() => launchKits.id, { onDelete: "cascade" }),
+    parentId: integer("parent_id").references(
+      (): AnyPgColumn => launchKitComments.id,
+      {
+        onDelete: "cascade",
+      }
+    ),
+    content: text("content").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("launch_kit_comments_kit_created_idx").on(
+      table.launchKitId,
+      table.createdAt
+    ),
+    index("launch_kit_comments_user_created_idx").on(
+      table.userId,
+      table.createdAt
+    ),
+    index("launch_kit_comments_parent_idx").on(table.parentId),
+  ]
+);
+
+export const launchKitAnalytics = tableCreator(
+  "launch_kit_analytics",
+  {
+    id: serial("id").primaryKey(),
+    launchKitId: serial("launch_kit_id")
+      .notNull()
+      .references(() => launchKits.id, { onDelete: "cascade" }),
+    userId: serial("user_id").references(() => users.id, {
+      onDelete: "cascade",
+    }), // null for anonymous users
+    eventType: varchar("event_type", { length: 50 }).notNull(), // view, clone, demo_visit
+    ipAddress: text("ip_address"), // hashed for privacy
+    userAgent: text("user_agent"),
+    referrer: text("referrer"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("launch_kit_analytics_kit_idx").on(table.launchKitId),
+    index("launch_kit_analytics_event_idx").on(table.eventType),
+    index("launch_kit_analytics_created_idx").on(table.createdAt),
+    index("launch_kit_analytics_user_idx").on(table.userId),
   ]
 );
 
@@ -457,6 +641,33 @@ export const newsEntryTagsRelations = relations(newsEntryTags, ({ one }) => ({
     fields: [newsEntryTags.newsTagId],
     references: [newsTags.id],
   }),
+}));
+
+export const projectsRelations = relations(projects, ({ one }) => ({
+  user: one(users, {
+    fields: [projects.userId],
+    references: [users.id],
+  }),
+  profile: one(profiles, {
+    fields: [projects.userId],
+    references: [profiles.userId],
+  }),
+}));
+
+export const usersRelations = relations(users, ({ one, many }) => ({
+  profile: one(profiles, {
+    fields: [users.id],
+    references: [profiles.userId],
+  }),
+  accounts: many(accounts),
+}));
+
+export const profilesRelations = relations(profiles, ({ one, many }) => ({
+  user: one(users, {
+    fields: [profiles.userId],
+    references: [users.id],
+  }),
+  projects: many(projects),
 }));
 
 export const modulesRelations = relations(modules, ({ many }) => ({
@@ -563,6 +774,13 @@ export const userEmailPreferencesRelations = relations(
   })
 );
 
+export const emailTemplatesRelations = relations(emailTemplates, ({ one }) => ({
+  updatedByUser: one(users, {
+    fields: [emailTemplates.updatedBy],
+    references: [users.id],
+  }),
+}));
+
 export const analyticsEvents = tableCreator(
   "analytics_event",
   {
@@ -611,6 +829,56 @@ export const analyticsSessions = tableCreator(
   ]
 );
 
+export const blogPosts = tableCreator(
+  "blog_post",
+  {
+    id: serial("id").primaryKey(),
+    title: text("title").notNull(),
+    slug: text("slug").notNull().unique(),
+    content: text("content").notNull(),
+    excerpt: text("excerpt"),
+    isPublished: boolean("isPublished").notNull().default(false),
+    authorId: serial("authorId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    featuredImage: text("featuredImage"),
+    tags: text("tags"), // JSON array of tags as string
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    publishedAt: timestamp("published_at"),
+  },
+  (table) => [
+    index("blog_posts_slug_idx").on(table.slug),
+    index("blog_posts_author_idx").on(table.authorId),
+    index("blog_posts_published_idx").on(table.isPublished, table.publishedAt),
+    index("blog_posts_created_idx").on(table.createdAt),
+  ]
+);
+
+export const blogPostViews = tableCreator(
+  "blog_post_view",
+  {
+    id: serial("id").primaryKey(),
+    blogPostId: serial("blogPostId")
+      .notNull()
+      .references(() => blogPosts.id, { onDelete: "cascade" }),
+    sessionId: text("sessionId").notNull(),
+    ipAddressHash: text("ipAddressHash"),
+    userAgent: text("userAgent"),
+    referrer: text("referrer"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("blog_post_views_post_idx").on(table.blogPostId),
+    index("blog_post_views_session_idx").on(table.sessionId),
+    index("blog_post_views_created_idx").on(table.createdAt),
+    uniqueIndex("blog_post_views_session_post_unique").on(
+      table.sessionId,
+      table.blogPostId
+    ),
+  ]
+);
+
 export const unsubscribeTokensRelations = relations(
   unsubscribeTokens,
   ({ one }) => ({
@@ -635,6 +903,102 @@ export const analyticsSessionsRelations = relations(
   analyticsSessions,
   ({ one, many }) => ({
     events: many(analyticsEvents),
+  })
+);
+
+export const blogPostsRelations = relations(blogPosts, ({ one, many }) => ({
+  author: one(users, {
+    fields: [blogPosts.authorId],
+    references: [users.id],
+  }),
+  views: many(blogPostViews),
+}));
+
+export const blogPostViewsRelations = relations(blogPostViews, ({ one }) => ({
+  blogPost: one(blogPosts, {
+    fields: [blogPostViews.blogPostId],
+    references: [blogPosts.id],
+  }),
+}));
+
+export const launchKitsRelations = relations(launchKits, ({ many }) => ({
+  tags: many(launchKitTagRelations),
+  comments: many(launchKitComments),
+  analytics: many(launchKitAnalytics),
+}));
+
+export const launchKitCategoriesRelations = relations(
+  launchKitCategories,
+  ({ many }) => ({
+    tags: many(launchKitTags),
+  })
+);
+
+export const launchKitTagsRelations = relations(
+  launchKitTags,
+  ({ one, many }) => ({
+    category: one(launchKitCategories, {
+      fields: [launchKitTags.categoryId],
+      references: [launchKitCategories.id],
+    }),
+    launchKits: many(launchKitTagRelations),
+  })
+);
+
+export const launchKitTagRelationsRelations = relations(
+  launchKitTagRelations,
+  ({ one }) => ({
+    launchKit: one(launchKits, {
+      fields: [launchKitTagRelations.launchKitId],
+      references: [launchKits.id],
+    }),
+    tag: one(launchKitTags, {
+      fields: [launchKitTagRelations.tagId],
+      references: [launchKitTags.id],
+    }),
+  })
+);
+
+export const launchKitCommentsRelations = relations(
+  launchKitComments,
+  ({ one, many }) => ({
+    user: one(users, {
+      fields: [launchKitComments.userId],
+      references: [users.id],
+    }),
+    launchKit: one(launchKits, {
+      fields: [launchKitComments.launchKitId],
+      references: [launchKits.id],
+    }),
+    parent: one(launchKitComments, {
+      relationName: "parent",
+      fields: [launchKitComments.parentId],
+      references: [launchKitComments.id],
+    }),
+    children: many(launchKitComments, {
+      relationName: "parent",
+    }),
+  })
+);
+
+export const launchKitAnalyticsRelations = relations(
+  launchKitAnalytics,
+  ({ one }) => ({
+    launchKit: one(launchKits, {
+      fields: [launchKitAnalytics.launchKitId],
+      references: [launchKits.id],
+    }),
+    user: one(users, {
+      fields: [launchKitAnalytics.userId],
+      references: [users.id],
+    }),
+  })
+);
+
+export const appLaunchKitCategories = relations(
+  launchKitCategories,
+  ({ many }) => ({
+    tags: many(launchKitTags),
   })
 );
 
@@ -672,13 +1036,36 @@ export type AnalyticsSession = typeof analyticsSessions.$inferSelect;
 export type AnalyticsSessionCreate = typeof analyticsSessions.$inferInsert;
 export type NewsletterSignup = typeof newsletterSignups.$inferSelect;
 export type NewsletterSignupCreate = typeof newsletterSignups.$inferInsert;
+export type EmailTemplate = typeof emailTemplates.$inferSelect;
+export type EmailTemplateCreate = typeof emailTemplates.$inferInsert;
 export type AppSetting = typeof appSettings.$inferSelect;
 export type AppSettingCreate = typeof appSettings.$inferInsert;
 export type Agent = typeof agents.$inferSelect;
 export type AgentCreate = typeof agents.$inferInsert;
+
 export type NewsEntry = typeof newsEntries.$inferSelect;
 export type NewsEntryCreate = typeof newsEntries.$inferInsert;
 export type NewsTag = typeof newsTags.$inferSelect;
 export type NewsTagCreate = typeof newsTags.$inferInsert;
 export type NewsEntryTag = typeof newsEntryTags.$inferSelect;
 export type NewsEntryTagCreate = typeof newsEntryTags.$inferInsert;
+
+export type Project = typeof projects.$inferSelect;
+export type ProjectCreate = typeof projects.$inferInsert;
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type BlogPostCreate = typeof blogPosts.$inferInsert;
+export type BlogPostView = typeof blogPostViews.$inferSelect;
+export type BlogPostViewCreate = typeof blogPostViews.$inferInsert;
+export type LaunchKit = typeof launchKits.$inferSelect;
+export type LaunchKitCreate = typeof launchKits.$inferInsert;
+export type LaunchKitCategory = typeof launchKitCategories.$inferSelect;
+export type LaunchKitCategoryCreate = typeof launchKitCategories.$inferInsert;
+export type LaunchKitTag = typeof launchKitTags.$inferSelect;
+export type LaunchKitTagCreate = typeof launchKitTags.$inferInsert;
+export type LaunchKitTagRelation = typeof launchKitTagRelations.$inferSelect;
+export type LaunchKitTagRelationCreate =
+  typeof launchKitTagRelations.$inferInsert;
+export type LaunchKitComment = typeof launchKitComments.$inferSelect;
+export type LaunchKitCommentCreate = typeof launchKitComments.$inferInsert;
+export type LaunchKitAnalytics = typeof launchKitAnalytics.$inferSelect;
+export type LaunchKitAnalyticsCreate = typeof launchKitAnalytics.$inferInsert;

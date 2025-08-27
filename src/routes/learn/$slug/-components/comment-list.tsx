@@ -1,7 +1,7 @@
 import { getTimeAgo } from "~/lib/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getCommentsQuery } from "~/lib/queries/comments";
-import { useLoaderData } from "@tanstack/react-router";
+import { useLoaderData, Link } from "@tanstack/react-router";
 import { useAuth } from "~/hooks/use-auth";
 import {
   MoreHorizontal,
@@ -36,7 +36,7 @@ import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
 import { useState } from "react";
 import { useDeleteComment } from "~/hooks/mutations/use-delete-comment";
-import { toast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 import { useEditComment } from "~/hooks/mutations/use-edit-comment";
 import { useCreateComment } from "~/hooks/mutations/use-create-comment";
 import { CommentsWithUser } from "~/data-access/comments";
@@ -81,18 +81,14 @@ function CommentItem({ comment, level = 0 }: CommentItemProps) {
           onSuccess: () => {
             setEditingCommentId(null);
             setEditContent("");
-            toast({
-              title: "Comment updated",
+            toast.success("Comment updated", {
               description: "Your comment has been updated.",
-              variant: "default",
             });
           },
           onError: () => {
-            toast({
-              title: "Error",
+            toast.error("Error", {
               description:
                 "Something went wrong, please try again later or contact support.",
-              variant: "destructive",
             });
           },
         }
@@ -116,18 +112,14 @@ function CommentItem({ comment, level = 0 }: CommentItemProps) {
         {
           onSuccess: () => {
             setDeleteCommentId(null);
-            toast({
-              title: "Comment deleted",
+            toast.success("Comment deleted", {
               description: "Your comment has been deleted.",
-              variant: "default",
             });
           },
           onError: () => {
-            toast({
-              title: "Error",
+            toast.error("Error", {
               description:
                 "Something went wrong, please try again later or contact support.",
-              variant: "destructive",
             });
           },
         }
@@ -159,10 +151,8 @@ function CommentItem({ comment, level = 0 }: CommentItemProps) {
           onSuccess: () => {
             setReplyingToCommentId(null);
             setReplyContent("");
-            toast({
-              title: "Reply posted",
+            toast.success("Reply posted", {
               description: "Your reply has been posted.",
-              variant: "default",
             });
           },
         }
@@ -213,9 +203,13 @@ function CommentItem({ comment, level = 0 }: CommentItemProps) {
                 {/* Comment Header */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0 flex-wrap">
-                    <p className="text-sm font-semibold text-foreground truncate">
+                    <Link
+                      to="/profile/$userId"
+                      params={{ userId: comment.profile.userId.toString() }}
+                      className="text-sm font-semibold text-foreground hover:text-theme-600 dark:hover:text-theme-400 transition-colors truncate"
+                    >
                       {comment.profile.displayName}
-                    </p>
+                    </Link>
 
                     {/* Visual separator */}
                     <span className="text-xs text-muted-foreground/60">•</span>
@@ -234,9 +228,13 @@ function CommentItem({ comment, level = 0 }: CommentItemProps) {
                           <Reply className="h-3 w-3 text-muted-foreground/60" />
                           <span className="text-xs text-muted-foreground">
                             replying to{" "}
-                            <span className="font-medium text-theme-600 dark:text-theme-400 hover:text-theme-700 dark:hover:text-theme-300 transition-colors">
+                            <Link
+                              to="/profile/$userId"
+                              params={{ userId: comment.repliedToProfile.userId.toString() }}
+                              className="font-medium text-theme-600 dark:text-theme-400 hover:text-theme-700 dark:hover:text-theme-300 transition-colors"
+                            >
                               {comment.repliedToProfile.displayName}
-                            </span>
+                            </Link>
                           </span>
                         </div>
                       </>

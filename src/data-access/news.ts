@@ -1,14 +1,25 @@
 import { database } from "~/db";
-import { newsEntries, newsTags, newsEntryTags, users, profiles } from "~/db/schema";
+import {
+  newsEntries,
+  newsTags,
+  newsEntryTags,
+  users,
+  profiles,
+} from "~/db/schema";
 import { and, eq, desc, sql } from "drizzle-orm";
-import type { NewsEntry, NewsEntryCreate, NewsTag, NewsTagCreate } from "~/db/schema";
+import type {
+  NewsEntry,
+  NewsEntryCreate,
+  NewsTag,
+  NewsTagCreate,
+} from "~/db/schema";
 
 function generateSlug(name: string): string {
   return name
     .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
     .trim();
 }
 
@@ -129,7 +140,10 @@ export async function createNewsEntry(data: NewsEntryCreate) {
   return result[0];
 }
 
-export async function updateNewsEntry(id: number, data: Partial<Omit<NewsEntryCreate, 'id'>>) {
+export async function updateNewsEntry(
+  id: number,
+  data: Partial<Omit<NewsEntryCreate, "id">>
+) {
   const result = await database
     .update(newsEntries)
     .set({
@@ -143,9 +157,7 @@ export async function updateNewsEntry(id: number, data: Partial<Omit<NewsEntryCr
 
 export async function deleteNewsEntry(id: number) {
   // Delete related tags first (cascade should handle this, but being explicit)
-  await database
-    .delete(newsEntryTags)
-    .where(eq(newsEntryTags.newsEntryId, id));
+  await database.delete(newsEntryTags).where(eq(newsEntryTags.newsEntryId, id));
 
   const result = await database
     .delete(newsEntries)
@@ -156,10 +168,7 @@ export async function deleteNewsEntry(id: number) {
 
 // News Tags
 export async function getAllNewsTags() {
-  return database
-    .select()
-    .from(newsTags)
-    .orderBy(newsTags.name);
+  return database.select().from(newsTags).orderBy(newsTags.name);
 }
 
 export async function getNewsTagBySlug(slug: string) {
@@ -171,7 +180,9 @@ export async function getNewsTagBySlug(slug: string) {
   return result[0];
 }
 
-export async function createNewsTag(data: Omit<NewsTagCreate, 'slug'> & { name: string }) {
+export async function createNewsTag(
+  data: Omit<NewsTagCreate, "slug"> & { name: string }
+) {
   const slug = generateSlug(data.name);
   const result = await database
     .insert(newsTags)
@@ -183,9 +194,12 @@ export async function createNewsTag(data: Omit<NewsTagCreate, 'slug'> & { name: 
   return result[0];
 }
 
-export async function updateNewsTag(id: number, data: Partial<Omit<NewsTagCreate, 'id'>>) {
+export async function updateNewsTag(
+  id: number,
+  data: Partial<Omit<NewsTagCreate, "id">>
+) {
   const updateData: any = { ...data };
-  
+
   if (data.name) {
     updateData.slug = generateSlug(data.name);
   }
@@ -200,9 +214,7 @@ export async function updateNewsTag(id: number, data: Partial<Omit<NewsTagCreate
 
 export async function deleteNewsTag(id: number) {
   // Delete related entries first
-  await database
-    .delete(newsEntryTags)
-    .where(eq(newsEntryTags.newsTagId, id));
+  await database.delete(newsEntryTags).where(eq(newsEntryTags.newsTagId, id));
 
   const result = await database
     .delete(newsTags)
@@ -212,7 +224,10 @@ export async function deleteNewsTag(id: number) {
 }
 
 // News Entry Tags (many-to-many relationship)
-export async function addTagToNewsEntry(newsEntryId: number, newsTagId: number) {
+export async function addTagToNewsEntry(
+  newsEntryId: number,
+  newsTagId: number
+) {
   const result = await database
     .insert(newsEntryTags)
     .values({
@@ -223,7 +238,10 @@ export async function addTagToNewsEntry(newsEntryId: number, newsTagId: number) 
   return result[0];
 }
 
-export async function removeTagFromNewsEntry(newsEntryId: number, newsTagId: number) {
+export async function removeTagFromNewsEntry(
+  newsEntryId: number,
+  newsTagId: number
+) {
   const result = await database
     .delete(newsEntryTags)
     .where(
@@ -244,14 +262,12 @@ export async function setNewsEntryTags(newsEntryId: number, tagIds: number[]) {
 
   // Add new tags
   if (tagIds.length > 0) {
-    await database
-      .insert(newsEntryTags)
-      .values(
-        tagIds.map(tagId => ({
-          newsEntryId,
-          newsTagId: tagId,
-        }))
-      );
+    await database.insert(newsEntryTags).values(
+      tagIds.map((tagId) => ({
+        newsEntryId,
+        newsTagId: tagId,
+      }))
+    );
   }
 }
 
@@ -273,11 +289,6 @@ export async function getNewsEntriesByTag(tagSlug: string) {
     .innerJoin(newsTags, eq(newsEntryTags.newsTagId, newsTags.id))
     .leftJoin(users, eq(newsEntries.authorId, users.id))
     .leftJoin(profiles, eq(users.id, profiles.userId))
-    .where(
-      and(
-        eq(newsTags.slug, tagSlug),
-        eq(newsEntries.isPublished, true)
-      )
-    )
+    .where(and(eq(newsTags.slug, tagSlug), eq(newsEntries.isPublished, true)))
     .orderBy(desc(newsEntries.publishedAt));
 }

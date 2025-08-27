@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { useToast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { useWindowSize } from "~/hooks/use-window-size";
 import Confetti from "react-confetti";
@@ -14,7 +14,6 @@ export const Route = createFileRoute("/learn/course-completed")({
 });
 
 function CourseCompleted() {
-  const { toast } = useToast();
   const [confettiPieces, setConfettiPieces] = useState(100);
   const { width, height } = useWindowSize();
   const { email, setEmail, isSubmitted, isLoading, handleSubmit } =
@@ -29,7 +28,7 @@ function CourseCompleted() {
   }, []);
 
   const handleNewsletterSuccess = () => {
-    toast({ title: "Thank you!", description: "We'll be in touch soon." });
+    toast.success("Thank you!", { description: "We'll be in touch soon." });
   };
 
   return (
