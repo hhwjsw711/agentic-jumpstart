@@ -14,7 +14,6 @@ import {
   Target,
   Bot,
   Video,
-  MoreHorizontal,
   Tag,
   LogIn,
   Newspaper,
@@ -47,6 +46,7 @@ import {
   getAffiliatesFeatureEnabledFn,
   getLaunchKitsFeatureEnabledFn,
   getNewsFeatureEnabledFn,
+  getBlogFeatureEnabledFn,
 } from "~/fn/app-settings";
 
 interface NavLink {
@@ -65,6 +65,7 @@ interface NavLink {
     affiliatesFeatureEnabled?: boolean;
     launchKitsFeatureEnabled?: boolean;
     newsFeatureEnabled?: boolean;
+    blogFeatureEnabled?: boolean;
   }) => boolean;
   params?: any;
   category?: "primary" | "resources" | "more";
@@ -116,6 +117,7 @@ const NAVIGATION_LINKS: NavLink[] = [
     to: "/blog",
     label: "Blog",
     icon: Video,
+    condition: ({ blogFeatureEnabled }) => !!blogFeatureEnabled,
     category: "resources",
   },
   {
@@ -196,6 +198,7 @@ function getFilteredNavLinks(data: {
   affiliatesFeatureEnabled?: boolean;
   launchKitsFeatureEnabled?: boolean;
   newsFeatureEnabled?: boolean;
+  blogFeatureEnabled?: boolean;
 }) {
   return NAVIGATION_LINKS.filter(
     (link) => !link.condition || link.condition(data)
@@ -402,6 +405,12 @@ export function Header() {
     queryFn: () => getNewsFeatureEnabledFn(),
   });
 
+  // Check if blog feature is enabled
+  const { data: blogFeatureEnabled } = useQuery({
+    queryKey: ["blogFeatureEnabled"],
+    queryFn: () => getBlogFeatureEnabledFn(),
+  });
+
   const navData = {
     user,
     continueSlug,
@@ -410,6 +419,7 @@ export function Header() {
     affiliatesFeatureEnabled,
     launchKitsFeatureEnabled,
     newsFeatureEnabled,
+    blogFeatureEnabled,
   };
 
   const filteredNavLinks = getFilteredNavLinks(navData);
