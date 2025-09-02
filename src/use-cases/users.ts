@@ -38,7 +38,7 @@ export async function createGoogleUserUseCase(googleUser: GoogleUser) {
 
   if (!existingUser) {
     existingUser = await createUser(googleUser.email);
-    
+
     // Create default email preferences for new users
     await createOrUpdateEmailPreferences(existingUser.id, {
       allowCourseUpdates: true,
@@ -54,11 +54,16 @@ export async function createGoogleUserUseCase(googleUser: GoogleUser) {
 }
 
 export async function isAdminUseCase() {
-  const user = await getCurrentUser();
-  if (!user) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return false;
+    }
+    return isAdmin(user);
+  } catch (error) {
+    console.error("Error checking if user is admin:", error);
     return false;
   }
-  return isAdmin(user);
 }
 
 export async function updateUserToPremiumUseCase(userId: UserId) {

@@ -14,4 +14,15 @@ export const FLAGS = {
   LAUNCH_KITS_FEATURE: "LAUNCH_KITS_FEATURE",
   AFFILIATES_FEATURE: "AFFILIATES_FEATURE",
   BLOG_FEATURE: "BLOG_FEATURE",
+  NEWS_FEATURE: "NEWS_FEATURE",
 };
+
+// Fallback values for when database is not available
+export const FALLBACK_CONFIG = {
+  EARLY_ACCESS_MODE: false,
+  AGENTS_FEATURE: true,
+  LAUNCH_KITS_FEATURE: true,
+  AFFILIATES_FEATURE: true,
+  BLOG_FEATURE: true,
+  NEWS_FEATURE: true,
+} as const;

@@ -20,6 +20,7 @@ import { Route as SuccessRouteImport } from './routes/success'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as PurchaseRouteImport } from './routes/purchase'
 import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
+import { Route as NewsRouteImport } from './routes/news'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as CreateTestimonialRouteImport } from './routes/create-testimonial'
 import { Route as CommunityRouteImport } from './routes/community'
@@ -50,12 +51,14 @@ import { Route as AdminAnalyticsRouteImport } from './routes/admin/analytics'
 import { Route as AdminAffiliatesRouteImport } from './routes/admin/affiliates'
 import { Route as AdminEmailsRouteRouteImport } from './routes/admin/emails/route'
 import { Route as AdminConversionsRouteRouteImport } from './routes/admin/conversions/route'
+import { Route as AdminNewsIndexRouteImport } from './routes/admin/news/index'
 import { Route as AdminLaunchKitsIndexRouteImport } from './routes/admin/launch-kits/index'
 import { Route as AdminEmailsIndexRouteImport } from './routes/admin/emails/index'
 import { Route as AdminConversionsIndexRouteImport } from './routes/admin/conversions/index'
 import { Route as AdminBlogIndexRouteImport } from './routes/admin/blog/index'
 import { Route as LearnSlugEditRouteImport } from './routes/learn/$slug/edit'
 import { Route as LearnSlugLayoutRouteImport } from './routes/learn/$slug/_layout'
+import { Route as AdminNewsNewRouteImport } from './routes/admin/news/new'
 import { Route as AdminLaunchKitsTagsRouteImport } from './routes/admin/launch-kits/tags'
 import { Route as AdminEmailsWaitlistRouteImport } from './routes/admin/emails/waitlist'
 import { Route as AdminEmailsHistoryRouteImport } from './routes/admin/emails/history'
@@ -67,6 +70,7 @@ import { Route as AdminConversionsEventsRouteImport } from './routes/admin/conve
 import { Route as AdminBlogNewRouteImport } from './routes/admin/blog/new'
 import { Route as LearnSlugLayoutIndexRouteImport } from './routes/learn/$slug/_layout.index'
 import { Route as AdminLaunchKitsCreateIndexRouteImport } from './routes/admin/launch-kits/create/index'
+import { Route as AdminNewsIdEditRouteImport } from './routes/admin/news/$id/edit'
 import { Route as AdminLaunchKitsEditIdRouteImport } from './routes/admin/launch-kits/edit/$id'
 import { Route as AdminBlogIdEditRouteImport } from './routes/admin/blog/$id/edit'
 import { ServerRoute as ApiLogoutServerRouteImport } from './routes/api/logout'
@@ -116,6 +120,11 @@ const PurchaseRoute = PurchaseRouteImport.update({
 const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
   id: '/privacy-policy',
   path: '/privacy-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewsRoute = NewsRouteImport.update({
+  id: '/news',
+  path: '/news',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -273,6 +282,11 @@ const AdminConversionsRouteRoute = AdminConversionsRouteRouteImport.update({
   path: '/conversions',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminNewsIndexRoute = AdminNewsIndexRouteImport.update({
+  id: '/news/',
+  path: '/news/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminLaunchKitsIndexRoute = AdminLaunchKitsIndexRouteImport.update({
   id: '/launch-kits/',
   path: '/launch-kits/',
@@ -301,6 +315,11 @@ const LearnSlugEditRoute = LearnSlugEditRouteImport.update({
 const LearnSlugLayoutRoute = LearnSlugLayoutRouteImport.update({
   id: '/_layout',
   getParentRoute: () => LearnSlugRoute,
+} as any)
+const AdminNewsNewRoute = AdminNewsNewRouteImport.update({
+  id: '/news/new',
+  path: '/news/new',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminLaunchKitsTagsRoute = AdminLaunchKitsTagsRouteImport.update({
   id: '/launch-kits/tags',
@@ -359,6 +378,11 @@ const AdminLaunchKitsCreateIndexRoute =
     path: '/launch-kits/create/',
     getParentRoute: () => AdminRouteRoute,
   } as any)
+const AdminNewsIdEditRoute = AdminNewsIdEditRouteImport.update({
+  id: '/news/$id/edit',
+  path: '/news/$id/edit',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminLaunchKitsEditIdRoute = AdminLaunchKitsEditIdRouteImport.update({
   id: '/launch-kits/edit/$id',
   path: '/launch-kits/edit/$id',
@@ -408,6 +432,7 @@ export interface FileRoutesByFullPath {
   '/community': typeof CommunityRoute
   '/create-testimonial': typeof CreateTestimonialRoute
   '/login': typeof LoginRoute
+  '/news': typeof NewsRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/purchase': typeof PurchaseRoute
   '/settings': typeof SettingsRoute
@@ -446,14 +471,17 @@ export interface FileRoutesByFullPath {
   '/admin/emails/history': typeof AdminEmailsHistoryRoute
   '/admin/emails/waitlist': typeof AdminEmailsWaitlistRoute
   '/admin/launch-kits/tags': typeof AdminLaunchKitsTagsRoute
+  '/admin/news/new': typeof AdminNewsNewRoute
   '/learn/$slug': typeof LearnSlugLayoutRouteWithChildren
   '/learn/$slug/edit': typeof LearnSlugEditRoute
   '/admin/blog': typeof AdminBlogIndexRoute
   '/admin/conversions/': typeof AdminConversionsIndexRoute
   '/admin/emails/': typeof AdminEmailsIndexRoute
   '/admin/launch-kits': typeof AdminLaunchKitsIndexRoute
+  '/admin/news': typeof AdminNewsIndexRoute
   '/admin/blog/$id/edit': typeof AdminBlogIdEditRoute
   '/admin/launch-kits/edit/$id': typeof AdminLaunchKitsEditIdRoute
+  '/admin/news/$id/edit': typeof AdminNewsIdEditRoute
   '/admin/launch-kits/create': typeof AdminLaunchKitsCreateIndexRoute
   '/learn/$slug/': typeof LearnSlugLayoutIndexRoute
 }
@@ -467,6 +495,7 @@ export interface FileRoutesByTo {
   '/community': typeof CommunityRoute
   '/create-testimonial': typeof CreateTestimonialRoute
   '/login': typeof LoginRoute
+  '/news': typeof NewsRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/purchase': typeof PurchaseRoute
   '/settings': typeof SettingsRoute
@@ -503,14 +532,17 @@ export interface FileRoutesByTo {
   '/admin/emails/history': typeof AdminEmailsHistoryRoute
   '/admin/emails/waitlist': typeof AdminEmailsWaitlistRoute
   '/admin/launch-kits/tags': typeof AdminLaunchKitsTagsRoute
+  '/admin/news/new': typeof AdminNewsNewRoute
   '/learn/$slug': typeof LearnSlugLayoutIndexRoute
   '/learn/$slug/edit': typeof LearnSlugEditRoute
   '/admin/blog': typeof AdminBlogIndexRoute
   '/admin/conversions': typeof AdminConversionsIndexRoute
   '/admin/emails': typeof AdminEmailsIndexRoute
   '/admin/launch-kits': typeof AdminLaunchKitsIndexRoute
+  '/admin/news': typeof AdminNewsIndexRoute
   '/admin/blog/$id/edit': typeof AdminBlogIdEditRoute
   '/admin/launch-kits/edit/$id': typeof AdminLaunchKitsEditIdRoute
+  '/admin/news/$id/edit': typeof AdminNewsIdEditRoute
   '/admin/launch-kits/create': typeof AdminLaunchKitsCreateIndexRoute
 }
 export interface FileRoutesById {
@@ -524,6 +556,7 @@ export interface FileRoutesById {
   '/community': typeof CommunityRoute
   '/create-testimonial': typeof CreateTestimonialRoute
   '/login': typeof LoginRoute
+  '/news': typeof NewsRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/purchase': typeof PurchaseRoute
   '/settings': typeof SettingsRoute
@@ -562,6 +595,7 @@ export interface FileRoutesById {
   '/admin/emails/history': typeof AdminEmailsHistoryRoute
   '/admin/emails/waitlist': typeof AdminEmailsWaitlistRoute
   '/admin/launch-kits/tags': typeof AdminLaunchKitsTagsRoute
+  '/admin/news/new': typeof AdminNewsNewRoute
   '/learn/$slug': typeof LearnSlugRouteWithChildren
   '/learn/$slug/_layout': typeof LearnSlugLayoutRouteWithChildren
   '/learn/$slug/edit': typeof LearnSlugEditRoute
@@ -569,8 +603,10 @@ export interface FileRoutesById {
   '/admin/conversions/': typeof AdminConversionsIndexRoute
   '/admin/emails/': typeof AdminEmailsIndexRoute
   '/admin/launch-kits/': typeof AdminLaunchKitsIndexRoute
+  '/admin/news/': typeof AdminNewsIndexRoute
   '/admin/blog/$id/edit': typeof AdminBlogIdEditRoute
   '/admin/launch-kits/edit/$id': typeof AdminLaunchKitsEditIdRoute
+  '/admin/news/$id/edit': typeof AdminNewsIdEditRoute
   '/admin/launch-kits/create/': typeof AdminLaunchKitsCreateIndexRoute
   '/learn/$slug/_layout/': typeof LearnSlugLayoutIndexRoute
 }
@@ -586,6 +622,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/create-testimonial'
     | '/login'
+    | '/news'
     | '/privacy-policy'
     | '/purchase'
     | '/settings'
@@ -624,14 +661,17 @@ export interface FileRouteTypes {
     | '/admin/emails/history'
     | '/admin/emails/waitlist'
     | '/admin/launch-kits/tags'
+    | '/admin/news/new'
     | '/learn/$slug'
     | '/learn/$slug/edit'
     | '/admin/blog'
     | '/admin/conversions/'
     | '/admin/emails/'
     | '/admin/launch-kits'
+    | '/admin/news'
     | '/admin/blog/$id/edit'
     | '/admin/launch-kits/edit/$id'
+    | '/admin/news/$id/edit'
     | '/admin/launch-kits/create'
     | '/learn/$slug/'
   fileRoutesByTo: FileRoutesByTo
@@ -645,6 +685,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/create-testimonial'
     | '/login'
+    | '/news'
     | '/privacy-policy'
     | '/purchase'
     | '/settings'
@@ -681,14 +722,17 @@ export interface FileRouteTypes {
     | '/admin/emails/history'
     | '/admin/emails/waitlist'
     | '/admin/launch-kits/tags'
+    | '/admin/news/new'
     | '/learn/$slug'
     | '/learn/$slug/edit'
     | '/admin/blog'
     | '/admin/conversions'
     | '/admin/emails'
     | '/admin/launch-kits'
+    | '/admin/news'
     | '/admin/blog/$id/edit'
     | '/admin/launch-kits/edit/$id'
+    | '/admin/news/$id/edit'
     | '/admin/launch-kits/create'
   id:
     | '__root__'
@@ -701,6 +745,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/create-testimonial'
     | '/login'
+    | '/news'
     | '/privacy-policy'
     | '/purchase'
     | '/settings'
@@ -739,6 +784,7 @@ export interface FileRouteTypes {
     | '/admin/emails/history'
     | '/admin/emails/waitlist'
     | '/admin/launch-kits/tags'
+    | '/admin/news/new'
     | '/learn/$slug'
     | '/learn/$slug/_layout'
     | '/learn/$slug/edit'
@@ -746,8 +792,10 @@ export interface FileRouteTypes {
     | '/admin/conversions/'
     | '/admin/emails/'
     | '/admin/launch-kits/'
+    | '/admin/news/'
     | '/admin/blog/$id/edit'
     | '/admin/launch-kits/edit/$id'
+    | '/admin/news/$id/edit'
     | '/admin/launch-kits/create/'
     | '/learn/$slug/_layout/'
   fileRoutesById: FileRoutesById
@@ -762,6 +810,7 @@ export interface RootRouteChildren {
   CommunityRoute: typeof CommunityRoute
   CreateTestimonialRoute: typeof CreateTestimonialRoute
   LoginRoute: typeof LoginRoute
+  NewsRoute: typeof NewsRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   PurchaseRoute: typeof PurchaseRoute
   SettingsRoute: typeof SettingsRoute
@@ -896,6 +945,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy-policy'
       fullPath: '/privacy-policy'
       preLoaderRoute: typeof PrivacyPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/news': {
+      id: '/news'
+      path: '/news'
+      fullPath: '/news'
+      preLoaderRoute: typeof NewsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1115,6 +1171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminConversionsRouteRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/news/': {
+      id: '/admin/news/'
+      path: '/news'
+      fullPath: '/admin/news'
+      preLoaderRoute: typeof AdminNewsIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/launch-kits/': {
       id: '/admin/launch-kits/'
       path: '/launch-kits'
@@ -1156,6 +1219,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/learn/$slug'
       preLoaderRoute: typeof LearnSlugLayoutRouteImport
       parentRoute: typeof LearnSlugRoute
+    }
+    '/admin/news/new': {
+      id: '/admin/news/new'
+      path: '/news/new'
+      fullPath: '/admin/news/new'
+      preLoaderRoute: typeof AdminNewsNewRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
     '/admin/launch-kits/tags': {
       id: '/admin/launch-kits/tags'
@@ -1232,6 +1302,13 @@ declare module '@tanstack/react-router' {
       path: '/launch-kits/create'
       fullPath: '/admin/launch-kits/create'
       preLoaderRoute: typeof AdminLaunchKitsCreateIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/news/$id/edit': {
+      id: '/admin/news/$id/edit'
+      path: '/news/$id/edit'
+      fullPath: '/admin/news/$id/edit'
+      preLoaderRoute: typeof AdminNewsIdEditRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/launch-kits/edit/$id': {
@@ -1338,10 +1415,13 @@ interface AdminRouteRouteChildren {
   AdminUsersRoute: typeof AdminUsersRoute
   AdminBlogNewRoute: typeof AdminBlogNewRoute
   AdminLaunchKitsTagsRoute: typeof AdminLaunchKitsTagsRoute
+  AdminNewsNewRoute: typeof AdminNewsNewRoute
   AdminBlogIndexRoute: typeof AdminBlogIndexRoute
   AdminLaunchKitsIndexRoute: typeof AdminLaunchKitsIndexRoute
+  AdminNewsIndexRoute: typeof AdminNewsIndexRoute
   AdminBlogIdEditRoute: typeof AdminBlogIdEditRoute
   AdminLaunchKitsEditIdRoute: typeof AdminLaunchKitsEditIdRoute
+  AdminNewsIdEditRoute: typeof AdminNewsIdEditRoute
   AdminLaunchKitsCreateIndexRoute: typeof AdminLaunchKitsCreateIndexRoute
 }
 
@@ -1355,10 +1435,13 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminUsersRoute: AdminUsersRoute,
   AdminBlogNewRoute: AdminBlogNewRoute,
   AdminLaunchKitsTagsRoute: AdminLaunchKitsTagsRoute,
+  AdminNewsNewRoute: AdminNewsNewRoute,
   AdminBlogIndexRoute: AdminBlogIndexRoute,
   AdminLaunchKitsIndexRoute: AdminLaunchKitsIndexRoute,
+  AdminNewsIndexRoute: AdminNewsIndexRoute,
   AdminBlogIdEditRoute: AdminBlogIdEditRoute,
   AdminLaunchKitsEditIdRoute: AdminLaunchKitsEditIdRoute,
+  AdminNewsIdEditRoute: AdminNewsIdEditRoute,
   AdminLaunchKitsCreateIndexRoute: AdminLaunchKitsCreateIndexRoute,
 }
 
@@ -1402,6 +1485,7 @@ const rootRouteChildren: RootRouteChildren = {
   CommunityRoute: CommunityRoute,
   CreateTestimonialRoute: CreateTestimonialRoute,
   LoginRoute: LoginRoute,
+  NewsRoute: NewsRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
   PurchaseRoute: PurchaseRoute,
   SettingsRoute: SettingsRoute,

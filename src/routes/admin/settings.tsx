@@ -20,6 +20,8 @@ import {
   getAffiliatesFeatureEnabledFn,
   toggleBlogFeatureFn,
   getBlogFeatureEnabledFn,
+  getNewsFeatureEnabledFn,
+  toggleNewsFeatureFn,
 } from "~/fn/app-settings";
 import { assertIsAdminFn } from "~/fn/auth";
 import { Switch } from "~/components/ui/switch";
@@ -51,35 +53,44 @@ export const Route = createFileRoute("/admin/settings")({
       queryKey: ["blogFeature"],
       queryFn: () => getBlogFeatureEnabledFn(),
     });
+    context.queryClient.ensureQueryData({
+      queryKey: ["newsFeature"],
+      queryFn: () => getNewsFeatureEnabledFn(),
+    });
   },
 });
 
 function SettingsPage() {
   const queryClient = useQueryClient();
 
-  const { data: earlyAccessMode, isLoading: isLoadingEarlyAccess } = useQuery({
+  const { data: earlyAccessMode } = useQuery({
     queryKey: ["earlyAccessMode"],
     queryFn: () => getEarlyAccessModeFn(),
   });
 
-  const { data: agentsFeature, isLoading: isLoadingAgents } = useQuery({
+  const { data: agentsFeature } = useQuery({
     queryKey: ["agentsFeature"],
     queryFn: () => getAgentsFeatureEnabledFn(),
   });
 
-  const { data: launchKitsFeature, isLoading: isLoadingLaunchKits } = useQuery({
+  const { data: launchKitsFeature } = useQuery({
     queryKey: ["launchKitsFeature"],
     queryFn: () => getLaunchKitsFeatureEnabledFn(),
   });
 
-  const { data: affiliatesFeature, isLoading: isLoadingAffiliates } = useQuery({
+  const { data: affiliatesFeature } = useQuery({
     queryKey: ["affiliatesFeature"],
     queryFn: () => getAffiliatesFeatureEnabledFn(),
   });
 
-  const { data: blogFeature, isLoading: isLoadingBlog } = useQuery({
+  const { data: blogFeature } = useQuery({
     queryKey: ["blogFeature"],
     queryFn: () => getBlogFeatureEnabledFn(),
+  });
+
+  const { data: newsFeature } = useQuery({
+    queryKey: ["newsFeature"],
+    queryFn: () => getNewsFeatureEnabledFn(),
   });
 
   const toggleEarlyAccessMutation = useMutation({
@@ -142,6 +153,18 @@ function SettingsPage() {
     },
   });
 
+  const toggleNewsFeatureMutation = useMutation({
+    mutationFn: toggleNewsFeatureFn,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["newsFeature"] });
+      toast.success("News feature updated successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to update news feature");
+      console.error("Failed to toggle news feature:", error);
+    },
+  });
+
   const handleToggleEarlyAccess = (checked: boolean) => {
     toggleEarlyAccessMutation.mutate({ data: { enabled: checked } });
   };
@@ -160,6 +183,10 @@ function SettingsPage() {
 
   const handleToggleBlogFeature = (checked: boolean) => {
     toggleBlogFeatureMutation.mutate({ data: { enabled: checked } });
+  };
+
+  const handleToggleNewsFeature = (checked: boolean) => {
+    toggleNewsFeatureMutation.mutate({ data: { enabled: checked } });
   };
 
   return (
@@ -191,11 +218,9 @@ function SettingsPage() {
             <div className="flex items-center space-x-3">
               <Switch
                 id="early-access-mode"
-                checked={earlyAccessMode || false}
+                checked={earlyAccessMode ?? false}
                 onCheckedChange={handleToggleEarlyAccess}
-                disabled={
-                  isLoadingEarlyAccess || toggleEarlyAccessMutation.isPending
-                }
+                disabled={toggleEarlyAccessMutation.isPending}
               />
               <Label htmlFor="early-access-mode" className="cursor-pointer">
                 {earlyAccessMode ? "Enabled" : "Disabled"}
@@ -227,11 +252,9 @@ function SettingsPage() {
             <div className="flex items-center space-x-3">
               <Switch
                 id="agents-feature"
-                checked={agentsFeature || false}
+                checked={agentsFeature ?? false}
                 onCheckedChange={handleToggleAgentsFeature}
-                disabled={
-                  isLoadingAgents || toggleAgentsFeatureMutation.isPending
-                }
+                disabled={toggleAgentsFeatureMutation.isPending}
               />
               <Label htmlFor="agents-feature" className="cursor-pointer">
                 {agentsFeature ? "Enabled" : "Disabled"}
@@ -263,12 +286,9 @@ function SettingsPage() {
             <div className="flex items-center space-x-3">
               <Switch
                 id="launch-kits-feature"
-                checked={launchKitsFeature || false}
+                checked={launchKitsFeature ?? false}
                 onCheckedChange={handleToggleLaunchKitsFeature}
-                disabled={
-                  isLoadingLaunchKits ||
-                  toggleLaunchKitsFeatureMutation.isPending
-                }
+                disabled={toggleLaunchKitsFeatureMutation.isPending}
               />
               <Label htmlFor="launch-kits-feature" className="cursor-pointer">
                 {launchKitsFeature ? "Enabled" : "Disabled"}
@@ -301,12 +321,9 @@ function SettingsPage() {
             <div className="flex items-center space-x-3">
               <Switch
                 id="affiliates-feature"
-                checked={affiliatesFeature || false}
+                checked={affiliatesFeature ?? false}
                 onCheckedChange={handleToggleAffiliatesFeature}
-                disabled={
-                  isLoadingAffiliates ||
-                  toggleAffiliatesFeatureMutation.isPending
-                }
+                disabled={toggleAffiliatesFeatureMutation.isPending}
               />
               <Label htmlFor="affiliates-feature" className="cursor-pointer">
                 {affiliatesFeature ? "Enabled" : "Disabled"}
@@ -338,9 +355,9 @@ function SettingsPage() {
             <div className="flex items-center space-x-3">
               <Switch
                 id="blog-feature"
-                checked={blogFeature || false}
+                checked={blogFeature ?? false}
                 onCheckedChange={handleToggleBlogFeature}
-                disabled={isLoadingBlog || toggleBlogFeatureMutation.isPending}
+                disabled={toggleBlogFeatureMutation.isPending}
               />
               <Label htmlFor="blog-feature" className="cursor-pointer">
                 {blogFeature ? "Enabled" : "Disabled"}
@@ -350,6 +367,40 @@ function SettingsPage() {
               {blogFeature
                 ? "Users can access blog posts and content creation features."
                 : "Blog features are hidden from users."}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card
+          className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-2 duration-500"
+          style={{ animationDelay: "0.6s", animationFillMode: "both" }}
+        >
+          <CardHeader className="flex-shrink-0">
+            <CardTitle className="flex items-center gap-2">
+              <Newspaper className="h-5 w-5" />
+              News
+            </CardTitle>
+            <CardDescription className="h-20 overflow-hidden">
+              Control whether the news feature is available to users. When
+              disabled, news-related functionality will be hidden.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-1 flex flex-col justify-between">
+            <div className="flex items-center space-x-3">
+              <Switch
+                id="news-feature"
+                checked={newsFeature ?? false}
+                onCheckedChange={handleToggleNewsFeature}
+                disabled={toggleNewsFeatureMutation.isPending}
+              />
+              <Label htmlFor="news-feature" className="cursor-pointer">
+                {newsFeature ? "Enabled" : "Disabled"}
+              </Label>
+            </div>
+            <p className="mt-3 text-sm text-muted-foreground min-h-[2.5rem]">
+              {newsFeature
+                ? "Users can access news posts and content creation features."
+                : "News features are hidden from users."}
             </p>
           </CardContent>
         </Card>

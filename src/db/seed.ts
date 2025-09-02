@@ -1,6 +1,15 @@
 import "dotenv/config";
 import { database } from "./index";
-import { modules, segments, appSettings, launchKits, launchKitTags, launchKitTagRelations, users } from "./schema";
+import {
+  modules,
+  segments,
+  appSettings,
+  launchKits,
+  launchKitTags,
+  launchKitTagRelations,
+  launchKitCategories,
+  users,
+} from "./schema";
 import { FLAGS } from "~/config";
 
 async function main() {
@@ -160,31 +169,115 @@ async function main() {
     }
   }
 
-  // Seed Launch Kit Tags
+  // Seed Launch Kit Categories first
+  const categoryData = [
+    { name: "Framework", slug: "framework" },
+    { name: "Language", slug: "language" },
+    { name: "Database", slug: "database" },
+    { name: "Tool", slug: "tool" },
+    { name: "Deployment", slug: "deployment" },
+  ];
+
+  const createdCategories = [];
+  for (const category of categoryData) {
+    const [createdCategory] = await database
+      .insert(launchKitCategories)
+      .values(category)
+      .onConflictDoNothing()
+      .returning();
+    if (createdCategory) {
+      createdCategories.push(createdCategory);
+    }
+  }
+
+  // Seed Launch Kit Tags with proper category references
   const tagData = [
-    { name: "React", slug: "react", color: "#61DAFB", category: "framework" },
-    { name: "Next.js", slug: "nextjs", color: "#000000", category: "framework" },
-    { name: "TypeScript", slug: "typescript", color: "#3178C6", category: "language" },
-    { name: "Tailwind CSS", slug: "tailwindcss", color: "#06B6D4", category: "framework" },
-    { name: "Node.js", slug: "nodejs", color: "#339933", category: "language" },
-    { name: "Express", slug: "express", color: "#000000", category: "framework" },
-    { name: "PostgreSQL", slug: "postgresql", color: "#336791", category: "database" },
-    { name: "MongoDB", slug: "mongodb", color: "#47A248", category: "database" },
-    { name: "Prisma", slug: "prisma", color: "#2D3748", category: "tool" },
-    { name: "Drizzle", slug: "drizzle", color: "#C5F74F", category: "tool" },
-    { name: "Vercel", slug: "vercel", color: "#000000", category: "deployment" },
-    { name: "Docker", slug: "docker", color: "#2496ED", category: "deployment" },
+    {
+      name: "React",
+      slug: "react",
+      color: "#61DAFB",
+      categorySlug: "framework",
+    },
+    {
+      name: "Next.js",
+      slug: "nextjs",
+      color: "#000000",
+      categorySlug: "framework",
+    },
+    {
+      name: "TypeScript",
+      slug: "typescript",
+      color: "#3178C6",
+      categorySlug: "language",
+    },
+    {
+      name: "Tailwind CSS",
+      slug: "tailwindcss",
+      color: "#06B6D4",
+      categorySlug: "framework",
+    },
+    {
+      name: "Node.js",
+      slug: "nodejs",
+      color: "#339933",
+      categorySlug: "language",
+    },
+    {
+      name: "Express",
+      slug: "express",
+      color: "#000000",
+      categorySlug: "framework",
+    },
+    {
+      name: "PostgreSQL",
+      slug: "postgresql",
+      color: "#336791",
+      categorySlug: "database",
+    },
+    {
+      name: "MongoDB",
+      slug: "mongodb",
+      color: "#47A248",
+      categorySlug: "database",
+    },
+    { name: "Prisma", slug: "prisma", color: "#2D3748", categorySlug: "tool" },
+    {
+      name: "Drizzle",
+      slug: "drizzle",
+      color: "#C5F74F",
+      categorySlug: "tool",
+    },
+    {
+      name: "Vercel",
+      slug: "vercel",
+      color: "#000000",
+      categorySlug: "deployment",
+    },
+    {
+      name: "Docker",
+      slug: "docker",
+      color: "#2496ED",
+      categorySlug: "deployment",
+    },
   ];
 
   const createdTags = [];
   for (const tag of tagData) {
-    const [createdTag] = await database
-      .insert(launchKitTags)
-      .values(tag)
-      .onConflictDoNothing()
-      .returning();
-    if (createdTag) {
-      createdTags.push(createdTag);
+    const category = createdCategories.find((c) => c.slug === tag.categorySlug);
+    if (category) {
+      const [createdTag] = await database
+        .insert(launchKitTags)
+        .values({
+          name: tag.name,
+          slug: tag.slug,
+          color: tag.color,
+          categoryId: category.id,
+        })
+        .onConflictDoNothing()
+        .returning();
+      if (createdTag) {
+        createdTags.push(createdTag);
+      }
     }
   }
 
@@ -204,8 +297,10 @@ async function main() {
     const launchKitData = [
       {
         name: "React Todo App",
-        description: "A complete todo application built with React and TypeScript",
-        longDescription: "This starter kit includes a fully functional todo application with features like adding, editing, deleting, and marking todos as complete. Built with React 18, TypeScript, and Tailwind CSS for styling. Perfect for learning React fundamentals and state management.",
+        description:
+          "A complete todo application built with React and TypeScript",
+        longDescription:
+          "This starter kit includes a fully functional todo application with features like adding, editing, deleting, and marking todos as complete. Built with React 18, TypeScript, and Tailwind CSS for styling. Perfect for learning React fundamentals and state management.",
         repositoryUrl: "https://github.com/example/react-todo-app",
         demoUrl: "https://react-todo-demo.vercel.app",
         difficulty: "beginner",
@@ -214,8 +309,10 @@ async function main() {
       },
       {
         name: "Next.js E-commerce Store",
-        description: "Full-stack e-commerce solution with Next.js, Stripe, and PostgreSQL",
-        longDescription: "A production-ready e-commerce platform featuring product catalog, shopping cart, user authentication, payment processing with Stripe, and admin dashboard. Uses Next.js 14, TypeScript, Prisma ORM, and PostgreSQL. Includes Docker setup for easy deployment.",
+        description:
+          "Full-stack e-commerce solution with Next.js, Stripe, and PostgreSQL",
+        longDescription:
+          "A production-ready e-commerce platform featuring product catalog, shopping cart, user authentication, payment processing with Stripe, and admin dashboard. Uses Next.js 14, TypeScript, Prisma ORM, and PostgreSQL. Includes Docker setup for easy deployment.",
         repositoryUrl: "https://github.com/example/nextjs-ecommerce",
         demoUrl: "https://nextjs-ecommerce-demo.vercel.app",
         difficulty: "advanced",
@@ -224,8 +321,10 @@ async function main() {
       },
       {
         name: "Express API Starter",
-        description: "RESTful API boilerplate with Express, TypeScript, and MongoDB",
-        longDescription: "A robust API foundation with user authentication, CRUD operations, input validation, error handling, and comprehensive testing setup. Built with Express.js, TypeScript, MongoDB, and JWT authentication. Includes Docker configuration and GitHub Actions CI/CD.",
+        description:
+          "RESTful API boilerplate with Express, TypeScript, and MongoDB",
+        longDescription:
+          "A robust API foundation with user authentication, CRUD operations, input validation, error handling, and comprehensive testing setup. Built with Express.js, TypeScript, MongoDB, and JWT authentication. Includes Docker configuration and GitHub Actions CI/CD.",
         repositoryUrl: "https://github.com/example/express-api-starter",
         difficulty: "intermediate",
         authorId: adminUser.id,
@@ -235,7 +334,7 @@ async function main() {
 
     for (const kitData of launchKitData) {
       const { tags: kitTags, ...kitInfo } = kitData;
-      
+
       const [createdKit] = await database
         .insert(launchKits)
         .values({
@@ -248,7 +347,7 @@ async function main() {
       if (createdKit) {
         // Add tags to the kit
         for (const tagSlug of kitTags) {
-          const tag = createdTags.find(t => t.slug === tagSlug);
+          const tag = createdTags.find((t) => t.slug === tagSlug);
           if (tag) {
             await database
               .insert(launchKitTagRelations)

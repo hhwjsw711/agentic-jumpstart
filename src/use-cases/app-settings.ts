@@ -6,6 +6,7 @@ import {
   isLaunchKitsFeatureEnabled as checkLaunchKitsFeatureEnabled,
   isAffiliatesFeatureEnabled as checkAffiliatesFeatureEnabled,
   isBlogFeatureEnabled as checkBlogFeatureEnabled,
+  isNewsFeatureEnabled as checkNewsFeatureEnabled,
 } from "~/data-access/app-settings";
 
 export async function getAppSettingsUseCase() {
@@ -59,4 +60,12 @@ export async function getBlogFeatureEnabledUseCase() {
 
 export async function toggleBlogFeatureUseCase(enabled: boolean) {
   await setAppSetting("BLOG_FEATURE", enabled.toString());
+}
+
+export async function getNewsFeatureEnabledUseCase() {
+  return checkNewsFeatureEnabled();
+}
+
+export async function toggleNewsFeatureUseCase(enabled: boolean) {
+  await setAppSetting("NEWS_FEATURE", enabled.toString());
 }

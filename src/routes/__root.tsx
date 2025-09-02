@@ -26,11 +26,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
     beforeLoad: async ({ location }) => {
       const shouldShowEarlyAccess = await shouldShowEarlyAccessFn();
-      if (
-        shouldShowEarlyAccess &&
-        location.pathname !== "/" &&
-        location.pathname !== "/unsubscribe"
-      ) {
+      if (shouldShowEarlyAccess && location.pathname !== "/") {
         throw redirect({ to: "/" });
       }
     },
@@ -103,7 +99,8 @@ function RootComponent() {
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   const routerState = useRouterState();
-  const { shouldShowEarlyAccess } = Route.useLoaderData();
+  const loaderData = Route.useLoaderData();
+  const shouldShowEarlyAccess = loaderData?.shouldShowEarlyAccess ?? false;
   const showFooter =
     !routerState.location.pathname.startsWith("/learn") &&
     !routerState.location.pathname.startsWith("/admin") &&

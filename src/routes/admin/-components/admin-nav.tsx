@@ -2,17 +2,17 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { cn } from "~/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import {
-  BarChart3,
   Users,
   MessageSquare,
   Mail,
   Target,
   UserCheck,
   Settings,
+  Newspaper,
+  Home,
   FileText,
   Rocket,
   ExternalLink,
-  Home,
   LogOut,
   AlertCircle,
 } from "lucide-react";
@@ -20,6 +20,7 @@ import {
   getLaunchKitsFeatureEnabledFn,
   getAffiliatesFeatureEnabledFn,
   getBlogFeatureEnabledFn,
+  getNewsFeatureEnabledFn,
 } from "~/fn/app-settings";
 
 const navigation = [
@@ -69,6 +70,13 @@ const navigation = [
     description: "User feedback",
   },
   {
+    name: "News",
+    href: "/admin/news",
+    icon: Newspaper,
+    description: "News posts",
+    featureKey: "news",
+  },
+  {
     name: "Emails",
     href: "/admin/emails",
     icon: Mail,
@@ -105,11 +113,17 @@ export function AdminNav({ onItemClick }: AdminNavProps = {}) {
     queryFn: () => getBlogFeatureEnabledFn(),
   });
 
+  const { data: newsEnabled } = useQuery({
+    queryKey: ["newsFeature"],
+    queryFn: () => getNewsFeatureEnabledFn(),
+  });
+
   // Map feature keys to their enabled states
   const featureStates = {
     launchKits: launchKitsEnabled,
     affiliates: affiliatesEnabled,
     blog: blogEnabled,
+    news: newsEnabled,
   };
 
   return (
@@ -143,7 +157,11 @@ export function AdminNav({ onItemClick }: AdminNavProps = {}) {
         </div>
 
         {/* Admin Panel Header - now clickable */}
-        <Link to="/admin/analytics" onClick={onItemClick} className="block mb-8 group">
+        <Link
+          to="/admin/analytics"
+          onClick={onItemClick}
+          className="block mb-8 group"
+        >
           <h2 className="text-lg font-semibold text-foreground mb-2 flex items-center gap-2 cursor-pointer transition-colors duration-200 group-hover:text-theme-500">
             <div className="w-2 h-2 rounded-full bg-theme-500 animate-pulse"></div>
             Admin Panel
@@ -154,11 +172,14 @@ export function AdminNav({ onItemClick }: AdminNavProps = {}) {
         {/* Navigation links - flex-1 to take available space */}
         <ul className="space-y-1 flex-1">
           {navigation.map((item) => {
-            const isActive = item.href === "/admin/conversions" 
-              ? location.pathname.startsWith("/admin/conversions")
-              : location.pathname === item.href;
-            const isDisabled = item.featureKey && !featureStates[item.featureKey];
-            
+            const isActive =
+              item.href === "/admin/conversions"
+                ? location.pathname.startsWith("/admin/conversions")
+                : location.pathname === item.href;
+            const isDisabled =
+              item.featureKey &&
+              !featureStates[item.featureKey as keyof typeof featureStates];
+
             return (
               <li key={item.name}>
                 <Link
@@ -169,8 +190,8 @@ export function AdminNav({ onItemClick }: AdminNavProps = {}) {
                     isActive
                       ? "text-theme-600 dark:text-theme-400 bg-theme-500/15 dark:bg-theme-500/10 shadow-sm"
                       : isDisabled
-                      ? "text-muted-foreground/40 hover:text-muted-foreground/60 hover:bg-muted/30"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                        ? "text-muted-foreground/40 hover:text-muted-foreground/60 hover:bg-muted/30"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   )}
                 >
                   {/* Subtle glow for active state */}
@@ -185,8 +206,8 @@ export function AdminNav({ onItemClick }: AdminNavProps = {}) {
                         isActive && !isDisabled
                           ? "text-theme-500 dark:text-theme-400"
                           : isDisabled
-                          ? "text-muted-foreground/40"
-                          : "text-muted-foreground group-hover:text-theme-400"
+                            ? "text-muted-foreground/40"
+                            : "text-muted-foreground group-hover:text-theme-400"
                       )}
                     />
                     <span
@@ -209,10 +230,12 @@ export function AdminNav({ onItemClick }: AdminNavProps = {}) {
                   </div>
 
                   {item.description && (
-                    <span className={cn(
-                      "text-xs text-muted-foreground/70 ml-7 mt-0.5",
-                      isDisabled && "opacity-50"
-                    )}>
+                    <span
+                      className={cn(
+                        "text-xs text-muted-foreground/70 ml-7 mt-0.5",
+                        isDisabled && "opacity-50"
+                      )}
+                    >
                       {item.description}
                     </span>
                   )}
