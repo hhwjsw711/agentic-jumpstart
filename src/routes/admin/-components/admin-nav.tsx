@@ -15,6 +15,7 @@ import {
   ExternalLink,
   LogOut,
   AlertCircle,
+  TrendingUp,
 } from "lucide-react";
 import {
   getLaunchKitsFeatureEnabledFn,
@@ -23,75 +24,116 @@ import {
   getNewsFeatureEnabledFn,
 } from "~/fn/app-settings";
 
-const navigation = [
+interface NavigationItem {
+  name: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  featureKey?: "blog" | "launchKits" | "affiliates" | "news";
+  category: "dashboard" | "content" | "users" | "business" | "communications" | "system";
+}
+
+const navigation: NavigationItem[] = [
+  // Dashboard
   {
     name: "Dashboard",
     href: "/admin/analytics",
     icon: Home,
-    description: "Overview & Analytics",
+    category: "dashboard",
   },
+  
+  // Content Management
   {
-    name: "Users",
-    href: "/admin/users",
-    icon: Users,
-    description: "Manage users",
+    name: "Comments",
+    href: "/admin/comments",
+    icon: MessageSquare,
+    category: "content",
   },
   {
     name: "Blog",
     href: "/admin/blog",
     icon: FileText,
-    description: "Manage posts",
+    category: "content",
     featureKey: "blog",
-  },
-  {
-    name: "Conversions",
-    href: "/admin/conversions",
-    icon: Target,
-    description: "Track performance",
-  },
-  {
-    name: "Launch Kits",
-    href: "/admin/launch-kits",
-    icon: Rocket,
-    description: "Startup resources",
-    featureKey: "launchKits",
-  },
-  {
-    name: "Affiliates",
-    href: "/admin/affiliates",
-    icon: UserCheck,
-    description: "Partner program",
-    featureKey: "affiliates",
-  },
-  {
-    name: "Comments",
-    href: "/admin/comments",
-    icon: MessageSquare,
-    description: "User feedback",
   },
   {
     name: "News",
     href: "/admin/news",
     icon: Newspaper,
-    description: "News posts",
+    category: "content",
     featureKey: "news",
   },
+  
+  // User Management
+  {
+    name: "Users",
+    href: "/admin/users",
+    icon: Users,
+    category: "users",
+  },
+  {
+    name: "Affiliates",
+    href: "/admin/affiliates",
+    icon: UserCheck,
+    category: "users",
+    featureKey: "affiliates",
+  },
+  
+  // Business
+  {
+    name: "Launch Kits",
+    href: "/admin/launch-kits",
+    icon: Rocket,
+    category: "business",
+    featureKey: "launchKits",
+  },
+  {
+    name: "Conversions",
+    href: "/admin/conversions",
+    icon: Target,
+    category: "business",
+  },
+  
+  // Communications
   {
     name: "Emails",
     href: "/admin/emails",
     icon: Mail,
-    description: "Email campaigns",
+    category: "communications",
   },
+  
+  // System
   {
     name: "Settings",
     href: "/admin/settings",
     icon: Settings,
-    description: "Site configuration",
+    category: "system",
   },
 ];
 
+const CATEGORY_LABELS: Record<NavigationItem["category"], string> = {
+  dashboard: "Dashboard",
+  content: "Content Management",
+  users: "User Management",
+  business: "Business",
+  communications: "Communications",
+  system: "System",
+};
+
 interface AdminNavProps {
   onItemClick?: () => void;
+}
+
+function getGroupedNavigationItems() {
+  const grouped: Record<string, NavigationItem[]> = {};
+  
+  navigation.forEach((item) => {
+    if (!grouped[item.category]) {
+      grouped[item.category] = [];
+    }
+    grouped[item.category].push(item);
+  });
+  
+  return grouped;
 }
 
 export function AdminNav({ onItemClick }: AdminNavProps = {}) {
@@ -170,85 +212,151 @@ export function AdminNav({ onItemClick }: AdminNavProps = {}) {
         </Link>
 
         {/* Navigation links - flex-1 to take available space */}
-        <ul className="space-y-1 flex-1">
-          {navigation.map((item) => {
-            const isActive =
-              item.href === "/admin/conversions"
-                ? location.pathname.startsWith("/admin/conversions")
-                : location.pathname === item.href;
-            const isDisabled =
-              item.featureKey &&
-              !featureStates[item.featureKey as keyof typeof featureStates];
+        <div className="space-y-6 flex-1">
+          {Object.entries(getGroupedNavigationItems()).map(([category, items], categoryIndex) => {
+            // Handle dashboard separately - no category header
+            if (category === "dashboard") {
+              return items.map((item) => {
+                const isActive =
+                  item.href === "/admin/conversions"
+                    ? location.pathname.startsWith("/admin/conversions")
+                    : location.pathname === item.href;
+                const isDisabled =
+                  item.featureKey &&
+                  !featureStates[item.featureKey as keyof typeof featureStates];
+
+                return (
+                  <div key={item.name} className="mb-6">
+                    <Link
+                      to={item.href}
+                      onClick={onItemClick}
+                      className={cn(
+                        "flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group relative",
+                        isActive
+                          ? "text-theme-600 dark:text-theme-400 bg-theme-500/15 dark:bg-theme-500/10 shadow-sm"
+                          : isDisabled
+                            ? "text-muted-foreground/40 hover:text-muted-foreground/60 hover:bg-muted/30"
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      )}
+                    >
+                      {/* Subtle glow for active state */}
+                      {isActive && !isDisabled && (
+                        <div className="absolute inset-0 rounded-lg bg-theme-500/5 blur-sm"></div>
+                      )}
+
+                      <item.icon
+                        className={cn(
+                          "mr-3 h-4 w-4 transition-colors duration-200",
+                          isActive && !isDisabled
+                            ? "text-theme-500 dark:text-theme-400"
+                            : isDisabled
+                              ? "text-muted-foreground/40"
+                              : "text-muted-foreground group-hover:text-theme-400"
+                        )}
+                      />
+                      <span
+                        className={cn(
+                          "relative z-10 flex-1",
+                          isActive && !isDisabled && "font-semibold",
+                          isDisabled && "opacity-60"
+                        )}
+                      >
+                        {item.name}
+                      </span>
+                      {isDisabled && (
+                        <div className="flex items-center gap-1 ml-auto">
+                          <span className="text-xs text-muted-foreground/50 font-normal">
+                            Disabled
+                          </span>
+                          <AlertCircle className="h-3 w-3 text-muted-foreground/50" />
+                        </div>
+                      )}
+
+                      {/* Hover indicator */}
+                      {!isDisabled && (
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 bg-theme-500 rounded-r-full transition-all duration-200 group-hover:h-8 opacity-0 group-hover:opacity-100"></div>
+                      )}
+                    </Link>
+                  </div>
+                );
+              });
+            }
 
             return (
-              <li key={item.name}>
-                <Link
-                  to={item.href}
-                  onClick={onItemClick}
-                  className={cn(
-                    "flex flex-col px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group relative",
-                    isActive
-                      ? "text-theme-600 dark:text-theme-400 bg-theme-500/15 dark:bg-theme-500/10 shadow-sm"
-                      : isDisabled
-                        ? "text-muted-foreground/40 hover:text-muted-foreground/60 hover:bg-muted/30"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                  )}
-                >
-                  {/* Subtle glow for active state */}
-                  {isActive && !isDisabled && (
-                    <div className="absolute inset-0 rounded-lg bg-theme-500/5 blur-sm"></div>
-                  )}
+              <div key={category}>
+                <h3 className="text-xs font-medium text-muted-foreground mb-3 px-2 uppercase tracking-wider">
+                  {CATEGORY_LABELS[category as NavigationItem["category"]]}
+                </h3>
+                <ul className="space-y-1">
+                  {items.map((item) => {
+                    const isActive =
+                      item.href === "/admin/conversions"
+                        ? location.pathname.startsWith("/admin/conversions")
+                        : location.pathname === item.href;
+                    const isDisabled =
+                      item.featureKey &&
+                      !featureStates[item.featureKey as keyof typeof featureStates];
 
-                  <div className="flex items-center w-full">
-                    <item.icon
-                      className={cn(
-                        "mr-3 h-4 w-4 transition-colors duration-200",
-                        isActive && !isDisabled
-                          ? "text-theme-500 dark:text-theme-400"
-                          : isDisabled
-                            ? "text-muted-foreground/40"
-                            : "text-muted-foreground group-hover:text-theme-400"
-                      )}
-                    />
-                    <span
-                      className={cn(
-                        "relative z-10 flex-1",
-                        isActive && !isDisabled && "font-semibold",
-                        isDisabled && "opacity-60"
-                      )}
-                    >
-                      {item.name}
-                    </span>
-                    {isDisabled && (
-                      <div className="flex items-center gap-1 ml-auto">
-                        <span className="text-xs text-muted-foreground/50 font-normal">
-                          Disabled
-                        </span>
-                        <AlertCircle className="h-3 w-3 text-muted-foreground/50" />
-                      </div>
-                    )}
-                  </div>
+                    return (
+                      <li key={item.name}>
+                        <Link
+                          to={item.href}
+                          onClick={onItemClick}
+                          className={cn(
+                            "flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 group relative",
+                            isActive
+                              ? "text-theme-600 dark:text-theme-400 bg-theme-500/15 dark:bg-theme-500/10 shadow-sm"
+                              : isDisabled
+                                ? "text-muted-foreground/40 hover:text-muted-foreground/60 hover:bg-muted/30"
+                                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                          )}
+                        >
+                          {/* Subtle glow for active state */}
+                          {isActive && !isDisabled && (
+                            <div className="absolute inset-0 rounded-lg bg-theme-500/5 blur-sm"></div>
+                          )}
 
-                  {item.description && (
-                    <span
-                      className={cn(
-                        "text-xs text-muted-foreground/70 ml-7 mt-0.5",
-                        isDisabled && "opacity-50"
-                      )}
-                    >
-                      {item.description}
-                    </span>
-                  )}
+                          <item.icon
+                            className={cn(
+                              "mr-3 h-4 w-4 transition-colors duration-200",
+                              isActive && !isDisabled
+                                ? "text-theme-500 dark:text-theme-400"
+                                : isDisabled
+                                  ? "text-muted-foreground/40"
+                                  : "text-muted-foreground group-hover:text-theme-400"
+                            )}
+                          />
+                          <span
+                            className={cn(
+                              "relative z-10 flex-1",
+                              isActive && !isDisabled && "font-semibold",
+                              isDisabled && "opacity-60"
+                            )}
+                          >
+                            {item.name}
+                          </span>
+                          {isDisabled && (
+                            <div className="flex items-center gap-1 ml-auto">
+                              <span className="text-xs text-muted-foreground/50 font-normal">
+                                Disabled
+                              </span>
+                              <AlertCircle className="h-3 w-3 text-muted-foreground/50" />
+                            </div>
+                          )}
 
-                  {/* Hover indicator */}
-                  {!isDisabled && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 bg-theme-500 rounded-r-full transition-all duration-200 group-hover:h-8 opacity-0 group-hover:opacity-100"></div>
-                  )}
-                </Link>
-              </li>
+                          {/* Hover indicator */}
+                          {!isDisabled && (
+                            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 bg-theme-500 rounded-r-full transition-all duration-200 group-hover:h-8 opacity-0 group-hover:opacity-100"></div>
+                          )}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
             );
           })}
-        </ul>
+        </div>
 
         {/* Sign Out Button - stays at bottom */}
         <div className="mt-8 pt-6 mb-6 border-t border-border/40">

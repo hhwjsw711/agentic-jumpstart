@@ -33,6 +33,8 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuGroup,
 } from "../../components/ui/dropdown-menu";
 import { useState } from "react";
 import { useContinueSlug } from "~/hooks/use-continue-slug";
@@ -75,6 +77,7 @@ interface AdminMenuItem {
   to: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
+  category: "content" | "users" | "business" | "communications" | "system";
 }
 
 const NAVIGATION_LINKS: NavLink[] = [
@@ -178,17 +181,34 @@ const NAVIGATION_LINKS: NavLink[] = [
 ];
 
 const ADMIN_MENU_ITEMS: AdminMenuItem[] = [
-  { to: "/admin/comments", label: "Comments", icon: MessageCircle },
-  { to: "/admin/blog", label: "Blog", icon: Video },
-  { to: "/admin/users", label: "Users", icon: Users },
-  { to: "/admin/launch-kits", label: "Launch Kits", icon: Rocket },
-  { to: "/admin/affiliates", label: "Affiliates", icon: Users },
-  { to: "/admin/analytics", label: "Analytics", icon: TrendingUp },
-  { to: "/admin/conversions", label: "Conversions", icon: Target },
-  { to: "/admin/news", label: "News", icon: Video },
-  { to: "/admin/emails", label: "Emails", icon: Mail },
-  { to: "/admin/settings", label: "Settings", icon: Settings },
+  // Content Management
+  { to: "/admin/comments", label: "Comments", icon: MessageCircle, category: "content" },
+  { to: "/admin/blog", label: "Blog", icon: Video, category: "content" },
+  { to: "/admin/news", label: "News", icon: Newspaper, category: "content" },
+  
+  // User Management
+  { to: "/admin/users", label: "Users", icon: Users, category: "users" },
+  { to: "/admin/affiliates", label: "Affiliates", icon: DollarSign, category: "users" },
+  
+  // Business
+  { to: "/admin/launch-kits", label: "Launch Kits", icon: Rocket, category: "business" },
+  { to: "/admin/analytics", label: "Analytics", icon: TrendingUp, category: "business" },
+  { to: "/admin/conversions", label: "Conversions", icon: Target, category: "business" },
+  
+  // Communications
+  { to: "/admin/emails", label: "Emails", icon: Mail, category: "communications" },
+  
+  // System
+  { to: "/admin/settings", label: "Settings", icon: Settings, category: "system" },
 ];
+
+const ADMIN_CATEGORY_LABELS: Record<AdminMenuItem["category"], string> = {
+  content: "Content Management",
+  users: "User Management", 
+  business: "Business",
+  communications: "Communications",
+  system: "System",
+};
 
 function getFilteredNavLinks(data: {
   user: any;
@@ -203,6 +223,19 @@ function getFilteredNavLinks(data: {
   return NAVIGATION_LINKS.filter(
     (link) => !link.condition || link.condition(data)
   );
+}
+
+function getGroupedAdminMenuItems() {
+  const grouped: Record<string, AdminMenuItem[]> = {};
+  
+  ADMIN_MENU_ITEMS.forEach((item) => {
+    if (!grouped[item.category]) {
+      grouped[item.category] = [];
+    }
+    grouped[item.category].push(item);
+  });
+  
+  return grouped;
 }
 
 const DesktopNavigation = ({
@@ -484,18 +517,28 @@ export function Header() {
                           <ChevronDown className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {ADMIN_MENU_ITEMS.map((item) => {
-                          const Icon = item.icon;
-                          return (
-                            <DropdownMenuItem key={item.to} asChild>
-                              <Link to={item.to} className="flex items-center">
-                                <Icon className="mr-2 h-4 w-4" />
-                                {item.label}
-                              </Link>
-                            </DropdownMenuItem>
-                          );
-                        })}
+                      <DropdownMenuContent align="end" className="w-56">
+                        {Object.entries(getGroupedAdminMenuItems()).map(([category, items], categoryIndex) => (
+                          <div key={category}>
+                            {categoryIndex > 0 && <DropdownMenuSeparator />}
+                            <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">
+                              {ADMIN_CATEGORY_LABELS[category as AdminMenuItem["category"]]}
+                            </DropdownMenuLabel>
+                            <DropdownMenuGroup>
+                              {items.map((item) => {
+                                const Icon = item.icon;
+                                return (
+                                  <DropdownMenuItem key={item.to} asChild>
+                                    <Link to={item.to} className="flex items-center">
+                                      <Icon className="mr-2 h-4 w-4" />
+                                      {item.label}
+                                    </Link>
+                                  </DropdownMenuItem>
+                                );
+                              })}
+                            </DropdownMenuGroup>
+                          </div>
+                        ))}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
                           <a href="/api/logout" className="flex items-center">
@@ -601,7 +644,7 @@ export function Header() {
                   Login
                 </a>
               )}
-              {!user?.isPremium && (
+              {!user?.isPremium && !user?.isAdmin && (
                 <Link to="/purchase">
                   <Button>Buy Now</Button>
                 </Link>
@@ -630,7 +673,7 @@ export function Header() {
                   <div className="relative z-10 h-full flex flex-col">
                     {/* Top section with Buy Now */}
                     <div className="flex-shrink-0 px-6 pt-6">
-                      {!user?.isPremium && (
+                      {!user?.isPremium && !user?.isAdmin && (
                         <Link to="/purchase" onClick={() => setIsOpen(false)}>
                           <Button className="w-full mb-4">Buy Now</Button>
                         </Link>
@@ -653,23 +696,30 @@ export function Header() {
                               <h3 className="text-sm font-medium text-muted-foreground mb-3 px-3">
                                 Admin
                               </h3>
-                              {ADMIN_MENU_ITEMS.map((item) => {
-                                const Icon = item.icon;
-                                return (
-                                  <Link
-                                    key={`mobile-admin-${item.to}`}
-                                    to={item.to}
-                                    className={buttonVariants({
-                                      variant: "ghost",
-                                      className: "w-full justify-start mb-2",
-                                    })}
-                                    onClick={() => setIsOpen(false)}
-                                  >
-                                    <Icon className="mr-2 h-4 w-4" />
-                                    {item.label}
-                                  </Link>
-                                );
-                              })}
+                              {Object.entries(getGroupedAdminMenuItems()).map(([category, items], categoryIndex) => (
+                                <div key={category} className="mb-4">
+                                  <h4 className="text-xs font-medium text-muted-foreground mb-2 px-3 uppercase tracking-wider">
+                                    {ADMIN_CATEGORY_LABELS[category as AdminMenuItem["category"]]}
+                                  </h4>
+                                  {items.map((item) => {
+                                    const Icon = item.icon;
+                                    return (
+                                      <Link
+                                        key={`mobile-admin-${item.to}`}
+                                        to={item.to}
+                                        className={buttonVariants({
+                                          variant: "ghost",
+                                          className: "w-full justify-start mb-1",
+                                        })}
+                                        onClick={() => setIsOpen(false)}
+                                      >
+                                        <Icon className="mr-2 h-4 w-4" />
+                                        {item.label}
+                                      </Link>
+                                    );
+                                  })}
+                                </div>
+                              ))}
                             </div>
                           </>
                         )}

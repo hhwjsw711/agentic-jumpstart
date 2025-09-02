@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { assertIsAdminFn } from "~/fn/auth";
 import { Page } from "~/routes/admin/-components/page";
 import { PageHeader } from "~/routes/admin/-components/page-header";
@@ -51,6 +51,7 @@ import {
   FolderOpen,
   Check,
   X,
+  ArrowLeft,
 } from "lucide-react";
 import { TagForm } from "./create/-components/tag-form";
 import { toast } from "sonner";
@@ -232,6 +233,19 @@ function TagManagementPage() {
 
   return (
     <Page>
+      {/* Breadcrumb Navigation */}
+      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+        <Link
+          to="/admin/launch-kits"
+          className="flex items-center gap-1 hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Launch Kits
+        </Link>
+        <span>/</span>
+        <span className="text-foreground">Tag Management</span>
+      </div>
+
       <PageHeader
         title="Tag Management"
         highlightedWord="Management"
