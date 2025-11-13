@@ -1,4 +1,4 @@
-export const DISCORD_INVITE_LINK = "https://discord.gg/ckQPZGxY";
+export const DISCORD_INVITE_LINK = "https://discord.gg/JUDWZDN3VT";
 
 // Affiliate program configuration
 export const AFFILIATE_CONFIG = {
