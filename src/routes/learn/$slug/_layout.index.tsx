@@ -3,8 +3,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { useEffect } from "react";
 import { getSegmentBySlugUseCase } from "~/use-cases/segments";
-import { getSegments } from "~/data-access/segments";
-import { type Segment } from "~/db/schema";
+import { getSegments, getSegmentAttachments } from "~/data-access/segments";
+import { type Segment, type Attachment } from "~/db/schema";
 
 import { VideoPlayer } from "~/routes/learn/-components/video-player";
 
@@ -25,11 +25,11 @@ import { UpgradePlaceholder } from "./-components/upgrade-placeholder";
 export const Route = createFileRoute("/learn/$slug/_layout/")({
   component: RouteComponent,
   validateSearch: z.object({
-    tab: z.enum(["content", "transcripts", "comments"]).optional(),
+    tab: z.enum(["content", "transcripts", "comments", "resources"]).optional(),
     commentId: z.number().optional(),
   }),
   loader: async ({ context: { queryClient }, params }) => {
-    const [{ segment, segments, progress }, isPremium, isAdmin] =
+    const [{ segment, segments, progress, attachments }, isPremium, isAdmin] =
       await Promise.all([
         getSegmentInfoFn({ data: { slug: params.slug } }),
         isUserPremiumFn(),
@@ -46,7 +46,7 @@ export const Route = createFileRoute("/learn/$slug/_layout/")({
 
     queryClient.ensureQueryData(getCommentsQuery(segment.id));
 
-    return { segment, segments, progress, isPremium, isAdmin };
+    return { segment, segments, progress, attachments, isPremium, isAdmin };
   },
 });
 
@@ -55,12 +55,13 @@ export const getSegmentInfoFn = createServerFn()
   .validator(z.object({ slug: z.string() }))
   .handler(async ({ data, context }) => {
     const segment = await getSegmentBySlugUseCase(data.slug);
-    const [segments, progress] = await Promise.all([
+    const [segments, progress, attachments] = await Promise.all([
       getSegments(),
       context.userId ? getAllProgressForUserUseCase(context.userId) : [],
+      segment ? getSegmentAttachments(segment.id) : [],
     ]);
 
-    return { segment, segments, progress };
+    return { segment, segments, progress, attachments };
   });
 
 function ViewSegment({
@@ -71,14 +72,16 @@ function ViewSegment({
   isAdmin,
   defaultTab,
   commentId,
+  attachments,
 }: {
   segments: Segment[];
   currentSegment: Segment;
   currentSegmentId: number;
   isPremium: boolean;
   isAdmin: boolean;
-  defaultTab?: "content" | "transcripts" | "comments";
+  defaultTab?: "content" | "transcripts" | "comments" | "resources";
   commentId?: number;
+  attachments: Attachment[];
 }) {
   const { setCurrentSegmentId } = useSegment();
 
@@ -143,6 +146,7 @@ function ViewSegment({
           isLoggedIn={isLoggedIn}
           defaultTab={defaultTab}
           commentId={commentId}
+          attachments={attachments}
         />
       )}
     </div>
@@ -150,7 +154,7 @@ function ViewSegment({
 }
 
 function RouteComponent() {
-  const { segment, segments, isPremium, isAdmin } = Route.useLoaderData();
+  const { segment, segments, isPremium, isAdmin, attachments } = Route.useLoaderData();
   const { tab, commentId } = Route.useSearch();
 
   return (
@@ -163,6 +167,7 @@ function RouteComponent() {
         isAdmin={isAdmin}
         defaultTab={tab}
         commentId={commentId}
+        attachments={attachments}
       />
       {/* <FloatingFeedbackButton /> */}
     </>

@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
-import { FileText, MessageSquare } from "lucide-react";
+import { FileText, MessageSquare, FolderOpen } from "lucide-react";
 import { cn } from "~/lib/utils";
-import { type Segment } from "~/db/schema";
+import { type Segment, type Attachment } from "~/db/schema";
 import { ContentPanel } from "./content-panel";
 import { CommentsPanel } from "./comments-panel";
+import { ResourcesPanel } from "./resources-panel";
 import { MarkdownContent } from "~/routes/learn/-components/markdown-content";
 
 interface VideoContentTabsPanelProps {
   currentSegment: Segment;
   isLoggedIn: boolean;
-  defaultTab?: "content" | "transcripts" | "comments";
+  defaultTab?: "content" | "transcripts" | "comments" | "resources";
   commentId?: number;
+  attachments?: Attachment[];
 }
 
 export function VideoContentTabsPanel({
@@ -18,9 +20,10 @@ export function VideoContentTabsPanel({
   isLoggedIn,
   defaultTab,
   commentId,
+  attachments = [],
 }: VideoContentTabsPanelProps) {
   const [activeTab, setActiveTab] = useState<
-    "content" | "transcripts" | "comments"
+    "content" | "transcripts" | "comments" | "resources"
   >(defaultTab || "comments");
 
   // Set active tab when defaultTab changes (from URL params)
@@ -70,6 +73,18 @@ export function VideoContentTabsPanel({
           <FileText className="h-4 w-4" />
           Transcripts
         </button>
+        <button
+          onClick={() => setActiveTab("resources")}
+          className={cn(
+            "flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all duration-200 border-b-2 cursor-pointer",
+            activeTab === "resources"
+              ? "border-theme-500 text-theme-600 dark:text-theme-400 bg-theme-50 dark:bg-theme-950/30"
+              : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
+          )}
+        >
+          <FolderOpen className="h-4 w-4" />
+          Resources
+        </button>
       </div>
 
       {/* Tab Content */}
@@ -98,6 +113,10 @@ export function VideoContentTabsPanel({
             activeTab={activeTab}
             commentId={commentId}
           />
+        )}
+
+        {activeTab === "resources" && (
+          <ResourcesPanel attachments={attachments} />
         )}
       </div>
     </div>
