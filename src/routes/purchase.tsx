@@ -28,6 +28,7 @@ import { discountStore } from "~/stores/discount-store";
 import { shouldShowEarlyAccessFn } from "~/fn/early-access";
 import { useAnalytics } from "~/hooks/use-analytics";
 import { trackPurchaseIntentFn } from "~/fn/analytics";
+import { PRICING_CONFIG } from "~/config";
 
 const searchSchema = z.object({
   ref: z.string().optional(),
@@ -220,7 +221,7 @@ function RouteComponent() {
               {/* Badge - matching hero style */}
               <div className="inline-flex items-center px-4 py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-sm font-medium mb-8">
                 <span className="w-2 h-2 bg-theme-500 dark:bg-theme-400 rounded-full mr-2 animate-pulse"></span>
-                Limited Time Offer - 33% OFF
+                Limited Time Offer - {PRICING_CONFIG.DISCOUNT_PERCENTAGE}% OFF
               </div>
 
               <h1 className="text-6xl leading-tight mb-8">
@@ -274,10 +275,12 @@ function RouteComponent() {
                       <div>
                         <div className="text-muted-foreground/70 mb-2">
                           Regular price{" "}
-                          <span className="line-through">$499.99</span>
+                          <span className="line-through">
+                            {PRICING_CONFIG.FORMATTED_ORIGINAL_PRICE}
+                          </span>
                         </div>
                         <div className="text-6xl font-bold text-foreground mb-2">
-                          $349.99
+                          {PRICING_CONFIG.FORMATTED_CURRENT_PRICE}
                         </div>
                         <div className="text-theme-500 dark:text-theme-400 font-medium">
                           Limited Time Offer
