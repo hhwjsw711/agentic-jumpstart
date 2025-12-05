@@ -6,9 +6,9 @@ The Affiliate Program allows users to earn 30% commission by referring new custo
 
 ## Quick Links
 
-- **User Registration**: [/affiliates](http://localhost:3000/affiliates)
-- **Affiliate Dashboard**: [/affiliate-dashboard](http://localhost:3000/affiliate-dashboard)
-- **Admin Management**: [/admin/affiliates](http://localhost:3000/admin/affiliates)
+- **User Registration**: [/affiliates](http://localhost:4000/affiliates)
+- **Affiliate Dashboard**: [/affiliate-dashboard](http://localhost:4000/affiliate-dashboard)
+- **Admin Management**: [/admin/affiliates](http://localhost:4000/admin/affiliates)
 
 ### 1. As a New Affiliate
 
@@ -20,7 +20,7 @@ The Affiliate Program allows users to earn 30% commission by referring new custo
 
 #### Registration Process
 
-1. Navigate to [/affiliates](http://localhost:3000/affiliates)
+1. Navigate to [/affiliates](http://localhost:4000/affiliates)
 2. If not logged in, you'll see the enhanced landing page with:
    - Modern gradient backgrounds and animations
    - Program benefits overview (30% commission, 30-day cookies, real-time tracking)
@@ -47,7 +47,7 @@ The Affiliate Program allows users to earn 30% commission by referring new custo
 
 #### Getting Your Link
 
-1. Go to [/affiliate-dashboard](http://localhost:3000/affiliate-dashboard)
+1. Go to [/affiliate-dashboard](http://localhost:4000/affiliate-dashboard)
 2. Your unique affiliate link is displayed prominently with enhanced styling
 3. Click the copy button to copy it to clipboard (improved UX feedback)
 4. Your 8-character affiliate code follows the format: `ABC12345`
@@ -55,7 +55,7 @@ The Affiliate Program allows users to earn 30% commission by referring new custo
 #### Testing Discount & Referral Tracking
 
 1. Open an incognito/private browser window
-2. Visit your affiliate link (e.g., `http://localhost:3000/purchase?ref=ABC12345`)
+2. Visit your affiliate link (e.g., `http://localhost:4000/purchase?ref=ABC12345`)
 3. The affiliate code is temporarily stored in memory (not browser storage for GDPR compliance)
 4. Click "Get Instant Access" to start the purchase process
 5. A discount dialog will appear with your affiliate code pre-filled
@@ -120,7 +120,7 @@ The enhanced affiliate dashboard displays real-time statistics with improved vis
 
 #### Admin Dashboard
 
-1. Navigate to [/admin/affiliates](http://localhost:3000/admin/affiliates)
+1. Navigate to [/admin/affiliates](http://localhost:4000/admin/affiliates)
 2. View all affiliates with their statistics
 3. Search and filter affiliates
 4. Click on any affiliate to see detailed information

@@ -14,35 +14,41 @@ A modern online learning platform built with TanStack Start, featuring video cou
 ## Development
 
 Install dependencies:
+
 ```sh
 npm install
 ```
 
 Start development server (includes database):
+
 ```sh
 npm run dev
 ```
 
-The app runs on http://localhost:3000
+The app runs on http://localhost:4000
 
 ## Database Setup
 
 Start PostgreSQL container:
+
 ```sh
 npm run db:up
 ```
 
 Run migrations:
+
 ```sh
 npm run db:migrate
 ```
 
 Seed with sample data:
+
 ```sh
 npm run db:seed
 ```
 
 Reset database:
+
 ```sh
 npm run db:reset
 ```
@@ -50,6 +56,7 @@ npm run db:reset
 ## Stripe Setup
 
 Listen for webhooks:
+
 ```sh
 npm run stripe:listen
 ```
@@ -68,7 +75,7 @@ R2_ACCOUNT_ID=your_r2_account_id
 R2_ACCESS_KEY_ID=your_r2_access_key
 R2_SECRET_ACCESS_KEY=your_r2_secret_key
 R2_BUCKET_NAME=your_bucket_name
-BASE_URL=http://localhost:3000
+BASE_URL=http://localhost:4000
 ```
 
 ## Project Structure

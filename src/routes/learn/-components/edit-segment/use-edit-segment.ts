@@ -8,6 +8,7 @@ import {
 } from "~/utils/storage/helpers";
 import { generateRandomUUID } from "~/utils/uuid";
 import { usePreventTabClose } from "~/hooks/use-prevent-tab-close";
+import { toast } from "sonner";
 
 export function useEditSegment(segment: any) {
   const navigate = useNavigate();
@@ -57,7 +58,9 @@ export function useEditSegment(segment: any) {
       navigate({ to: "/learn/$slug", params: { slug: values.slug } });
     } catch (error) {
       console.error("Failed to update segment:", error);
-      // TODO: Show error toast
+      const message =
+        error instanceof Error ? error.message : "Failed to update segment";
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
       setUploadProgress(null);

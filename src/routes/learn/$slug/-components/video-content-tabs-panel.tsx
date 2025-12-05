@@ -12,6 +12,7 @@ interface VideoContentTabsPanelProps {
   defaultTab?: "content" | "transcripts" | "comments";
   commentId?: number;
   showContentTabs: boolean;
+  isAdmin?: boolean;
 }
 
 export function VideoContentTabsPanel({
@@ -20,6 +21,7 @@ export function VideoContentTabsPanel({
   defaultTab,
   commentId,
   showContentTabs,
+  isAdmin,
 }: VideoContentTabsPanelProps) {
   // If content tabs are disabled and defaultTab is content/transcripts, default to comments
   const effectiveDefaultTab =
@@ -96,7 +98,7 @@ export function VideoContentTabsPanel({
       {/* Tab Content */}
       <div className="p-6 min-h-96">
         {showContentTabs && activeTab === "content" && (
-          <ContentPanel currentSegment={currentSegment} />
+          <ContentPanel currentSegment={currentSegment} isAdmin={isAdmin} />
         )}
 
         {showContentTabs && activeTab === "transcripts" && (

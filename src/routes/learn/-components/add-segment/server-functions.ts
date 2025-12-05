@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { adminMiddleware, authenticatedMiddleware } from "~/lib/auth";
 import { addSegmentUseCase } from "~/use-cases/segments";
-import { getSegments } from "~/data-access/segments";
+import { getSegments, isSlugInUse } from "~/data-access/segments";
 import { getModulesUseCase } from "~/use-cases/modules";
 
 export const createSegmentFn = createServerFn()
@@ -21,6 +21,13 @@ export const createSegmentFn = createServerFn()
     })
   )
   .handler(async ({ data }) => {
+    // Check if slug is already in use
+    if (await isSlugInUse(data.slug)) {
+      throw new Error(
+        `The slug "${data.slug}" is already in use. Please choose a different slug.`
+      );
+    }
+
     // Get all segments to determine the next order number
     const segments = await getSegments();
     const maxOrder = segments.reduce(

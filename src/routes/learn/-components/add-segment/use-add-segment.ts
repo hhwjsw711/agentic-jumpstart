@@ -8,6 +8,7 @@ import {
 } from "~/utils/storage/helpers";
 import { generateRandomUUID } from "~/utils/uuid";
 import { usePreventTabClose } from "~/hooks/use-prevent-tab-close";
+import { toast } from "sonner";
 
 export function useAddSegment() {
   const navigate = useNavigate();
@@ -52,7 +53,9 @@ export function useAddSegment() {
       navigate({ to: "/learn/$slug", params: { slug: segment.slug } });
     } catch (error) {
       console.error("Failed to create segment:", error);
-      // TODO: Show error toast
+      const message =
+        error instanceof Error ? error.message : "Failed to create segment";
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
       setUploadProgress(null);

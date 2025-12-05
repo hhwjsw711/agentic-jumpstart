@@ -39,6 +39,16 @@ export async function getSegmentBySlug(slug: Segment["slug"]) {
     .limit(1);
   return result[0];
 }
+
+export async function isSlugInUse(
+  slug: string,
+  excludeSegmentId?: number
+): Promise<boolean> {
+  const existingSegment = await getSegmentBySlug(slug);
+  if (!existingSegment) return false;
+  if (excludeSegmentId && existingSegment.id === excludeSegmentId) return false;
+  return true;
+}
 export async function getSegmentById(segmentId: Segment["id"]) {
   const result = await database
     .select()

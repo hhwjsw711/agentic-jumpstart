@@ -10,7 +10,7 @@ This is a TanStack Start application for an online learning platform with video 
 
 ### Development
 
-- `npm run dev` - Start development server (port 3000) with database
+- `npm run dev` - Start development server (port 4000) with database
 - `npm run build` - Build for production
 - `npm start` - Run production server
 
@@ -31,7 +31,7 @@ This is a TanStack Start application for an online learning platform with video 
 
 ### Stripe Integration
 
-- `npm run stripe:listen` - Forward Stripe webhooks to localhost:3000
+- `npm run stripe:listen` - Forward Stripe webhooks to localhost:4000
 
 ## Architecture
 

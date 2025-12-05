@@ -4,10 +4,11 @@ import { MarkdownContent } from "~/routes/learn/-components/markdown-content";
 
 interface ContentPanelProps {
   currentSegment: Segment;
+  isAdmin?: boolean;
 }
 
-export function ContentPanel({ currentSegment }: ContentPanelProps) {
-  if (currentSegment.isComingSoon) {
+export function ContentPanel({ currentSegment, isAdmin }: ContentPanelProps) {
+  if (currentSegment.isComingSoon && !isAdmin) {
     return (
       <div className="text-center py-8 text-muted-foreground">
         <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />

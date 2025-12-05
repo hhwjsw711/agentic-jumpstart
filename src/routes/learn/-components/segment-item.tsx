@@ -86,8 +86,8 @@ export function SegmentItem({
             </div>
           </div>
 
-          <div className="flex-shrink-0 ml-2">
-            {segment.isComingSoon ? (
+          <div className="flex-shrink-0 ml-2 flex flex-col gap-1 items-end">
+            {segment.isComingSoon && (
               <div
                 className={cn(
                   "flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium whitespace-nowrap",
@@ -96,7 +96,8 @@ export function SegmentItem({
               >
                 Coming Soon
               </div>
-            ) : segment.isPremium && !isPremium ? (
+            )}
+            {segment.isPremium && !isPremium && (
               <div
                 className={cn(
                   "flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium whitespace-nowrap",
@@ -106,7 +107,7 @@ export function SegmentItem({
                 <Lock className="h-3 w-3 flex-shrink-0" />
                 <span>Pro Only</span>
               </div>
-            ) : null}
+            )}
           </div>
         </button>
       </div>

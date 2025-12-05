@@ -98,7 +98,7 @@ function ViewSegment({
   const isLoggedIn = !!user?.id;
 
   const showUpgradePanel = currentSegment.isPremium && !isPremium && !isAdmin;
-  const showComingSoonPlaceholder = currentSegment.isComingSoon;
+  const showComingSoonPlaceholder = currentSegment.isComingSoon && !isAdmin;
 
   return (
     <div className="max-w-5xl mx-auto space-y-4">
@@ -152,6 +152,7 @@ function ViewSegment({
           defaultTab={defaultTab}
           commentId={commentId}
           showContentTabs={showContentTabs}
+          isAdmin={isAdmin}
         />
       )}
     </div>

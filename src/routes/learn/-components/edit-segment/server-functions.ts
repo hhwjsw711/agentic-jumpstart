@@ -7,6 +7,7 @@ import {
 } from "~/use-cases/segments";
 import { getModuleById } from "~/data-access/modules";
 import { getModulesUseCase } from "~/use-cases/modules";
+import { isSlugInUse } from "~/data-access/segments";
 
 export const updateSegmentFn = createServerFn()
   .middleware([adminMiddleware])
@@ -28,6 +29,14 @@ export const updateSegmentFn = createServerFn()
   )
   .handler(async ({ data }) => {
     const { segmentId, updates } = data;
+
+    // Check if slug is already in use by another segment
+    if (await isSlugInUse(updates.slug, segmentId)) {
+      throw new Error(
+        `The slug "${updates.slug}" is already in use. Please choose a different slug.`
+      );
+    }
+
     return updateSegmentUseCase(segmentId, updates);
   });
 
