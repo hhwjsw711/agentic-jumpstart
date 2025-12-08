@@ -21,6 +21,14 @@ import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import { shouldShowEarlyAccessFn } from "~/fn/early-access";
 import { useAnalytics } from "~/hooks/use-analytics";
+import { publicEnv } from "~/utils/env-public";
+
+// OpenGraph image configuration
+const OG_IMAGE_PATH = "/marketing.png";
+const getOgImageUrl = () => {
+  const baseUrl = publicEnv.VITE_HOST_NAME.replace(/\/$/, "");
+  return `${baseUrl}${OG_IMAGE_PATH}`;
+};
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
@@ -42,6 +50,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           title: "Agentic Jumpstart | by WebDevCody",
           description:
             "A course to help you learn agentic coding and build real-world projects using AI agents and automation.",
+          image: getOgImageUrl(),
         }),
       ],
       links: [
