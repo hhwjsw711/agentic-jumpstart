@@ -86,7 +86,9 @@ export async function createLaunchKitUseCase(
   }
 
   if (!data.description || data.description.length < 10) {
-    throw new PublicError("Launch kit description must be at least 10 characters");
+    throw new PublicError(
+      "Launch kit description must be at least 10 characters"
+    );
   }
 
   if (!data.repositoryUrl || !isValidUrl(data.repositoryUrl)) {
@@ -138,7 +140,9 @@ export async function updateLaunchKitUseCase(
   }
 
   if (data.description !== undefined && data.description.length < 10) {
-    throw new PublicError("Launch kit description must be at least 10 characters");
+    throw new PublicError(
+      "Launch kit description must be at least 10 characters"
+    );
   }
 
   if (data.repositoryUrl !== undefined && !isValidUrl(data.repositoryUrl)) {
@@ -160,7 +164,10 @@ export async function updateLaunchKitUseCase(
   return updatedLaunchKit;
 }
 
-export async function deleteLaunchKitUseCase(userId: UserId, launchKitId: number) {
+export async function deleteLaunchKitUseCase(
+  userId: UserId,
+  launchKitId: number
+) {
   // Validate user is admin
   const user = await getUser(userId);
   if (!user?.isAdmin) {
@@ -223,18 +230,24 @@ export async function cloneLaunchKitUseCase(slug: string, userId?: UserId) {
   // Increment clone count
   await incrementCloneCount(launchKit.id);
 
-  // Track analytics event
-  await trackLaunchKitEvent({
+  // Track analytics event (non-blocking - failures are handled internally)
+  trackLaunchKitEvent({
     launchKitId: launchKit.id,
     userId: userId || null,
     eventType: "clone",
+  }).catch((error) => {
+    // Log but don't throw - analytics failures shouldn't break the clone flow
+    console.error("Failed to track clone event:", error);
   });
 
   return launchKit;
 }
 
 // Category Management (Admin Only)
-export async function createCategoryUseCase(userId: UserId, data: CreateCategoryInput) {
+export async function createCategoryUseCase(
+  userId: UserId,
+  data: CreateCategoryInput
+) {
   // Validate user is admin
   const user = await getUser(userId);
   if (!user?.isAdmin) {
@@ -247,7 +260,9 @@ export async function createCategoryUseCase(userId: UserId, data: CreateCategory
   }
 
   // Check if category already exists
-  const existing = await getCategoryBySlug(data.name.toLowerCase().replace(/\s+/g, '-'));
+  const existing = await getCategoryBySlug(
+    data.name.toLowerCase().replace(/\s+/g, "-")
+  );
   if (existing) {
     throw new PublicError("A category with this name already exists");
   }
@@ -255,7 +270,11 @@ export async function createCategoryUseCase(userId: UserId, data: CreateCategory
   return createCategory({ name: data.name });
 }
 
-export async function updateCategoryUseCase(userId: UserId, categoryId: number, data: UpdateCategoryInput) {
+export async function updateCategoryUseCase(
+  userId: UserId,
+  categoryId: number,
+  data: UpdateCategoryInput
+) {
   // Validate user is admin
   const user = await getUser(userId);
   if (!user?.isAdmin) {
@@ -271,11 +290,13 @@ export async function updateCategoryUseCase(userId: UserId, categoryId: number, 
   // Validate name if provided
   if (data.name !== undefined) {
     if (data.name.length < 2 || data.name.length > 50) {
-      throw new PublicError("Category name must be between 2 and 50 characters");
+      throw new PublicError(
+        "Category name must be between 2 and 50 characters"
+      );
     }
 
     // Check for duplicate name
-    const slug = data.name.toLowerCase().replace(/\s+/g, '-');
+    const slug = data.name.toLowerCase().replace(/\s+/g, "-");
     const existing = await getCategoryBySlug(slug);
     if (existing && existing.id !== categoryId) {
       throw new PublicError("A category with this name already exists");
@@ -285,7 +306,10 @@ export async function updateCategoryUseCase(userId: UserId, categoryId: number, 
   return updateCategory(categoryId, data);
 }
 
-export async function deleteCategoryUseCase(userId: UserId, categoryId: number) {
+export async function deleteCategoryUseCase(
+  userId: UserId,
+  categoryId: number
+) {
   // Validate user is admin
   const user = await getUser(userId);
   if (!user?.isAdmin) {
@@ -321,7 +345,9 @@ export async function createTagUseCase(userId: UserId, data: CreateTagInput) {
 
   // Check for duplicate name
   const existing = await getAllTags();
-  if (existing.some(tag => tag.name.toLowerCase() === data.name.toLowerCase())) {
+  if (
+    existing.some((tag) => tag.name.toLowerCase() === data.name.toLowerCase())
+  ) {
     throw new PublicError("A tag with this name already exists");
   }
 
@@ -345,7 +371,11 @@ export async function createTagUseCase(userId: UserId, data: CreateTagInput) {
   });
 }
 
-export async function updateTagUseCase(userId: UserId, tagId: number, data: UpdateTagInput) {
+export async function updateTagUseCase(
+  userId: UserId,
+  tagId: number,
+  data: UpdateTagInput
+) {
   // Validate user is admin
   const user = await getUser(userId);
   if (!user?.isAdmin) {
@@ -366,7 +396,12 @@ export async function updateTagUseCase(userId: UserId, tagId: number, data: Upda
 
     // Check for duplicate name
     const existing = await getAllTags();
-    if (existing.some(t => t.name.toLowerCase() === data.name.toLowerCase() && t.id !== tagId)) {
+    if (
+      existing.some(
+        (t) =>
+          t.name.toLowerCase() === data.name.toLowerCase() && t.id !== tagId
+      )
+    ) {
       throw new PublicError("A tag with this name already exists");
     }
   }
@@ -403,7 +438,9 @@ export async function deleteTagUseCase(userId: UserId, tagId: number) {
   // Check if tag is in use
   const usageCount = await getTagUsageCount(tagId);
   if (usageCount > 0) {
-    throw new PublicError(`Tag is in use by ${usageCount} launch kit${usageCount > 1 ? 's' : ''}`);
+    throw new PublicError(
+      `Tag is in use by ${usageCount} launch kit${usageCount > 1 ? "s" : ""}`
+    );
   }
 
   return deleteTag(tagId);

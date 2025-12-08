@@ -27,7 +27,7 @@ export const Route = createFileRoute("/admin/launch-kits/edit/$id")({
 
 function EditLaunchKitPage() {
   const { id } = Route.useParams();
-  
+
   // Get launch kit data
   const { data: launchKit, isLoading: isLoadingKit } = useQuery({
     queryKey: ["admin", "launch-kit", id],

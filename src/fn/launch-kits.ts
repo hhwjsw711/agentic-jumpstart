@@ -68,18 +68,18 @@ export const trackLaunchKitViewFn = createServerFn({
   method: "POST",
 })
   .middleware([unauthenticatedMiddleware])
-  .validator((data: { slug: string; userId?: number }) => data)
-  .handler(async ({ data }) => {
-    return trackLaunchKitViewUseCase(data.slug, data.userId);
+  .validator((data: { slug: string }) => data)
+  .handler(async ({ data, context }) => {
+    return trackLaunchKitViewUseCase(data.slug, context.userId);
   });
 
 export const cloneLaunchKitFn = createServerFn({
   method: "POST",
 })
   .middleware([unauthenticatedMiddleware])
-  .validator((data: { slug: string; userId?: number }) => data)
-  .handler(async ({ data }) => {
-    return cloneLaunchKitUseCase(data.slug, data.userId);
+  .validator((data: { slug: string }) => data)
+  .handler(async ({ data, context }) => {
+    return cloneLaunchKitUseCase(data.slug, context.userId);
   });
 
 // Admin functions

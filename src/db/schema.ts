@@ -594,10 +594,10 @@ export const launchKitAnalytics = tableCreator(
   "launch_kit_analytics",
   {
     id: serial("id").primaryKey(),
-    launchKitId: serial("launch_kit_id")
+    launchKitId: integer("launch_kit_id")
       .notNull()
       .references(() => launchKits.id, { onDelete: "cascade" }),
-    userId: serial("user_id").references(() => users.id, {
+    userId: integer("user_id").references(() => users.id, {
       onDelete: "cascade",
     }), // null for anonymous users
     eventType: varchar("event_type", { length: 50 }).notNull(), // view, clone, demo_visit

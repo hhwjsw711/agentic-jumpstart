@@ -1,18 +1,18 @@
 import { database } from "~/db";
-import { 
-  launchKits, 
-  launchKitTags, 
-  launchKitTagRelations, 
-  launchKitComments, 
+import {
+  launchKits,
+  launchKitTags,
+  launchKitTagRelations,
+  launchKitComments,
   launchKitAnalytics,
   launchKitCategories,
   users,
-  profiles
+  profiles,
 } from "~/db/schema";
 import { and, eq, desc, asc, like, inArray, sql, count } from "drizzle-orm";
-import type { 
-  LaunchKit, 
-  LaunchKitCreate, 
+import type {
+  LaunchKit,
+  LaunchKitCreate,
   LaunchKitTag,
   LaunchKitTagCreate,
   LaunchKitCategory,
@@ -20,15 +20,15 @@ import type {
   LaunchKitComment,
   LaunchKitCommentCreate,
   LaunchKitAnalytics,
-  LaunchKitAnalyticsCreate
+  LaunchKitAnalyticsCreate,
 } from "~/db/schema";
 
 function generateSlug(name: string): string {
   return name
     .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
     .trim();
 }
 
@@ -63,7 +63,10 @@ export async function getAllLaunchKits(filters?: {
     const tagConditions = database
       .select({ launchKitId: launchKitTagRelations.launchKitId })
       .from(launchKitTagRelations)
-      .innerJoin(launchKitTags, eq(launchKitTagRelations.tagId, launchKitTags.id))
+      .innerJoin(
+        launchKitTags,
+        eq(launchKitTagRelations.tagId, launchKitTags.id)
+      )
       .where(inArray(launchKitTags.slug, filters.tags));
 
     whereConditions.push(inArray(launchKits.id, tagConditions));
@@ -114,7 +117,9 @@ export async function getLaunchKitById(id: number) {
   return result[0];
 }
 
-export async function createLaunchKit(data: Omit<LaunchKitCreate, 'slug'> & { name: string }) {
+export async function createLaunchKit(
+  data: Omit<LaunchKitCreate, "slug"> & { name: string }
+) {
   const slug = generateSlug(data.name);
   const result = await database
     .insert(launchKits)
@@ -126,7 +131,10 @@ export async function createLaunchKit(data: Omit<LaunchKitCreate, 'slug'> & { na
   return result[0];
 }
 
-export async function updateLaunchKit(id: number, data: Partial<Omit<LaunchKitCreate, 'id'>>) {
+export async function updateLaunchKit(
+  id: number,
+  data: Partial<Omit<LaunchKitCreate, "id">>
+) {
   const updateData = {
     ...data,
     updatedAt: new Date(),
@@ -188,7 +196,9 @@ export async function getCategoryBySlug(slug: string) {
   return result[0];
 }
 
-export async function createCategory(data: Omit<LaunchKitCategoryCreate, 'slug'> & { name: string }) {
+export async function createCategory(
+  data: Omit<LaunchKitCategoryCreate, "slug"> & { name: string }
+) {
   const slug = generateSlug(data.name);
   const result = await database
     .insert(launchKitCategories)
@@ -200,7 +210,10 @@ export async function createCategory(data: Omit<LaunchKitCategoryCreate, 'slug'>
   return result[0];
 }
 
-export async function updateCategory(id: number, data: Partial<Omit<LaunchKitCategoryCreate, 'id'>>) {
+export async function updateCategory(
+  id: number,
+  data: Partial<Omit<LaunchKitCategoryCreate, "id">>
+) {
   const updateData = {
     ...data,
     updatedAt: new Date(),
@@ -241,10 +254,13 @@ export async function getAllTags() {
         id: launchKitCategories.id,
         name: launchKitCategories.name,
         slug: launchKitCategories.slug,
-      }
+      },
     })
     .from(launchKitTags)
-    .leftJoin(launchKitCategories, eq(launchKitTags.categoryId, launchKitCategories.id))
+    .leftJoin(
+      launchKitCategories,
+      eq(launchKitTags.categoryId, launchKitCategories.id)
+    )
     .orderBy(asc(launchKitCategories.name), asc(launchKitTags.name));
 }
 
@@ -262,10 +278,13 @@ export async function getTagById(id: number) {
         id: launchKitCategories.id,
         name: launchKitCategories.name,
         slug: launchKitCategories.slug,
-      }
+      },
     })
     .from(launchKitTags)
-    .leftJoin(launchKitCategories, eq(launchKitTags.categoryId, launchKitCategories.id))
+    .leftJoin(
+      launchKitCategories,
+      eq(launchKitTags.categoryId, launchKitCategories.id)
+    )
     .where(eq(launchKitTags.id, id))
     .limit(1);
   return result[0];
@@ -275,19 +294,24 @@ export async function getTagsByCategory() {
   const tags = await getAllTags();
 
   // Group tags by category
-  const groupedTags = tags.reduce((acc, tag) => {
-    const categoryName = tag.category?.name || 'uncategorized';
-    if (!acc[categoryName]) {
-      acc[categoryName] = [];
-    }
-    acc[categoryName].push(tag);
-    return acc;
-  }, {} as Record<string, typeof tags>);
+  const groupedTags = tags.reduce(
+    (acc, tag) => {
+      const categoryName = tag.category?.name || "uncategorized";
+      if (!acc[categoryName]) {
+        acc[categoryName] = [];
+      }
+      acc[categoryName].push(tag);
+      return acc;
+    },
+    {} as Record<string, typeof tags>
+  );
 
   return groupedTags;
 }
 
-export async function createTag(data: Omit<LaunchKitTagCreate, 'slug'> & { name: string }) {
+export async function createTag(
+  data: Omit<LaunchKitTagCreate, "slug"> & { name: string }
+) {
   const slug = generateSlug(data.name);
   const result = await database
     .insert(launchKitTags)
@@ -299,7 +323,10 @@ export async function createTag(data: Omit<LaunchKitTagCreate, 'slug'> & { name:
   return result[0];
 }
 
-export async function updateTag(id: number, data: Partial<Omit<LaunchKitTagCreate, 'id'>>) {
+export async function updateTag(
+  id: number,
+  data: Partial<Omit<LaunchKitTagCreate, "id">>
+) {
   const updateData = {
     ...data,
     updatedAt: new Date(),
@@ -345,11 +372,17 @@ export async function getLaunchKitTags(launchKitId: number) {
         id: launchKitCategories.id,
         name: launchKitCategories.name,
         slug: launchKitCategories.slug,
-      }
+      },
     })
     .from(launchKitTags)
-    .innerJoin(launchKitTagRelations, eq(launchKitTags.id, launchKitTagRelations.tagId))
-    .leftJoin(launchKitCategories, eq(launchKitTags.categoryId, launchKitCategories.id))
+    .innerJoin(
+      launchKitTagRelations,
+      eq(launchKitTags.id, launchKitTagRelations.tagId)
+    )
+    .leftJoin(
+      launchKitCategories,
+      eq(launchKitTags.categoryId, launchKitCategories.id)
+    )
     .where(eq(launchKitTagRelations.launchKitId, launchKitId));
 }
 
@@ -361,7 +394,10 @@ export async function addTagToLaunchKit(launchKitId: number, tagId: number) {
   return result[0];
 }
 
-export async function removeTagFromLaunchKit(launchKitId: number, tagId: number) {
+export async function removeTagFromLaunchKit(
+  launchKitId: number,
+  tagId: number
+) {
   const result = await database
     .delete(launchKitTagRelations)
     .where(
@@ -382,10 +418,8 @@ export async function setLaunchKitTags(launchKitId: number, tagIds: number[]) {
 
   // Add new tags
   if (tagIds.length > 0) {
-    const tagRelations = tagIds.map(tagId => ({ launchKitId, tagId }));
-    await database
-      .insert(launchKitTagRelations)
-      .values(tagRelations);
+    const tagRelations = tagIds.map((tagId) => ({ launchKitId, tagId }));
+    await database.insert(launchKitTagRelations).values(tagRelations);
   }
 }
 
@@ -439,14 +473,23 @@ export async function deleteLaunchKitComment(id: number) {
 
 // Analytics
 export async function trackLaunchKitEvent(data: LaunchKitAnalyticsCreate) {
-  const result = await database
-    .insert(launchKitAnalytics)
-    .values(data)
-    .returning();
-  return result[0];
+  try {
+    const result = await database
+      .insert(launchKitAnalytics)
+      .values(data)
+      .returning();
+    return result[0];
+  } catch (error) {
+    // Silently fail - analytics shouldn't break the user experience
+    console.error("Failed to track launch kit event:", error);
+    return null;
+  }
 }
 
-export async function getLaunchKitAnalytics(launchKitId: number, eventType?: string) {
+export async function getLaunchKitAnalytics(
+  launchKitId: number,
+  eventType?: string
+) {
   let query = database
     .select()
     .from(launchKitAnalytics)
