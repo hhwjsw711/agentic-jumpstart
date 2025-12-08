@@ -88,7 +88,6 @@ const trackPurchaseIntentSchema = z.object({
 
 export const trackPurchaseIntentFn = createServerFn()
   .validator(trackPurchaseIntentSchema)
-  .middleware([adminMiddleware])
   .handler(async ({ data }) => {
     const headers = getHeaders();
     try {

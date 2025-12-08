@@ -22,6 +22,7 @@ import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as PurchaseRouteImport } from './routes/purchase'
 import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as NewsRouteImport } from './routes/news'
+import { Route as MembersRouteImport } from './routes/members'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as CreateTestimonialRouteImport } from './routes/create-testimonial'
 import { Route as CommunityRouteImport } from './routes/community'
@@ -132,6 +133,11 @@ const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
 const NewsRoute = NewsRouteImport.update({
   id: '/news',
   path: '/news',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MembersRoute = MembersRouteImport.update({
+  id: '/members',
+  path: '/members',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -444,6 +450,7 @@ export interface FileRoutesByFullPath {
   '/community': typeof CommunityRoute
   '/create-testimonial': typeof CreateTestimonialRoute
   '/login': typeof LoginRoute
+  '/members': typeof MembersRoute
   '/news': typeof NewsRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/purchase': typeof PurchaseRoute
@@ -508,6 +515,7 @@ export interface FileRoutesByTo {
   '/community': typeof CommunityRoute
   '/create-testimonial': typeof CreateTestimonialRoute
   '/login': typeof LoginRoute
+  '/members': typeof MembersRoute
   '/news': typeof NewsRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/purchase': typeof PurchaseRoute
@@ -570,6 +578,7 @@ export interface FileRoutesById {
   '/community': typeof CommunityRoute
   '/create-testimonial': typeof CreateTestimonialRoute
   '/login': typeof LoginRoute
+  '/members': typeof MembersRoute
   '/news': typeof NewsRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/purchase': typeof PurchaseRoute
@@ -637,6 +646,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/create-testimonial'
     | '/login'
+    | '/members'
     | '/news'
     | '/privacy-policy'
     | '/purchase'
@@ -701,6 +711,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/create-testimonial'
     | '/login'
+    | '/members'
     | '/news'
     | '/privacy-policy'
     | '/purchase'
@@ -762,6 +773,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/create-testimonial'
     | '/login'
+    | '/members'
     | '/news'
     | '/privacy-policy'
     | '/purchase'
@@ -828,6 +840,7 @@ export interface RootRouteChildren {
   CommunityRoute: typeof CommunityRoute
   CreateTestimonialRoute: typeof CreateTestimonialRoute
   LoginRoute: typeof LoginRoute
+  MembersRoute: typeof MembersRoute
   NewsRoute: typeof NewsRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   PurchaseRoute: typeof PurchaseRoute
@@ -985,6 +998,13 @@ declare module '@tanstack/react-router' {
       path: '/news'
       fullPath: '/news'
       preLoaderRoute: typeof NewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/members': {
+      id: '/members'
+      path: '/members'
+      fullPath: '/members'
+      preLoaderRoute: typeof MembersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1525,6 +1545,7 @@ const rootRouteChildren: RootRouteChildren = {
   CommunityRoute: CommunityRoute,
   CreateTestimonialRoute: CreateTestimonialRoute,
   LoginRoute: LoginRoute,
+  MembersRoute: MembersRoute,
   NewsRoute: NewsRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
   PurchaseRoute: PurchaseRoute,

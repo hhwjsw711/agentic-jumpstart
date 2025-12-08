@@ -19,6 +19,7 @@ import {
   Newspaper,
   Rocket,
   BookOpen,
+  MessageSquare,
 } from "lucide-react";
 import {
   Sheet,
@@ -39,8 +40,9 @@ import {
 import { useState } from "react";
 import { useContinueSlug } from "~/hooks/use-continue-slug";
 import { cn } from "~/lib/utils";
-import { useAuth } from "~/hooks/use-auth";
+import { useAuthWithProfile } from "~/hooks/use-auth";
 import { ModeToggle } from "~/components/ModeToggle";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { useQuery } from "@tanstack/react-query";
 import { checkIfUserIsAffiliateFn } from "~/fn/affiliates";
 import {
@@ -70,7 +72,7 @@ interface NavLink {
     blogFeatureEnabled?: boolean;
   }) => boolean;
   params?: any;
-  category?: "primary" | "resources" | "more";
+  category?: "primary" | "resources" | "community" | "more";
 }
 
 interface AdminMenuItem {
@@ -103,16 +105,18 @@ const NAVIGATION_LINKS: NavLink[] = [
     icon: Tag,
     category: "primary",
   },
+  // Community dropdown
   {
     to: "/community",
-    label: "Community",
+    label: "Discord",
+    icon: MessageSquare,
+    category: "community",
+  },
+  {
+    to: "/members",
+    label: "Members",
     icon: Users,
-    badge: {
-      text: "FREE",
-      className:
-        "ml-2 px-1.5 py-0.5 text-xs bg-green-500/20 text-green-600 dark:text-green-400 rounded-md font-medium",
-    },
-    category: "primary",
+    category: "community",
   },
 
   // Resources dropdown (all secondary links)
@@ -182,29 +186,64 @@ const NAVIGATION_LINKS: NavLink[] = [
 
 const ADMIN_MENU_ITEMS: AdminMenuItem[] = [
   // Content Management
-  { to: "/admin/comments", label: "Comments", icon: MessageCircle, category: "content" },
+  {
+    to: "/admin/comments",
+    label: "Comments",
+    icon: MessageCircle,
+    category: "content",
+  },
   { to: "/admin/blog", label: "Blog", icon: Video, category: "content" },
   { to: "/admin/news", label: "News", icon: Newspaper, category: "content" },
-  
+
   // User Management
   { to: "/admin/users", label: "Users", icon: Users, category: "users" },
-  { to: "/admin/affiliates", label: "Affiliates", icon: DollarSign, category: "users" },
-  
+  {
+    to: "/admin/affiliates",
+    label: "Affiliates",
+    icon: DollarSign,
+    category: "users",
+  },
+
   // Business
-  { to: "/admin/launch-kits", label: "Launch Kits", icon: Rocket, category: "business" },
-  { to: "/admin/analytics", label: "Analytics", icon: TrendingUp, category: "business" },
-  { to: "/admin/conversions", label: "Conversions", icon: Target, category: "business" },
-  
+  {
+    to: "/admin/launch-kits",
+    label: "Launch Kits",
+    icon: Rocket,
+    category: "business",
+  },
+  {
+    to: "/admin/analytics",
+    label: "Analytics",
+    icon: TrendingUp,
+    category: "business",
+  },
+  {
+    to: "/admin/conversions",
+    label: "Conversions",
+    icon: Target,
+    category: "business",
+  },
+
   // Communications
-  { to: "/admin/emails", label: "Emails", icon: Mail, category: "communications" },
-  
+  {
+    to: "/admin/emails",
+    label: "Emails",
+    icon: Mail,
+    category: "communications",
+  },
+
   // System
-  { to: "/admin/settings", label: "Settings", icon: Settings, category: "system" },
+  {
+    to: "/admin/settings",
+    label: "Settings",
+    icon: Settings,
+    category: "system",
+  },
 ];
 
 const ADMIN_CATEGORY_LABELS: Record<AdminMenuItem["category"], string> = {
   content: "Content Management",
-  users: "User Management", 
+  users: "User Management",
   business: "Business",
   communications: "Communications",
   system: "System",
@@ -227,14 +266,14 @@ function getFilteredNavLinks(data: {
 
 function getGroupedAdminMenuItems() {
   const grouped: Record<string, AdminMenuItem[]> = {};
-  
+
   ADMIN_MENU_ITEMS.forEach((item) => {
     if (!grouped[item.category]) {
       grouped[item.category] = [];
     }
     grouped[item.category].push(item);
   });
-  
+
   return grouped;
 }
 
@@ -248,7 +287,12 @@ const DesktopNavigation = ({
   navData: any;
 }) => {
   const primaryLinks = navLinks.filter((link) => link.category === "primary");
-  const resourcesLinks = navLinks.filter((link) => link.category === "resources");
+  const resourcesLinks = navLinks.filter(
+    (link) => link.category === "resources"
+  );
+  const communityLinks = navLinks.filter(
+    (link) => link.category === "community"
+  );
 
   const renderNavLink = (link: NavLink, key?: string) => {
     const Icon = link.icon;
@@ -292,9 +336,7 @@ const DesktopNavigation = ({
           params={link.params ? link.params(navData) : undefined}
           className={cn(
             "flex items-center w-full",
-            isActive
-              ? "text-theme-600 dark:text-theme-400 font-semibold"
-              : ""
+            isActive ? "text-theme-600 dark:text-theme-400 font-semibold" : ""
           )}
         >
           {Icon && <Icon className="mr-2 h-4 w-4 text-theme-400" />}
@@ -313,6 +355,28 @@ const DesktopNavigation = ({
     <div className="hidden md:flex items-center gap-1">
       {/* Always show primary links */}
       {primaryLinks.map((link) => renderNavLink(link))}
+
+      {/* Community dropdown with FREE badge */}
+      {communityLinks.length > 0 && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            >
+              <Users className="h-4 w-4" />
+              <span>Community</span>
+              <span className="ml-2 px-1.5 py-0.5 text-xs bg-green-500/20 text-green-600 dark:text-green-400 rounded-md font-medium">
+                FREE
+              </span>
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            {communityLinks.map((link) => renderDropdownItem(link))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
 
       {/* Resources dropdown with FREE badge */}
       {resourcesLinks.length > 0 && (
@@ -349,7 +413,12 @@ const MobileNavigation = ({
   navData: any;
 }) => {
   const primaryLinks = navLinks.filter((link) => link.category === "primary");
-  const resourcesLinks = navLinks.filter((link) => link.category === "resources");
+  const resourcesLinks = navLinks.filter(
+    (link) => link.category === "resources"
+  );
+  const communityLinks = navLinks.filter(
+    (link) => link.category === "community"
+  );
 
   const renderMobileNavLink = (link: NavLink, key?: string) => {
     const Icon = link.icon;
@@ -384,6 +453,20 @@ const MobileNavigation = ({
         </div>
       )}
 
+      {/* Community section */}
+      {communityLinks.length > 0 && (
+        <div className="space-y-1 mt-6">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3 px-3 flex items-center">
+            <Users className="mr-2 h-4 w-4" />
+            Community
+            <span className="ml-2 px-1.5 py-0.5 text-xs bg-green-500/20 text-green-600 dark:text-green-400 rounded-md font-medium">
+              FREE
+            </span>
+          </h3>
+          {communityLinks.map((link) => renderMobileNavLink(link))}
+        </div>
+      )}
+
       {/* Resources section */}
       {resourcesLinks.length > 0 && (
         <div className="space-y-1 mt-6">
@@ -404,8 +487,24 @@ const MobileNavigation = ({
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const continueSlug = useContinueSlug();
-  const user = useAuth();
+  const { user, profile } = useAuthWithProfile();
   const routerState = useRouterState();
+
+  // Helper to get user initials for avatar fallback
+  const getUserInitials = () => {
+    if (profile?.displayName) {
+      return profile.displayName
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
+    }
+    if (user?.email) {
+      return user.email[0].toUpperCase();
+    }
+    return "U";
+  };
 
   // Check if user is an affiliate (only for authenticated users)
   const { data: affiliateStatus } = useQuery({
@@ -510,35 +609,52 @@ export function Header() {
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="ghost"
-                          className="flex items-center gap-2"
+                          className="flex items-center gap-2 p-1 pr-2"
                         >
-                          <User className="h-4 w-4" />
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage
+                              src={profile?.image || undefined}
+                              alt={profile?.displayName || "User"}
+                            />
+                            <AvatarFallback className="bg-theme-500 text-white text-xs">
+                              {getUserInitials()}
+                            </AvatarFallback>
+                          </Avatar>
                           <span>Admin</span>
                           <ChevronDown className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-56">
-                        {Object.entries(getGroupedAdminMenuItems()).map(([category, items], categoryIndex) => (
-                          <div key={category}>
-                            {categoryIndex > 0 && <DropdownMenuSeparator />}
-                            <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">
-                              {ADMIN_CATEGORY_LABELS[category as AdminMenuItem["category"]]}
-                            </DropdownMenuLabel>
-                            <DropdownMenuGroup>
-                              {items.map((item) => {
-                                const Icon = item.icon;
-                                return (
-                                  <DropdownMenuItem key={item.to} asChild>
-                                    <Link to={item.to} className="flex items-center">
-                                      <Icon className="mr-2 h-4 w-4" />
-                                      {item.label}
-                                    </Link>
-                                  </DropdownMenuItem>
-                                );
-                              })}
-                            </DropdownMenuGroup>
-                          </div>
-                        ))}
+                        {Object.entries(getGroupedAdminMenuItems()).map(
+                          ([category, items], categoryIndex) => (
+                            <div key={category}>
+                              {categoryIndex > 0 && <DropdownMenuSeparator />}
+                              <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">
+                                {
+                                  ADMIN_CATEGORY_LABELS[
+                                    category as AdminMenuItem["category"]
+                                  ]
+                                }
+                              </DropdownMenuLabel>
+                              <DropdownMenuGroup>
+                                {items.map((item) => {
+                                  const Icon = item.icon;
+                                  return (
+                                    <DropdownMenuItem key={item.to} asChild>
+                                      <Link
+                                        to={item.to}
+                                        className="flex items-center"
+                                      >
+                                        <Icon className="mr-2 h-4 w-4" />
+                                        {item.label}
+                                      </Link>
+                                    </DropdownMenuItem>
+                                  );
+                                })}
+                              </DropdownMenuGroup>
+                            </div>
+                          )
+                        )}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
                           <a href="/api/logout" className="flex items-center">
@@ -554,10 +670,17 @@ export function Header() {
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="ghost"
-                          className="flex items-center gap-2"
+                          className="flex items-center gap-2 p-1"
                         >
-                          <User className="h-4 w-4" />
-                          <span>Account</span>
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage
+                              src={profile?.image || undefined}
+                              alt={profile?.displayName || "User"}
+                            />
+                            <AvatarFallback className="bg-theme-500 text-white text-xs">
+                              {getUserInitials()}
+                            </AvatarFallback>
+                          </Avatar>
                           <ChevronDown className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -602,10 +725,17 @@ export function Header() {
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="ghost"
-                          className="flex items-center gap-2"
+                          className="flex items-center gap-2 p-1"
                         >
-                          <User className="h-4 w-4" />
-                          <span>Account</span>
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage
+                              src={profile?.image || undefined}
+                              alt={profile?.displayName || "User"}
+                            />
+                            <AvatarFallback className="bg-theme-500 text-white text-xs">
+                              {getUserInitials()}
+                            </AvatarFallback>
+                          </Avatar>
                           <ChevronDown className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -696,30 +826,37 @@ export function Header() {
                               <h3 className="text-sm font-medium text-muted-foreground mb-3 px-3">
                                 Admin
                               </h3>
-                              {Object.entries(getGroupedAdminMenuItems()).map(([category, items], categoryIndex) => (
-                                <div key={category} className="mb-4">
-                                  <h4 className="text-xs font-medium text-muted-foreground mb-2 px-3 uppercase tracking-wider">
-                                    {ADMIN_CATEGORY_LABELS[category as AdminMenuItem["category"]]}
-                                  </h4>
-                                  {items.map((item) => {
-                                    const Icon = item.icon;
-                                    return (
-                                      <Link
-                                        key={`mobile-admin-${item.to}`}
-                                        to={item.to}
-                                        className={buttonVariants({
-                                          variant: "ghost",
-                                          className: "w-full justify-start mb-1",
-                                        })}
-                                        onClick={() => setIsOpen(false)}
-                                      >
-                                        <Icon className="mr-2 h-4 w-4" />
-                                        {item.label}
-                                      </Link>
-                                    );
-                                  })}
-                                </div>
-                              ))}
+                              {Object.entries(getGroupedAdminMenuItems()).map(
+                                ([category, items], categoryIndex) => (
+                                  <div key={category} className="mb-4">
+                                    <h4 className="text-xs font-medium text-muted-foreground mb-2 px-3 uppercase tracking-wider">
+                                      {
+                                        ADMIN_CATEGORY_LABELS[
+                                          category as AdminMenuItem["category"]
+                                        ]
+                                      }
+                                    </h4>
+                                    {items.map((item) => {
+                                      const Icon = item.icon;
+                                      return (
+                                        <Link
+                                          key={`mobile-admin-${item.to}`}
+                                          to={item.to}
+                                          className={buttonVariants({
+                                            variant: "ghost",
+                                            className:
+                                              "w-full justify-start mb-1",
+                                          })}
+                                          onClick={() => setIsOpen(false)}
+                                        >
+                                          <Icon className="mr-2 h-4 w-4" />
+                                          {item.label}
+                                        </Link>
+                                      );
+                                    })}
+                                  </div>
+                                )
+                              )}
                             </div>
                           </>
                         )}

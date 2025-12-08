@@ -1,15 +1,16 @@
 import { createServerFn } from "@tanstack/react-start";
 import { authenticatedMiddleware, unauthenticatedMiddleware } from "~/lib/auth";
 import { z } from "zod";
-import { 
-  getProfile, 
-  getProfileWithProjects, 
-  getPublicProfile, 
+import {
+  getProfile,
+  getProfileWithProjects,
+  getPublicProfile,
   updateProfile,
   createProject,
   updateProject,
   deleteProject,
-  getUserProjects 
+  getUserProjects,
+  getPublicMembers,
 } from "~/data-access/profiles";
 import { getStorage } from "~/utils/storage";
 
@@ -20,6 +21,8 @@ const profileUpdateSchema = z.object({
   githubHandle: z.string().max(50).optional(),
   websiteUrl: z.string().url().optional().or(z.literal("")),
   imageId: z.string().optional(),
+  image: z.string().optional(),
+  isPublicProfile: z.boolean().optional(),
 });
 
 const projectSchema = z.object({
@@ -70,22 +73,27 @@ export const getProfileImageUploadUrlFn = createServerFn({
   method: "POST",
 })
   .middleware([authenticatedMiddleware])
-  .validator(z.object({
-    fileName: z.string(),
-    contentType: z.string(),
-  }))
+  .validator(
+    z.object({
+      fileName: z.string(),
+      contentType: z.string(),
+    })
+  )
   .handler(async ({ data, context }) => {
     const { storage } = getStorage();
-    
+
     // Create organized prefix for profile images
     const imageKey = `profiles/${context.userId}/${Date.now()}-${data.fileName}`;
-    
-    const presignedUrl = await storage.getPresignedUploadUrl(imageKey, data.contentType);
-    
-    return { 
-      presignedUrl, 
+
+    const presignedUrl = await storage.getPresignedUploadUrl(
       imageKey,
-      imageUrl: await storage.getPresignedUrl(imageKey)
+      data.contentType
+    );
+
+    return {
+      presignedUrl,
+      imageKey,
+      imageUrl: await storage.getPresignedUrl(imageKey),
     };
   });
 
@@ -112,10 +120,12 @@ export const updateProjectFn = createServerFn({
   method: "POST",
 })
   .middleware([authenticatedMiddleware])
-  .validator(z.object({
-    id: z.number(),
-    ...projectSchema.shape,
-  }))
+  .validator(
+    z.object({
+      id: z.number(),
+      ...projectSchema.shape,
+    })
+  )
   .handler(async ({ data, context }) => {
     const { id, ...projectData } = data;
     const project = await updateProject(id, context.userId, projectData);
@@ -130,4 +140,13 @@ export const deleteProjectFn = createServerFn({
   .handler(async ({ data, context }) => {
     await deleteProject(data.id, context.userId);
     return { success: true };
+  });
+
+// Public members list
+export const getPublicMembersFn = createServerFn({
+  method: "GET",
+})
+  .middleware([unauthenticatedMiddleware])
+  .handler(async () => {
+    return await getPublicMembers();
   });

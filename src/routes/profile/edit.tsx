@@ -13,6 +13,8 @@ import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import { Label } from "~/components/ui/label";
 import { Badge } from "~/components/ui/badge";
+import { Switch } from "~/components/ui/switch";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "~/components/ui/tabs";
 import {
   Breadcrumb,
@@ -46,7 +48,7 @@ import {
   User,
   Settings,
   FolderOpen,
-  Award,
+  Eye,
 } from "lucide-react";
 import { toast } from "sonner";
 import { authenticatedMiddleware } from "~/lib/auth";
@@ -62,6 +64,7 @@ const profileFormSchema = z.object({
     .url("Must be a valid URL")
     .optional()
     .or(z.literal("")),
+  isPublicProfile: z.boolean().optional(),
 });
 
 const projectFormSchema = z.object({
@@ -113,6 +116,7 @@ function EditProfilePage() {
       twitterHandle: profile?.twitterHandle || "",
       githubHandle: profile?.githubHandle || "",
       websiteUrl: profile?.websiteUrl || "",
+      isPublicProfile: profile?.isPublicProfile || false,
     },
   });
 
@@ -233,7 +237,7 @@ function EditProfilePage() {
           image: imageUrl,
         },
       });
-      
+
       // Clear preview after successful upload
       setPreviewImage(null);
     } catch (error) {
@@ -272,12 +276,15 @@ function EditProfilePage() {
     <Page>
       <div className="max-w-6xl mx-auto">
         {/* Breadcrumbs */}
-        <div className="mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link to="/profile/$userId" params={{ userId: profile?.id?.toString() || "" }}>
+                  <Link
+                    to="/profile/$userId"
+                    params={{ userId: profile?.id?.toString() || "" }}
+                  >
                     Profile
                   </Link>
                 </BreadcrumbLink>
@@ -288,6 +295,16 @@ function EditProfilePage() {
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
+
+          <Button variant="outline" size="sm" asChild>
+            <Link
+              to="/profile/$userId"
+              params={{ userId: profile?.id?.toString() || "" }}
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              View Profile
+            </Link>
+          </Button>
         </div>
 
         <PageHeader
@@ -313,17 +330,23 @@ function EditProfilePage() {
                 <div className="space-y-2">
                   <Label>Profile Picture</Label>
                   <div className="flex flex-col items-center gap-4">
-                    <div className="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-br from-theme-100 to-theme-200 dark:from-theme-800 dark:to-theme-700">
-                      <img
-                        src={
-                          previewImage ||
-                          profile?.image ||
-                          `https://api.dicebear.com/9.x/initials/svg?seed=${profile?.displayName}&backgroundColor=6366f1&textColor=ffffff`
-                        }
+                    <Avatar className="w-24 h-24">
+                      <AvatarImage
+                        src={previewImage || profile?.image || undefined}
                         alt="Profile"
-                        className="w-full h-full object-cover"
+                        className="object-cover"
                       />
-                    </div>
+                      <AvatarFallback className="bg-theme-500 text-white text-2xl font-semibold">
+                        {profile?.displayName
+                          ? profile.displayName
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .toUpperCase()
+                              .slice(0, 2)
+                          : "U"}
+                      </AvatarFallback>
+                    </Avatar>
                     <div className="text-center">
                       <Button
                         type="button"
@@ -413,6 +436,25 @@ function EditProfilePage() {
                       placeholder="username"
                     />
                   </div>
+
+                  {/* Public Profile Toggle */}
+                  <div className="flex items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="isPublicProfile" className="text-base">
+                        Public Profile
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Show your profile on the community members page
+                      </p>
+                    </div>
+                    <Switch
+                      id="isPublicProfile"
+                      checked={profileForm.watch("isPublicProfile")}
+                      onCheckedChange={(checked) =>
+                        profileForm.setValue("isPublicProfile", checked)
+                      }
+                    />
+                  </div>
                 </div>
 
                 <div className="flex justify-end">
@@ -434,14 +476,13 @@ function EditProfilePage() {
           {/* Right Column - Tabs */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="projects" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="projects" className="flex items-center gap-2">
+              <TabsList className="grid w-full grid-cols-1">
+                <TabsTrigger
+                  value="projects"
+                  className="flex items-center gap-2"
+                >
                   <FolderOpen className="h-4 w-4" />
                   Projects
-                </TabsTrigger>
-                <TabsTrigger value="badges" className="flex items-center gap-2">
-                  <Award className="h-4 w-4" />
-                  Badges
                 </TabsTrigger>
               </TabsList>
 
@@ -487,7 +528,9 @@ function EditProfilePage() {
                               </div>
 
                               <div className="space-y-2">
-                                <Label htmlFor="technologies">Technologies</Label>
+                                <Label htmlFor="technologies">
+                                  Technologies
+                                </Label>
                                 <Input
                                   id="technologies"
                                   {...projectForm.register("technologies")}
@@ -499,7 +542,9 @@ function EditProfilePage() {
                               </div>
 
                               <div className="space-y-2">
-                                <Label htmlFor="projectUrl">Live Demo URL</Label>
+                                <Label htmlFor="projectUrl">
+                                  Live Demo URL
+                                </Label>
                                 <Input
                                   id="projectUrl"
                                   {...projectForm.register("projectUrl")}
@@ -508,7 +553,9 @@ function EditProfilePage() {
                               </div>
 
                               <div className="space-y-2">
-                                <Label htmlFor="repositoryUrl">Repository URL</Label>
+                                <Label htmlFor="repositoryUrl">
+                                  Repository URL
+                                </Label>
                                 <Input
                                   id="repositoryUrl"
                                   {...projectForm.register("repositoryUrl")}
@@ -536,7 +583,10 @@ function EditProfilePage() {
                               />
                               {projectForm.formState.errors.description && (
                                 <p className="text-sm text-destructive">
-                                  {projectForm.formState.errors.description.message}
+                                  {
+                                    projectForm.formState.errors.description
+                                      .message
+                                  }
                                 </p>
                               )}
                             </div>
@@ -597,7 +647,11 @@ function EditProfilePage() {
                                   )}
                                   <div className="flex gap-2">
                                     {project.projectUrl && (
-                                      <Button size="sm" variant="outline" asChild>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        asChild
+                                      >
                                         <a
                                           href={project.projectUrl}
                                           target="_blank"
@@ -609,7 +663,11 @@ function EditProfilePage() {
                                       </Button>
                                     )}
                                     {project.repositoryUrl && (
-                                      <Button size="sm" variant="outline" asChild>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        asChild
+                                      >
                                         <a
                                           href={project.repositoryUrl}
                                           target="_blank"
@@ -626,7 +684,9 @@ function EditProfilePage() {
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => setEditingProject(project.id)}
+                                    onClick={() =>
+                                      setEditingProject(project.id)
+                                    }
                                   >
                                     Edit
                                   </Button>
@@ -655,9 +715,12 @@ function EditProfilePage() {
                             <FolderOpen className="h-8 w-8 text-theme-600 dark:text-theme-400" />
                           </div>
                           <div>
-                            <h3 className="text-xl font-semibold mb-2">No Projects Yet</h3>
+                            <h3 className="text-xl font-semibold mb-2">
+                              No Projects Yet
+                            </h3>
                             <p className="text-muted-foreground mb-4">
-                              Start building your portfolio by adding your first project.
+                              Start building your portfolio by adding your first
+                              project.
                             </p>
                             <Button
                               onClick={() => setIsAddingProject(true)}
@@ -670,31 +733,6 @@ function EditProfilePage() {
                         </div>
                       </div>
                     )}
-                  </div>
-                </AppCard>
-              </TabsContent>
-
-              {/* Badges Tab */}
-              <TabsContent value="badges">
-                <AppCard
-                  icon={Award}
-                  title="Badges & Achievements"
-                  description="Your earned badges and accomplishments"
-                >
-                  <div className="p-6">
-                    <div className="text-center py-12">
-                      <div className="space-y-4">
-                        <div className="p-4 rounded-2xl bg-gradient-to-br from-theme-100 to-theme-200 dark:from-theme-900 dark:to-theme-800 shadow-elevation-2 inline-block">
-                          <Award className="h-8 w-8 text-theme-600 dark:text-theme-400" />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-semibold mb-2">No Badges Yet</h3>
-                          <p className="text-muted-foreground">
-                            Complete courses and challenges to earn badges and showcase your achievements.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </AppCard>
               </TabsContent>

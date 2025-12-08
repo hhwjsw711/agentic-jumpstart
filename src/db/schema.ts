@@ -50,6 +50,7 @@ export const profiles = tableCreator("profile", {
   twitterHandle: text("twitterHandle"),
   githubHandle: text("githubHandle"),
   websiteUrl: text("websiteUrl"),
+  isPublicProfile: boolean("isPublicProfile").notNull().default(false),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 

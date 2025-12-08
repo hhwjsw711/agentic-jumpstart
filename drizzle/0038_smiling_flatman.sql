@@ -1,0 +1,1 @@
+ALTER TABLE "app_profile" ADD COLUMN "isPublicProfile" boolean DEFAULT false NOT NULL;

@@ -17,7 +17,8 @@ export const getUserProfileFn = createServerFn({
 
 export const getUserInfoFn = createServerFn().handler(async () => {
   const user = await getCurrentUser();
-  return { user };
+  const profile = user ? await getProfile(user.id) : null;
+  return { user, profile };
 });
 
 export const getAllUsersWithProfilesFn = createServerFn({

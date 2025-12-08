@@ -1,5 +1,12 @@
 import { database } from "~/db";
-import { Profile, profiles, projects, Project, ProjectCreate } from "~/db/schema";
+import {
+  Profile,
+  profiles,
+  projects,
+  Project,
+  ProjectCreate,
+  users,
+} from "~/db/schema";
 import { UserId } from "~/use-cases/types";
 import { eq, desc, and } from "drizzle-orm";
 
@@ -75,7 +82,10 @@ export async function getPublicProfile(userId: UserId) {
 }
 
 // Project management functions
-export async function createProject(userId: UserId, projectData: Omit<ProjectCreate, 'userId'>) {
+export async function createProject(
+  userId: UserId,
+  projectData: Omit<ProjectCreate, "userId">
+) {
   const [project] = await database
     .insert(projects)
     .values({
@@ -86,7 +96,11 @@ export async function createProject(userId: UserId, projectData: Omit<ProjectCre
   return project;
 }
 
-export async function updateProject(projectId: number, userId: UserId, projectData: Partial<Project>) {
+export async function updateProject(
+  projectId: number,
+  userId: UserId,
+  projectData: Partial<Project>
+) {
   const [updatedProject] = await database
     .update(projects)
     .set({
@@ -109,4 +123,21 @@ export async function getUserProjects(userId: UserId) {
     where: eq(projects.userId, userId),
     orderBy: [desc(projects.order), desc(projects.createdAt)],
   });
+}
+
+export async function getPublicMembers() {
+  const members = await database
+    .select({
+      id: users.id,
+      displayName: profiles.displayName,
+      image: profiles.image,
+      bio: profiles.bio,
+      updatedAt: profiles.updatedAt,
+    })
+    .from(profiles)
+    .innerJoin(users, eq(profiles.userId, users.id))
+    .where(eq(profiles.isPublicProfile, true))
+    .orderBy(desc(profiles.updatedAt));
+
+  return members;
 }

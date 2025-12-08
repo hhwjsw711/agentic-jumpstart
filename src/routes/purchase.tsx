@@ -300,8 +300,10 @@ function RouteComponent() {
                               if (sessionId) {
                                 try {
                                   await trackPurchaseIntentFn({
-                                    sessionId,
-                                    buttonType: "login_to_purchase_button",
+                                    data: {
+                                      sessionId,
+                                      buttonType: "login_to_purchase_button",
+                                    },
                                   });
                                 } catch (error) {
                                   console.error(

@@ -2,11 +2,26 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Page } from "~/routes/admin/-components/page";
 import { PageHeader } from "~/routes/admin/-components/page-header";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
-import { ExternalLink, Github, Globe, Twitter, User } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import {
+  ExternalLink,
+  Github,
+  Globe,
+  Twitter,
+  User,
+  Pencil,
+} from "lucide-react";
 import { getPublicProfileFn } from "~/fn/profiles";
+import { getUserInfoFn } from "~/fn/users";
 import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/profile/$userId")({
@@ -16,13 +31,15 @@ export const Route = createFileRoute("/profile/$userId")({
     if (isNaN(userId)) {
       throw new Error("Invalid user ID");
     }
-    return { userId };
+    const { user: currentUser } = await getUserInfoFn();
+    return { userId, currentUserId: currentUser?.id };
   },
 });
 
 function ProfilePage() {
-  const { userId } = Route.useLoaderData();
-  
+  const { userId, currentUserId } = Route.useLoaderData();
+  const isOwnProfile = currentUserId === userId;
+
   const { data: profile } = useSuspenseQuery({
     queryKey: ["profile", "public", userId],
     queryFn: () => getPublicProfileFn({ data: { userId } }),
@@ -55,22 +72,36 @@ function ProfilePage() {
     );
   }
 
-  const initials = profile.displayName 
-    ? profile.displayName.split(' ').map(n => n[0]).join('').toUpperCase() 
-    : 'U';
+  const initials = profile.displayName
+    ? profile.displayName
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+    : "U";
 
   return (
     <Page>
       <div className="max-w-4xl mx-auto">
-        <PageHeader
-          title={profile.displayName || "User Profile"}
-          highlightedWord={profile.displayName?.split(' ')[0] || "User"}
-          description={
-            <span>
-              Explore {profile.displayName || "this user"}'s work and projects
-            </span>
-          }
-        />
+        <div className="flex items-start justify-between">
+          <PageHeader
+            title={profile.displayName || "User Profile"}
+            highlightedWord={profile.displayName?.split(" ")[0] || "User"}
+            description={
+              <span>
+                Explore {profile.displayName || "this user"}'s work and projects
+              </span>
+            }
+          />
+          {isOwnProfile && (
+            <Link to="/profile/edit">
+              <Button variant="outline" size="sm">
+                <Pencil className="h-4 w-4 mr-2" />
+                Edit Profile
+              </Button>
+            </Link>
+          )}
+        </div>
 
         <div className="space-y-8">
           {/* Profile Info Section */}
@@ -79,19 +110,31 @@ function ProfilePage() {
               <div className="flex flex-col md:flex-row gap-8 items-start">
                 {/* Avatar */}
                 <div className="flex-shrink-0">
-                  <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-theme-100 to-theme-200 dark:from-theme-800 dark:to-theme-700 shadow-elevation-2">
-                    <img 
-                      src={profile.image || `https://api.dicebear.com/9.x/initials/svg?seed=${profile.displayName}&backgroundColor=6366f1&textColor=ffffff`}
+                  <Avatar className="w-32 h-32 shadow-elevation-2">
+                    <AvatarImage
+                      src={profile.image || undefined}
                       alt={profile.displayName || "User"}
-                      className="w-full h-full object-cover"
+                      className="object-cover"
                     />
-                  </div>
+                    <AvatarFallback className="bg-theme-500 text-white text-4xl font-semibold">
+                      {profile.displayName
+                        ? profile.displayName
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .toUpperCase()
+                            .slice(0, 2)
+                        : "U"}
+                    </AvatarFallback>
+                  </Avatar>
                 </div>
 
                 {/* Profile Details */}
                 <div className="flex-1 space-y-4">
                   <div>
-                    <h1 className="text-3xl font-bold mb-2">{profile.displayName || "User"}</h1>
+                    <h1 className="text-3xl font-bold mb-2">
+                      {profile.displayName || "User"}
+                    </h1>
                     {profile.bio && (
                       <p className="text-muted-foreground text-lg leading-relaxed">
                         {profile.bio}
@@ -100,26 +143,28 @@ function ProfilePage() {
                   </div>
 
                   {/* Social Links */}
-                  {(profile.twitterHandle || profile.githubHandle || profile.websiteUrl) && (
+                  {(profile.twitterHandle ||
+                    profile.githubHandle ||
+                    profile.websiteUrl) && (
                     <div className="flex flex-wrap gap-3">
                       {profile.twitterHandle && (
                         <Button variant="outline" size="sm" asChild>
-                          <a 
-                            href={`https://twitter.com/${profile.twitterHandle}`} 
-                            target="_blank" 
+                          <a
+                            href={`https://twitter.com/${profile.twitterHandle}`}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-2"
                           >
-                            <Twitter className="h-4 w-4" />
-                            @{profile.twitterHandle}
+                            <Twitter className="h-4 w-4" />@
+                            {profile.twitterHandle}
                           </a>
                         </Button>
                       )}
                       {profile.githubHandle && (
                         <Button variant="outline" size="sm" asChild>
-                          <a 
-                            href={`https://github.com/${profile.githubHandle}`} 
-                            target="_blank" 
+                          <a
+                            href={`https://github.com/${profile.githubHandle}`}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-2"
                           >
@@ -130,9 +175,9 @@ function ProfilePage() {
                       )}
                       {profile.websiteUrl && (
                         <Button variant="outline" size="sm" asChild>
-                          <a 
-                            href={profile.websiteUrl} 
-                            target="_blank" 
+                          <a
+                            href={profile.websiteUrl}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-2"
                           >
@@ -157,18 +202,22 @@ function ProfilePage() {
                   <Badge variant="secondary">{profile.projects.length}</Badge>
                 </CardTitle>
                 <CardDescription>
-                  Explore the projects and work by {profile.displayName || "this user"}
+                  Explore the projects and work by{" "}
+                  {profile.displayName || "this user"}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {profile.projects.map((project) => (
-                    <Card key={project.id} className="hover:shadow-elevation-2 transition-all duration-200">
+                    <Card
+                      key={project.id}
+                      className="hover:shadow-elevation-2 transition-all duration-200"
+                    >
                       <CardContent className="p-4">
                         {project.imageUrl && (
                           <div className="aspect-video bg-muted rounded-lg mb-4 overflow-hidden">
-                            <img 
-                              src={project.imageUrl} 
+                            <img
+                              src={project.imageUrl}
                               alt={project.title}
                               className="w-full h-full object-cover"
                             />
@@ -176,28 +225,36 @@ function ProfilePage() {
                         )}
                         <div className="space-y-3">
                           <div>
-                            <h3 className="font-semibold text-lg mb-1">{project.title}</h3>
+                            <h3 className="font-semibold text-lg mb-1">
+                              {project.title}
+                            </h3>
                             <p className="text-sm text-muted-foreground line-clamp-3">
                               {project.description}
                             </p>
                           </div>
-                          
+
                           {project.technologies && (
                             <div className="flex flex-wrap gap-1">
-                              {JSON.parse(project.technologies).map((tech: string, index: number) => (
-                                <Badge key={index} variant="secondary" className="text-xs">
-                                  {tech}
-                                </Badge>
-                              ))}
+                              {JSON.parse(project.technologies).map(
+                                (tech: string, index: number) => (
+                                  <Badge
+                                    key={index}
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
+                                    {tech}
+                                  </Badge>
+                                )
+                              )}
                             </div>
                           )}
-                          
+
                           <div className="flex gap-2">
                             {project.projectUrl && (
                               <Button size="sm" variant="outline" asChild>
-                                <a 
-                                  href={project.projectUrl} 
-                                  target="_blank" 
+                                <a
+                                  href={project.projectUrl}
+                                  target="_blank"
                                   rel="noopener noreferrer"
                                 >
                                   <ExternalLink className="h-3 w-3 mr-1" />
@@ -207,9 +264,9 @@ function ProfilePage() {
                             )}
                             {project.repositoryUrl && (
                               <Button size="sm" variant="outline" asChild>
-                                <a 
-                                  href={project.repositoryUrl} 
-                                  target="_blank" 
+                                <a
+                                  href={project.repositoryUrl}
+                                  target="_blank"
                                   rel="noopener noreferrer"
                                 >
                                   <Github className="h-3 w-3 mr-1" />
@@ -236,9 +293,12 @@ function ProfilePage() {
                     <User className="h-8 w-8 text-theme-600 dark:text-theme-400" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold mb-2">No Projects Yet</h3>
+                    <h3 className="text-xl font-semibold mb-2">
+                      No Projects Yet
+                    </h3>
                     <p className="text-muted-foreground">
-                      {profile.displayName || "This user"} hasn't added any projects to showcase yet.
+                      {profile.displayName || "This user"} hasn't added any
+                      projects to showcase yet.
                     </p>
                   </div>
                 </div>

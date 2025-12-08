@@ -267,6 +267,13 @@
       "when": 1765215590578,
       "tag": "0037_sharp_gunslinger",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1765217242447,
+      "tag": "0038_smiling_flatman",
+      "breakpoints": true
     }
   ]
 }

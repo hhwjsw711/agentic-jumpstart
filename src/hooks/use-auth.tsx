@@ -9,3 +9,15 @@ export function useAuth() {
 
   return userInfo.data?.user;
 }
+
+export function useAuthWithProfile() {
+  const userInfo = useQuery({
+    queryKey: ["userInfo"],
+    queryFn: () => getUserInfoFn(),
+  });
+
+  return {
+    user: userInfo.data?.user,
+    profile: userInfo.data?.profile,
+  };
+}
