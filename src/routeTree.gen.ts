@@ -75,6 +75,7 @@ import { Route as AdminNewsIdEditRouteImport } from './routes/admin/news/$id/edi
 import { Route as AdminLaunchKitsEditIdRouteImport } from './routes/admin/launch-kits/edit/$id'
 import { Route as AdminBlogIdEditRouteImport } from './routes/admin/blog/$id/edit'
 import { ServerRoute as ApiLogoutServerRouteImport } from './routes/api/logout'
+import { ServerRoute as ApiHealthServerRouteImport } from './routes/api/health'
 import { ServerRoute as ApiStripeWebhookServerRouteImport } from './routes/api/stripe/webhook'
 import { ServerRoute as ApiLoginGoogleIndexServerRouteImport } from './routes/api/login/google/index'
 import { ServerRoute as ApiSegmentsSegmentIdVideoServerRouteImport } from './routes/api/segments/$segmentId/video'
@@ -402,6 +403,11 @@ const AdminBlogIdEditRoute = AdminBlogIdEditRouteImport.update({
 const ApiLogoutServerRoute = ApiLogoutServerRouteImport.update({
   id: '/api/logout',
   path: '/api/logout',
+  getParentRoute: () => rootServerRouteImport,
+} as any)
+const ApiHealthServerRoute = ApiHealthServerRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
   getParentRoute: () => rootServerRouteImport,
 } as any)
 const ApiStripeWebhookServerRoute = ApiStripeWebhookServerRouteImport.update({
@@ -849,6 +855,7 @@ export interface RootRouteChildren {
   LearnSlugRoute: typeof LearnSlugRouteWithChildren
 }
 export interface FileServerRoutesByFullPath {
+  '/api/health': typeof ApiHealthServerRoute
   '/api/logout': typeof ApiLogoutServerRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookServerRoute
   '/api/segments/$segmentId/video': typeof ApiSegmentsSegmentIdVideoServerRoute
@@ -856,6 +863,7 @@ export interface FileServerRoutesByFullPath {
   '/api/login/google/callback': typeof ApiLoginGoogleCallbackIndexServerRoute
 }
 export interface FileServerRoutesByTo {
+  '/api/health': typeof ApiHealthServerRoute
   '/api/logout': typeof ApiLogoutServerRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookServerRoute
   '/api/segments/$segmentId/video': typeof ApiSegmentsSegmentIdVideoServerRoute
@@ -864,6 +872,7 @@ export interface FileServerRoutesByTo {
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
+  '/api/health': typeof ApiHealthServerRoute
   '/api/logout': typeof ApiLogoutServerRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookServerRoute
   '/api/segments/$segmentId/video': typeof ApiSegmentsSegmentIdVideoServerRoute
@@ -873,6 +882,7 @@ export interface FileServerRoutesById {
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath
   fullPaths:
+    | '/api/health'
     | '/api/logout'
     | '/api/stripe/webhook'
     | '/api/segments/$segmentId/video'
@@ -880,6 +890,7 @@ export interface FileServerRouteTypes {
     | '/api/login/google/callback'
   fileServerRoutesByTo: FileServerRoutesByTo
   to:
+    | '/api/health'
     | '/api/logout'
     | '/api/stripe/webhook'
     | '/api/segments/$segmentId/video'
@@ -887,6 +898,7 @@ export interface FileServerRouteTypes {
     | '/api/login/google/callback'
   id:
     | '__root__'
+    | '/api/health'
     | '/api/logout'
     | '/api/stripe/webhook'
     | '/api/segments/$segmentId/video'
@@ -895,6 +907,7 @@ export interface FileServerRouteTypes {
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
+  ApiHealthServerRoute: typeof ApiHealthServerRoute
   ApiLogoutServerRoute: typeof ApiLogoutServerRoute
   ApiStripeWebhookServerRoute: typeof ApiStripeWebhookServerRoute
   ApiSegmentsSegmentIdVideoServerRoute: typeof ApiSegmentsSegmentIdVideoServerRoute
@@ -1356,6 +1369,13 @@ declare module '@tanstack/react-start/server' {
       preLoaderRoute: typeof ApiLogoutServerRouteImport
       parentRoute: typeof rootServerRouteImport
     }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthServerRouteImport
+      parentRoute: typeof rootServerRouteImport
+    }
     '/api/stripe/webhook': {
       id: '/api/stripe/webhook'
       path: '/api/stripe/webhook'
@@ -1535,6 +1555,7 @@ export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 const rootServerRouteChildren: RootServerRouteChildren = {
+  ApiHealthServerRoute: ApiHealthServerRoute,
   ApiLogoutServerRoute: ApiLogoutServerRoute,
   ApiStripeWebhookServerRoute: ApiStripeWebhookServerRoute,
   ApiSegmentsSegmentIdVideoServerRoute: ApiSegmentsSegmentIdVideoServerRoute,
