@@ -13,10 +13,14 @@ import {
   getUserByEmail,
   getNewsletterSubscribersForEmailing,
 } from "~/data-access/users";
-import { getNewsletterSignupsCount, getEmailSignupAnalytics } from "~/data-access/newsletter";
+import {
+  getNewsletterSignupsCount,
+  getEmailSignupAnalytics,
+} from "~/data-access/newsletter";
 import { sendEmail, renderEmailTemplate } from "~/utils/email";
 import { EmailBatchCreate } from "~/db/schema";
 import { createUnsubscribeToken } from "~/data-access/unsubscribe-tokens";
+import { env } from "~/utils/env";
 
 // Email form validation schema
 const emailFormSchema = z.object({
@@ -114,7 +118,7 @@ export const sendTestEmailFn = createServerFn({
         user.id,
         data.email
       );
-      const unsubscribeUrl = `${process.env.BASE_URL}/unsubscribe?token=${unsubscribeToken}`;
+      const unsubscribeUrl = `${env.HOST_NAME}/unsubscribe?token=${unsubscribeToken}`;
 
       // Replace the unsubscribe placeholder with the actual URL
       htmlContent = htmlContent.replace(/{{unsubscribeUrl}}/g, unsubscribeUrl);
@@ -216,15 +220,15 @@ async function processBulkEmails(
       const promises = batch.map(async (user) => {
         try {
           let finalHtmlContent = htmlContent;
-          
+
           // Generate unsubscribe token if user has an ID (registered user)
           if (user.id) {
             const unsubscribeToken = await createUnsubscribeToken(
               user.id,
               user.email
             );
-            const unsubscribeUrl = `${process.env.BASE_URL}/unsubscribe?token=${unsubscribeToken}`;
-            
+            const unsubscribeUrl = `${env.HOST_NAME}/unsubscribe?token=${unsubscribeToken}`;
+
             // Replace the unsubscribeUrl placeholder in the template
             finalHtmlContent = htmlContent.replace(
               /{{unsubscribeUrl}}/g,
@@ -232,7 +236,7 @@ async function processBulkEmails(
             );
           } else {
             // For newsletter subscribers without user accounts, provide a generic unsubscribe
-            const unsubscribeUrl = `${process.env.BASE_URL}/unsubscribe?email=${encodeURIComponent(user.email)}`;
+            const unsubscribeUrl = `${env.HOST_NAME}/unsubscribe?email=${encodeURIComponent(user.email)}`;
             finalHtmlContent = htmlContent.replace(
               /{{unsubscribeUrl}}/g,
               unsubscribeUrl
@@ -295,11 +299,13 @@ export const getEmailAnalyticsFn = createServerFn({
   method: "GET",
 })
   .middleware([adminMiddleware])
-  .validator(z.object({ 
-    year: z.number(),
-    month: z.number(),
-    type: z.enum(["waitlist", "newsletter"]).default("waitlist")
-  }))
+  .validator(
+    z.object({
+      year: z.number(),
+      month: z.number(),
+      type: z.enum(["waitlist", "newsletter"]).default("waitlist"),
+    })
+  )
   .handler(async ({ data }) => {
     try {
       return await getEmailSignupAnalytics(data.year, data.month, data.type);
