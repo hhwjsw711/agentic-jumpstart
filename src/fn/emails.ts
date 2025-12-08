@@ -73,13 +73,49 @@ export const createEmailBatchFn = createServerFn({
 
       const batch = await createEmailBatch(emailBatch);
 
+      // Check if there are users to email
+      if (users.length === 0) {
+        console.warn(
+          `[Email Batch ${batch.id}] No users found for recipient type: ${data.recipientType}`
+        );
+        await updateEmailBatchProgress(batch.id, {
+          status: "completed",
+          sentCount: 0,
+          failedCount: 0,
+        });
+        return {
+          success: true,
+          batchId: batch.id,
+          warning: "No recipients found",
+        };
+      }
+
       // Start background email sending process (don't await)
+      // Wrap in catch to handle any errors and prevent unhandled promise rejections
       processBulkEmails(
         batch.id,
         users,
         data.subject,
         htmlContent,
         true // Always include unsubscribe link
+      ).catch((error) => {
+        console.error(
+          `[Email Batch ${batch.id}] Background processing failed:`,
+          error
+        );
+        // Update batch status to failed if the error occurs before processing starts
+        updateEmailBatchProgress(batch.id, {
+          status: "failed",
+        }).catch((updateError) => {
+          console.error(
+            `[Email Batch ${batch.id}] Failed to update status after error:`,
+            updateError
+          );
+        });
+      });
+
+      console.log(
+        `[Email Batch ${batch.id}] Started processing ${users.length} emails`
       );
 
       return { success: true, batchId: batch.id };
@@ -205,6 +241,10 @@ async function processBulkEmails(
   isMarketingEmail: boolean = true // Keep parameter for backwards compatibility but always true
 ) {
   try {
+    console.log(
+      `[Email Batch ${batchId}] Starting to process ${users.length} emails`
+    );
+
     // Update batch status to processing
     await updateEmailBatchProgress(batchId, { status: "processing" });
 
@@ -215,6 +255,12 @@ async function processBulkEmails(
     // Process emails in batches with rate limiting
     for (let i = 0; i < users.length; i += BATCH_SIZE) {
       const batch = users.slice(i, i + BATCH_SIZE);
+      const batchNumber = Math.floor(i / BATCH_SIZE) + 1;
+      const totalBatches = Math.ceil(users.length / BATCH_SIZE);
+
+      console.log(
+        `[Email Batch ${batchId}] Processing batch ${batchNumber}/${totalBatches} (${batch.length} emails)`
+      );
 
       // Send emails in parallel for this batch
       const promises = batch.map(async (user) => {
@@ -248,6 +294,9 @@ async function processBulkEmails(
             subject,
             html: finalHtmlContent,
           });
+          console.log(
+            `[Email Batch ${batchId}] Successfully sent email to ${user.email}`
+          );
           return { success: true };
         } catch (error) {
           console.error(`Failed to send email to ${user.email}:`, error);
@@ -272,6 +321,10 @@ async function processBulkEmails(
         failedCount,
       });
 
+      console.log(
+        `[Email Batch ${batchId}] Progress: ${sentCount} sent, ${failedCount} failed out of ${users.length} total`
+      );
+
       // Rate limiting: wait 1 second between batches to maintain 5 emails/second
       if (i + BATCH_SIZE < users.length) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -284,6 +337,10 @@ async function processBulkEmails(
       sentCount,
       failedCount,
     });
+
+    console.log(
+      `[Email Batch ${batchId}] Completed: ${sentCount} sent, ${failedCount} failed out of ${users.length} total`
+    );
   } catch (error) {
     console.error("Failed to process bulk emails:", error);
 
