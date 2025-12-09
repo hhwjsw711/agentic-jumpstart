@@ -1,0 +1,114 @@
+<project_specification>
+  <project_name>Agentic Jumpstart</project_name>
+
+  <overview>
+    A comprehensive online learning platform specializing in agentic AI development and automation. The platform features video courses, interactive modules, user authentication, payment processing, affiliate management, blog functionality, and community features. It's designed to teach developers how to build autonomous AI agents and implement agentic workflows in their projects.
+  </overview>
+
+  <technology_stack>
+    <frontend>
+      <framework>TanStack Start (React 19 + TanStack Router)</framework>
+      <styling>Tailwind CSS v4</styling>
+      <ui_components>shadcn/ui with Radix UI primitives</ui_components>
+      <state_management>TanStack Query (React Query)</state_management>
+      <forms>React Hook Form with Zod validation</forms>
+      <animations>Framer Motion</animations>
+      <icons>Lucide React</icons>
+      <drag_drop>@hello-pangea/dnd</drag_drop>
+    </frontend>
+    <backend>
+      <runtime>Node.js with TanStack Start SSR</runtime>
+      <api>TanStack Start server functions</api>
+      <authentication>Arctic OAuth (Google login)</authentication>
+      <email>React Email with AWS SES</email>
+      <payments>Stripe</payments>
+    </backend>
+    <database>
+      <primary>PostgreSQL</primary>
+      <orm>Drizzle ORM</orm>
+      <migrations>Drizzle Kit</migrations>
+    </database>
+    <storage>
+      <media>AWS S3/Cloudflare R2 for video storage</media>
+    </storage>
+    <testing>
+      <e2e>Playwright</e2e>
+    </testing>
+    <build_tools>
+      <bundler>Vite</bundler>
+      <language>TypeScript</language>
+      <deployment>Docker containerization</deployment>
+    </build_tools>
+  </technology_stack>
+
+  <core_capabilities>
+    <video_learning>Stream and manage video-based course content</video_learning>
+    <user_management>Complete user authentication and profile management</user_management>
+    <payment_processing>Stripe integration for course purchases and subscriptions</payment_processing>
+    <content_management>Admin dashboard for managing courses, modules, and segments</content_management>
+    <community_features>Comments, discussions, and user interactions</community_features>
+    <affiliate_system>Complete affiliate marketing and referral tracking</affiliate_system>
+    <analytics>User behavior tracking and course analytics</analytics>
+    <email_marketing>Newsletter management and automated email campaigns</email_marketing>
+    <blog_system>Content publishing and blog post management</blog_system>
+    <admin_dashboard>Comprehensive admin interface for platform management</admin_dashboard>
+  </core_capabilities>
+
+  <implemented_features>
+    <authentication>
+      <google_oauth>Google OAuth login integration</google_oauth>
+      <session_management>Secure session handling with Arctic</session_management>
+      <user_roles>Admin, Premium, and Early Access user roles</user_roles>
+    </authentication>
+
+    <content_delivery>
+      <video_streaming>Video course delivery with R2/S3 storage</video_streaming>
+      <module_organization>Hierarchical course structure (modules > segments)</module_organization>
+      <premium_content>Premium content gating and access control</premium_content>
+      <progress_tracking>User progress tracking through courses</progress_tracking>
+    </content_delivery>
+
+    <payment_system>
+      <stripe_integration>Complete Stripe payment processing</stripe_integration>
+      <webhook_handling>Stripe webhook processing for payment events</webhook_handling>
+      <subscription_management>Premium subscription handling</subscription_management>
+    </payment_system>
+
+    <admin_functionality>
+      <user_management>Admin dashboard for managing users</user_management>
+      <content_management>Course and segment management interface</content_management>
+      <analytics_dashboard>Analytics and conversion tracking</analytics_dashboard>
+      <email_management>Email template and campaign management</email_management>
+    </admin_functionality>
+
+    <community_features>
+      <commenting_system>Video segment commenting with replies</commenting_system>
+      <user_profiles>Public user profiles with project showcases</user_profiles>
+      <testimonials>User testimonial collection and display</testimonials>
+    </community_features>
+
+    <affiliate_program>
+      <referral_tracking>Complete affiliate referral system</referral_tracking>
+      <commission_management>Affiliate payout and commission tracking</commission_management>
+      <affiliate_dashboard>Dedicated dashboard for affiliates</affiliate_dashboard>
+    </affiliate_program>
+
+    <content_publishing>
+      <blog_system>Full blog functionality with post management</blog_system>
+      <launch_kits>Resource and launch kit management system</launch_kits>
+      <news_system>News and announcement management</news_system>
+    </content_publishing>
+
+    <marketing_features>
+      <newsletter_signup>Email list management and newsletter integration</newsletter_signup>
+      <email_campaigns>Automated email marketing campaigns</email_campaigns>
+      <landing_pages>Optimized landing page with pricing and features</landing_pages>
+      <waitlist_management>Early access waitlist functionality</waitlist_management>
+    </marketing_features>
+
+    <agent_features>
+      <agent_management>AI agent creation and management system</agent_management>
+      <agent_marketplace>Platform for sharing and discovering AI agents</agent_marketplace>
+    </agent_features>
+  </implemented_features>
+</project_specification>

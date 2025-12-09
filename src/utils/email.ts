@@ -3,6 +3,7 @@ import { render } from "@react-email/render";
 import { marked } from "marked";
 import { env } from "~/utils/env";
 import { CourseUpdateEmail } from "~/components/emails/course-update-email";
+import { VideoNotificationEmail } from "~/components/emails/video-notification-email";
 
 // Initialize SES client
 const sesClient = new SESClient({
@@ -66,9 +67,6 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
 marked.setOptions({
   breaks: true, // Convert line breaks to <br>
   gfm: true, // GitHub Flavored Markdown
-  sanitize: false, // We'll handle sanitization separately if needed
-  smartLists: true,
-  smartypants: true,
 });
 
 // Render email template to HTML
@@ -99,22 +97,40 @@ export async function renderEmailTemplate(
 // Send bulk emails with rate limiting
 export async function sendBulkEmails(
   emails: Array<{ to: string; subject: string; html: string }>,
-  onProgress?: (sent: number, total: number) => void
+  options?: {
+    batchSize?: number;
+    logPrefix?: string;
+    onProgress?: (sent: number, total: number) => void;
+  }
 ): Promise<{ sent: number; failed: number }> {
+  const {
+    batchSize = 5,
+    logPrefix = "Bulk Email",
+    onProgress,
+  } = options || {};
+
   let sent = 0;
   let failed = 0;
-  const BATCH_SIZE = 10; // 5 emails per second rate limit
 
-  for (let i = 0; i < emails.length; i += BATCH_SIZE) {
-    const batch = emails.slice(i, i + BATCH_SIZE);
+  console.log(`[${logPrefix}] Starting to send ${emails.length} emails`);
+
+  for (let i = 0; i < emails.length; i += batchSize) {
+    const batch = emails.slice(i, i + batchSize);
+    const batchNumber = Math.floor(i / batchSize) + 1;
+    const totalBatches = Math.ceil(emails.length / batchSize);
+
+    console.log(
+      `[${logPrefix}] Processing batch ${batchNumber}/${totalBatches} (${batch.length} emails)`
+    );
 
     // Send emails in parallel for this batch
     const promises = batch.map(async (email) => {
       try {
         await sendEmail(email);
+        console.log(`[${logPrefix}] Successfully sent email to ${email.to}`);
         return { success: true };
       } catch (error) {
-        console.error(`Failed to send email to ${email.to}:`, error);
+        console.error(`[${logPrefix}] Failed to send email to ${email.to}:`, error);
         return { success: false };
       }
     });
@@ -136,13 +152,13 @@ export async function sendBulkEmails(
     }
 
     // Rate limiting: wait 1 second between batches
-    if (i + BATCH_SIZE < emails.length) {
+    if (i + batchSize < emails.length) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }
 
   console.log(
-    `[Bulk Email Summary] Sent: ${sent}, Failed: ${failed}, Total: ${emails.length}`
+    `[${logPrefix}] Completed: ${sent} sent, ${failed} failed out of ${emails.length} total`
   );
   return { sent, failed };
 }
@@ -195,4 +211,25 @@ export function validateEmailTemplate(template: EmailTemplate): {
     isValid: errors.length === 0,
     errors,
   };
+}
+
+// Render video notification email template
+export interface VideoNotificationTemplateProps {
+  videoTitle: string;
+  videoDescription?: string;
+  videoUrl: string;
+  thumbnailUrl?: string;
+  unsubscribeUrl?: string;
+}
+
+export async function renderVideoNotificationEmail(
+  props: VideoNotificationTemplateProps
+): Promise<string> {
+  try {
+    const html = await render(VideoNotificationEmail(props));
+    return html;
+  } catch (error) {
+    console.error("Failed to render video notification email:", error);
+    throw new Error(`Failed to render video notification email: ${error}`);
+  }
 }

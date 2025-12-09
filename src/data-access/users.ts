@@ -132,12 +132,10 @@ export async function getUsersForEmailing(
   // Ensure we have a valid email address
   whereConditions.push(isNotNull(users.email));
 
-  // Apply all conditions
-  if (whereConditions.length > 0) {
-    baseQuery = baseQuery.where(and(...whereConditions));
-  }
-
-  const result = await baseQuery;
+  // Apply all conditions and execute query
+  const result = await (whereConditions.length > 0
+    ? baseQuery.where(and(...whereConditions))
+    : baseQuery);
 
   // Filter out null emails just in case
   return result.filter(
@@ -183,4 +181,95 @@ export async function getAllUsersWithProfiles() {
   });
 
   return usersWithProfiles;
+}
+
+// Get all recipients for video notifications (premium, free users, and newsletter subscribers)
+export async function getAllVideoNotificationRecipients(): Promise<
+  Array<{ id?: number; email: string; isPremium?: boolean }>
+> {
+  const recipients = new Map<
+    string,
+    { id?: number; email: string; isPremium?: boolean }
+  >();
+
+  // 1. Get premium users who allow course updates
+  const premiumUsers = await database
+    .select({
+      id: users.id,
+      email: users.email,
+      isPremium: users.isPremium,
+    })
+    .from(users)
+    .leftJoin(userEmailPreferences, eq(users.id, userEmailPreferences.userId))
+    .where(
+      and(
+        eq(users.isPremium, true),
+        isNotNull(users.email),
+        or(
+          isNull(userEmailPreferences.userId),
+          eq(userEmailPreferences.allowCourseUpdates, true)
+        )
+      )
+    );
+
+  // Add premium users to recipients map
+  premiumUsers.forEach((user) => {
+    if (user.email) {
+      recipients.set(user.email, {
+        id: user.id,
+        email: user.email,
+        isPremium: user.isPremium ?? false,
+      });
+    }
+  });
+
+  // 2. Get free users who allow course updates
+  const freeUsers = await database
+    .select({
+      id: users.id,
+      email: users.email,
+      isPremium: users.isPremium,
+    })
+    .from(users)
+    .leftJoin(userEmailPreferences, eq(users.id, userEmailPreferences.userId))
+    .where(
+      and(
+        eq(users.isPremium, false),
+        isNotNull(users.email),
+        or(
+          isNull(userEmailPreferences.userId),
+          eq(userEmailPreferences.allowCourseUpdates, true)
+        )
+      )
+    );
+
+  // Add free users to recipients map
+  freeUsers.forEach((user) => {
+    if (user.email) {
+      recipients.set(user.email, {
+        id: user.id,
+        email: user.email,
+        isPremium: user.isPremium ?? false,
+      });
+    }
+  });
+
+  // 3. Get newsletter subscribers
+  const newsletterSubs = await database
+    .select({
+      email: newsletterSignups.email,
+    })
+    .from(newsletterSignups);
+
+  // Add newsletter subscribers (they don't have user IDs)
+  newsletterSubs.forEach((sub) => {
+    if (sub.email && !recipients.has(sub.email)) {
+      recipients.set(sub.email, {
+        email: sub.email,
+        isPremium: false,
+      });
+    }
+  });
+
+  return Array.from(recipients.values());
 }

@@ -5,13 +5,10 @@ import {
   Container,
   Section,
   Text,
-  Link,
-  Hr,
   Preview,
-  Img,
 } from "@react-email/components";
-import { env } from "~/utils/env";
-import { COMPANY_ADDRESS } from "~/config";
+import { EmailHeader } from "./email-header";
+import { EmailFooter } from "./email-footer";
 
 interface CourseUpdateEmailProps {
   subject: string;
@@ -32,17 +29,7 @@ export function CourseUpdateEmail({
       <Preview>{subject}</Preview>
       <Body style={main}>
         <Container style={container}>
-          {/* Header */}
-          <Section style={header}>
-            <Img
-              src={`${env.HOST_NAME}/logo.png`}
-              width="48"
-              height="48"
-              alt="Agentic Jumpstart"
-              style={logo}
-            />
-            <Text style={brandName}>Agentic Jumpstart</Text>
-          </Section>
+          <EmailHeader />
 
           {/* Main Content */}
           <Section style={content_section}>
@@ -57,41 +44,10 @@ export function CourseUpdateEmail({
             )}
           </Section>
 
-          <Hr style={hr} />
-
-          {/* Footer */}
-          <Section style={footer}>
-            <Text style={footerText}>
-              You're receiving this email because you're enrolled in our course.
-            </Text>
-
-            <Text style={footerText}>
-              <Link href={`${env.HOST_NAME}/settings`} style={link}>
-                Manage your notification settings
-              </Link>
-            </Text>
-
-            <Text style={footerText}>
-              Don't want to receive these emails?{" "}
-              <Link href={unsubscribeUrl || "#"} style={unsubscribeLink}>
-                Unsubscribe here
-              </Link>
-            </Text>
-
-            <Text style={footerText}>
-              <Link href={`${env.HOST_NAME}`} style={link}>
-                Agentic Jumpstart
-              </Link>{" "}
-              - Learn to build AI agents that work
-            </Text>
-
-            <Text style={footerText}>{COMPANY_ADDRESS.NAME}</Text>
-            <Text style={footerText}>{COMPANY_ADDRESS.LINE1}</Text>
-            <Text style={footerText}>
-              {COMPANY_ADDRESS.CITY} {COMPANY_ADDRESS.STATE},{" "}
-              {COMPANY_ADDRESS.ZIP}
-            </Text>
-          </Section>
+          <EmailFooter
+            unsubscribeUrl={unsubscribeUrl}
+            footerMessage="You're receiving this email because you're enrolled in our course."
+          />
         </Container>
       </Body>
     </Html>
@@ -109,29 +65,6 @@ const container = {
   padding: "20px 0 48px",
   width: "580px",
   maxWidth: "100%",
-};
-
-const header = {
-  display: "flex" as const,
-  alignItems: "center" as const,
-  marginBottom: "32px",
-  padding: "20px 24px",
-  backgroundColor: "#ffffff",
-  borderRadius: "8px",
-  border: "1px solid #e1e8ed",
-  justifyContent: "center" as const,
-};
-
-const logo = {
-  borderRadius: "8px",
-  marginRight: "12px",
-};
-
-const brandName = {
-  fontSize: "20px",
-  fontWeight: "600",
-  color: "#1a1a1a",
-  margin: "0",
 };
 
 const content_section = {
@@ -156,32 +89,6 @@ const paragraph = {
   color: "#374151",
   whiteSpace: "pre-wrap" as const,
   margin: "0",
-};
-
-const hr = {
-  borderColor: "#e1e8ed",
-  margin: "20px 0",
-};
-
-const footer = {
-  paddingTop: "16px",
-};
-
-const footerText = {
-  fontSize: "14px",
-  color: "#6b7280",
-  textAlign: "center" as const,
-  margin: "8px 0",
-};
-
-const link = {
-  color: "#3b82f6",
-  textDecoration: "none",
-};
-
-const unsubscribeLink = {
-  color: "#6b7280",
-  textDecoration: "underline",
 };
 
 const markdownContent = {

@@ -11,13 +11,9 @@ import {
   getUsersForEmailing,
   createMissingEmailPreferences,
   getUserByEmail,
-  getNewsletterSubscribersForEmailing,
 } from "~/data-access/users";
-import {
-  getNewsletterSignupsCount,
-  getEmailSignupAnalytics,
-} from "~/data-access/newsletter";
-import { sendEmail, renderEmailTemplate } from "~/utils/email";
+import { getEmailSignupAnalytics } from "~/data-access/newsletter";
+import { sendEmail, renderEmailTemplate, sendBulkEmails } from "~/utils/email";
 import { EmailBatchCreate } from "~/db/schema";
 import { createUnsubscribeToken } from "~/data-access/unsubscribe-tokens";
 import { env } from "~/utils/env";
@@ -241,108 +237,63 @@ async function processBulkEmails(
   isMarketingEmail: boolean = true // Keep parameter for backwards compatibility but always true
 ) {
   try {
-    console.log(
-      `[Email Batch ${batchId}] Starting to process ${users.length} emails`
-    );
-
     // Update batch status to processing
     await updateEmailBatchProgress(batchId, { status: "processing" });
 
-    let sentCount = 0;
-    let failedCount = 0;
-    const BATCH_SIZE = 5; // 5 emails per second rate limit
+    // Prepare all emails with personalized unsubscribe URLs
+    const emails = await Promise.all(
+      users.map(async (user) => {
+        let finalHtmlContent = htmlContent;
 
-    // Process emails in batches with rate limiting
-    for (let i = 0; i < users.length; i += BATCH_SIZE) {
-      const batch = users.slice(i, i + BATCH_SIZE);
-      const batchNumber = Math.floor(i / BATCH_SIZE) + 1;
-      const totalBatches = Math.ceil(users.length / BATCH_SIZE);
-
-      console.log(
-        `[Email Batch ${batchId}] Processing batch ${batchNumber}/${totalBatches} (${batch.length} emails)`
-      );
-
-      // Send emails in parallel for this batch
-      const promises = batch.map(async (user) => {
-        try {
-          let finalHtmlContent = htmlContent;
-
-          // Generate unsubscribe token if user has an ID (registered user)
-          if (user.id) {
-            const unsubscribeToken = await createUnsubscribeToken(
-              user.id,
-              user.email
-            );
-            const unsubscribeUrl = `${env.HOST_NAME}/unsubscribe?token=${unsubscribeToken}`;
-
-            // Replace the unsubscribeUrl placeholder in the template
-            finalHtmlContent = htmlContent.replace(
-              /{{unsubscribeUrl}}/g,
-              unsubscribeUrl
-            );
-          } else {
-            // For newsletter subscribers without user accounts, provide a generic unsubscribe
-            const unsubscribeUrl = `${env.HOST_NAME}/unsubscribe?email=${encodeURIComponent(user.email)}`;
-            finalHtmlContent = htmlContent.replace(
-              /{{unsubscribeUrl}}/g,
-              unsubscribeUrl
-            );
-          }
-
-          await sendEmail({
-            to: user.email,
-            subject,
-            html: finalHtmlContent,
-          });
-          console.log(
-            `[Email Batch ${batchId}] Successfully sent email to ${user.email}`
+        // Generate unsubscribe token if user has an ID (registered user)
+        if (user.id) {
+          const unsubscribeToken = await createUnsubscribeToken(
+            user.id,
+            user.email
           );
-          return { success: true };
-        } catch (error) {
-          console.error(`Failed to send email to ${user.email}:`, error);
-          return { success: false };
-        }
-      });
-
-      const results = await Promise.all(promises);
-
-      // Count successes and failures
-      results.forEach((result) => {
-        if (result.success) {
-          sentCount++;
+          const unsubscribeUrl = `${env.HOST_NAME}/unsubscribe?token=${unsubscribeToken}`;
+          finalHtmlContent = htmlContent.replace(
+            /{{unsubscribeUrl}}/g,
+            unsubscribeUrl
+          );
         } else {
-          failedCount++;
+          // For newsletter subscribers without user accounts, provide a generic unsubscribe
+          const unsubscribeUrl = `${env.HOST_NAME}/unsubscribe?email=${encodeURIComponent(user.email)}`;
+          finalHtmlContent = htmlContent.replace(
+            /{{unsubscribeUrl}}/g,
+            unsubscribeUrl
+          );
         }
-      });
 
-      // Update progress
-      await updateEmailBatchProgress(batchId, {
-        sentCount,
-        failedCount,
-      });
+        return {
+          to: user.email,
+          subject,
+          html: finalHtmlContent,
+        };
+      })
+    );
 
-      console.log(
-        `[Email Batch ${batchId}] Progress: ${sentCount} sent, ${failedCount} failed out of ${users.length} total`
-      );
-
-      // Rate limiting: wait 1 second between batches to maintain 5 emails/second
-      if (i + BATCH_SIZE < users.length) {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      }
-    }
+    // Send emails using the bulk email utility with progress tracking
+    const { sent, failed } = await sendBulkEmails(emails, {
+      batchSize: 5,
+      logPrefix: `Email Batch ${batchId}`,
+      onProgress: async (sentCount, total) => {
+        // Update progress in database
+        await updateEmailBatchProgress(batchId, {
+          sentCount,
+          failedCount: total - sentCount,
+        });
+      },
+    });
 
     // Mark batch as completed
     await updateEmailBatchProgress(batchId, {
       status: "completed",
-      sentCount,
-      failedCount,
+      sentCount: sent,
+      failedCount: failed,
     });
-
-    console.log(
-      `[Email Batch ${batchId}] Completed: ${sentCount} sent, ${failedCount} failed out of ${users.length} total`
-    );
   } catch (error) {
-    console.error("Failed to process bulk emails:", error);
+    console.error(`[Email Batch ${batchId}] Failed to process:`, error);
 
     // Mark batch as failed
     await updateEmailBatchProgress(batchId, {
