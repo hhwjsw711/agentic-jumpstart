@@ -94,7 +94,7 @@ export function SegmentItem({
           </div>
 
           <div className="flex-shrink-0 ml-2 flex flex-col gap-1 items-end">
-            {isNewSegment(segment.createdAt) && !isCompleted && (
+            {isNewSegment(segment.createdAt) && !isCompleted && !segment.isComingSoon && (
               <div
                 data-testid="new-segment-badge"
                 className={cn(
@@ -108,6 +108,7 @@ export function SegmentItem({
             )}
             {segment.isComingSoon && (
               <div
+                data-testid="coming-soon-badge"
                 className={cn(
                   "flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium whitespace-nowrap",
                   "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
