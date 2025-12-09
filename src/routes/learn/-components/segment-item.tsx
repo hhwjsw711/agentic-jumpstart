@@ -94,7 +94,7 @@ export function SegmentItem({
           </div>
 
           <div className="flex-shrink-0 ml-2 flex flex-col gap-1 items-end">
-            {isNewSegment(segment.createdAt) && (
+            {isNewSegment(segment.createdAt) && !isCompleted && (
               <div
                 data-testid="new-segment-badge"
                 className={cn(

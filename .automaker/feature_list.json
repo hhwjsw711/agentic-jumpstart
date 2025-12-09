@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": "feature-1765293528142-nnorhru8w",
+    "category": "Learn Page",
+    "description": "for the new tag we added to the segments, make sure you hide it if the user has already watched the video (check their progress to determine what they've finished watching or not)",
+    "steps": [],
+    "status": "verified",
+    "startedAt": "2025-12-09T15:18:50.060Z",
+    "verifiedAt": "2025-12-09T15:25:00.000Z"
+  }
+]
