@@ -34,6 +34,7 @@ import {
   Edit,
   LucideIcon,
   Clock,
+  Mail,
 } from "lucide-react";
 import { AutoComplete } from "~/components/ui/autocomplete";
 import { Switch } from "~/components/ui/switch";
@@ -51,6 +52,7 @@ export const formSchema = z.object({
   slug: z.string().min(2, "Slug must be at least 2 characters"),
   isPremium: z.boolean().default(false),
   isComingSoon: z.boolean().default(false),
+  notifyUsers: z.boolean().default(false),
 });
 
 export type SegmentFormValues = z.infer<typeof formSchema>;
@@ -67,6 +69,9 @@ interface SegmentFormProps {
   moduleNames: string[];
   defaultValues?: Partial<SegmentFormValues>;
 
+  // Feature flags
+  showNotifyUsers?: boolean;
+
   // Functionality
   onSubmit: (values: SegmentFormValues) => Promise<void>;
   isSubmitting: boolean;
@@ -81,6 +86,7 @@ export function SegmentForm({
   buttonIcon: ButtonIcon = Edit,
   moduleNames,
   defaultValues,
+  showNotifyUsers = false,
   onSubmit,
   isSubmitting,
   uploadProgress,
@@ -96,6 +102,7 @@ export function SegmentForm({
       moduleTitle: defaultValues?.moduleTitle || "",
       isPremium: defaultValues?.isPremium || false,
       isComingSoon: defaultValues?.isComingSoon || false,
+      notifyUsers: defaultValues?.notifyUsers || false,
     },
   });
 
@@ -229,6 +236,39 @@ export function SegmentForm({
                     )}
                   />
                 </div>
+
+                {showNotifyUsers && (
+                  <FormField
+                    control={form.control}
+                    name="notifyUsers"
+                    render={({ field }) => (
+                      <FormItem
+                        data-testid="notify-users-field"
+                        className="flex flex-row items-center justify-between rounded-lg border p-4 bg-gradient-to-br from-emerald-50/50 to-teal-50/30 dark:from-emerald-950/20 dark:to-teal-950/10 border-emerald-200/40 dark:border-emerald-800/30"
+                      >
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-sm font-semibold flex items-center gap-2">
+                            <Mail className="h-3 w-3 text-emerald-600" />
+                            <span className="text-emerald-700 dark:text-emerald-400">
+                              Notify Users
+                            </span>
+                          </FormLabel>
+                          <FormDescription className="text-xs text-muted-foreground">
+                            Email premium users about this new segment
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            data-testid="notify-users-switch"
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-emerald-500 data-[state=checked]:to-emerald-600"
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                )}
 
                 <FormField
                   control={form.control}

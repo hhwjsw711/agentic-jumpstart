@@ -40,6 +40,7 @@ function RouteComponent() {
           loadingText="Creating..."
           buttonIcon={Plus}
           moduleNames={moduleNames}
+          showNotifyUsers={true}
           onSubmit={onSubmit}
           isSubmitting={isSubmitting}
           uploadProgress={uploadProgress}
@@ -51,6 +52,7 @@ function RouteComponent() {
             moduleTitle: search.moduleTitle || "",
             isPremium: false,
             isComingSoon: false,
+            notifyUsers: false,
           }}
         />
       </Container>

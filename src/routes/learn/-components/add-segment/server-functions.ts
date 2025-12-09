@@ -4,6 +4,7 @@ import { adminMiddleware, authenticatedMiddleware } from "~/lib/auth";
 import { addSegmentUseCase } from "~/use-cases/segments";
 import { getSegments, isSlugInUse } from "~/data-access/segments";
 import { getModulesUseCase } from "~/use-cases/modules";
+import { sendNewSegmentNotificationUseCase } from "~/use-cases/notifications";
 
 export const createSegmentFn = createServerFn()
   .middleware([adminMiddleware])
@@ -18,6 +19,7 @@ export const createSegmentFn = createServerFn()
       length: z.string().optional(),
       isPremium: z.boolean(),
       isComingSoon: z.boolean(),
+      notifyUsers: z.boolean().optional().default(false),
     })
   )
   .handler(async ({ data }) => {
@@ -48,6 +50,14 @@ export const createSegmentFn = createServerFn()
       isPremium: data.isPremium,
       isComingSoon: data.isComingSoon,
     });
+
+    // Send notification to premium users if requested
+    if (data.notifyUsers) {
+      // Run in background to not block segment creation
+      sendNewSegmentNotificationUseCase(segment).catch((error) => {
+        console.error("Failed to send new segment notification:", error);
+      });
+    }
 
     return segment;
   });

@@ -46,6 +46,7 @@ export function useAddSegment() {
           videoKey,
           isPremium: values.isPremium,
           isComingSoon: values.isComingSoon,
+          notifyUsers: values.notifyUsers,
         },
       });
 
