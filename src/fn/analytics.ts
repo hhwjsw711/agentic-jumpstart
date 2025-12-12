@@ -19,6 +19,9 @@ import {
   getPopularPages,
   getOverallAnalyticsStats,
   getDailyConversions,
+  getUniqueUtmCampaigns,
+  getDailyUtmPageViews,
+  getUtmStats,
 } from "~/data-access/analytics";
 import { getHeaders } from "@tanstack/react-start/server";
 import { adminMiddleware } from "~/lib/auth";
@@ -265,4 +268,51 @@ export const getDailyConversionsFn = createServerFn()
         : undefined;
 
     return getDailyConversions(dateRange);
+  });
+
+// UTM Analytics functions
+
+export const getUniqueUtmCampaignsFn = createServerFn()
+  .validator(dateRangeSchema)
+  .middleware([adminMiddleware])
+  .handler(async ({ data }) => {
+    const dateRange =
+      data.start && data.end
+        ? {
+            start: new Date(data.start),
+            end: new Date(data.end),
+          }
+        : undefined;
+
+    return getUniqueUtmCampaigns(dateRange);
+  });
+
+export const getDailyUtmPageViewsFn = createServerFn()
+  .validator(dateRangeSchema)
+  .middleware([adminMiddleware])
+  .handler(async ({ data }) => {
+    const dateRange =
+      data.start && data.end
+        ? {
+            start: new Date(data.start),
+            end: new Date(data.end),
+          }
+        : undefined;
+
+    return getDailyUtmPageViews(dateRange);
+  });
+
+export const getUtmStatsFn = createServerFn()
+  .validator(dateRangeSchema)
+  .middleware([adminMiddleware])
+  .handler(async ({ data }) => {
+    const dateRange =
+      data.start && data.end
+        ? {
+            start: new Date(data.start),
+            end: new Date(data.end),
+          }
+        : undefined;
+
+    return getUtmStats(dateRange);
   });

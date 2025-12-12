@@ -729,19 +729,110 @@ export async function getOverallAnalyticsStats(dateRange?: {
       sessionsWithPurchaseIntent: sql<number>`sum(case when ${analyticsSessions.hasPurchaseIntent} then 1 else 0 end)`,
       conversions: sql<number>`sum(case when ${analyticsSessions.hasConversion} then 1 else 0 end)`,
       conversionRate: sql<number>`
-        case when count(${analyticsSessions.id}) > 0 
+        case when count(${analyticsSessions.id}) > 0
         then round(sum(case when ${analyticsSessions.hasConversion} then 1 else 0 end) * 100.0 / count(${analyticsSessions.id}), 2)
-        else 0 
+        else 0
         end
       `,
       intentToConversionRate: sql<number>`
-        case when sum(case when ${analyticsSessions.hasPurchaseIntent} then 1 else 0 end) > 0 
+        case when sum(case when ${analyticsSessions.hasPurchaseIntent} then 1 else 0 end) > 0
         then round(sum(case when ${analyticsSessions.hasConversion} then 1 else 0 end) * 100.0 / sum(case when ${analyticsSessions.hasPurchaseIntent} then 1 else 0 end), 2)
-        else 0 
+        else 0
         end
       `,
     })
     .from(analyticsSessions)
+    .where(whereCondition);
+
+  return stats;
+}
+
+// UTM Analytics functions
+
+export async function getUniqueUtmCampaigns(dateRange?: {
+  start: Date;
+  end: Date;
+}) {
+  const whereCondition = dateRange
+    ? and(
+        gte(analyticsEvents.createdAt, dateRange.start),
+        lte(analyticsEvents.createdAt, dateRange.end),
+        sql`${analyticsEvents.utmCampaign} IS NOT NULL`
+      )
+    : sql`${analyticsEvents.utmCampaign} IS NOT NULL`;
+
+  const campaigns = await database
+    .select({
+      utmCampaign: analyticsEvents.utmCampaign,
+      utmSource: analyticsEvents.utmSource,
+      utmMedium: analyticsEvents.utmMedium,
+      totalEvents: count(analyticsEvents.id),
+    })
+    .from(analyticsEvents)
+    .where(whereCondition)
+    .groupBy(
+      analyticsEvents.utmCampaign,
+      analyticsEvents.utmSource,
+      analyticsEvents.utmMedium
+    )
+    .orderBy(desc(count(analyticsEvents.id)));
+
+  return campaigns;
+}
+
+export async function getDailyUtmPageViews(dateRange?: {
+  start: Date;
+  end: Date;
+}) {
+  const whereCondition = dateRange
+    ? and(
+        gte(analyticsEvents.createdAt, dateRange.start),
+        lte(analyticsEvents.createdAt, dateRange.end),
+        sql`${analyticsEvents.utmCampaign} IS NOT NULL`
+      )
+    : sql`${analyticsEvents.utmCampaign} IS NOT NULL`;
+
+  const dailyData = await database
+    .select({
+      date: sql<string>`date(${analyticsEvents.createdAt} AT TIME ZONE 'UTC' AT TIME ZONE 'America/New_York')`,
+      utmCampaign: analyticsEvents.utmCampaign,
+      utmSource: analyticsEvents.utmSource,
+      utmMedium: analyticsEvents.utmMedium,
+      pageViews: count(analyticsEvents.id),
+    })
+    .from(analyticsEvents)
+    .where(whereCondition)
+    .groupBy(
+      sql`date(${analyticsEvents.createdAt} AT TIME ZONE 'UTC' AT TIME ZONE 'America/New_York')`,
+      analyticsEvents.utmCampaign,
+      analyticsEvents.utmSource,
+      analyticsEvents.utmMedium
+    )
+    .orderBy(sql`date(${analyticsEvents.createdAt} AT TIME ZONE 'UTC' AT TIME ZONE 'America/New_York')`);
+
+  return dailyData;
+}
+
+export async function getUtmStats(dateRange?: {
+  start: Date;
+  end: Date;
+}) {
+  const whereCondition = dateRange
+    ? and(
+        gte(analyticsEvents.createdAt, dateRange.start),
+        lte(analyticsEvents.createdAt, dateRange.end),
+        sql`${analyticsEvents.utmCampaign} IS NOT NULL`
+      )
+    : sql`${analyticsEvents.utmCampaign} IS NOT NULL`;
+
+  const [stats] = await database
+    .select({
+      totalUtmEvents: count(analyticsEvents.id),
+      uniqueCampaigns: sql<number>`count(distinct ${analyticsEvents.utmCampaign})`,
+      uniqueSources: sql<number>`count(distinct ${analyticsEvents.utmSource})`,
+      uniqueMediums: sql<number>`count(distinct ${analyticsEvents.utmMedium})`,
+    })
+    .from(analyticsEvents)
     .where(whereCondition);
 
   return stats;

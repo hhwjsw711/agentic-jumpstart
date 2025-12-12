@@ -46,6 +46,7 @@ import { Route as LaunchKitsSlugRouteImport } from './routes/launch-kits/$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog/$slug'
 import { Route as AgentsNewRouteImport } from './routes/agents/new'
 import { Route as AgentsSlugRouteImport } from './routes/agents/$slug'
+import { Route as AdminUtmAnalyticsRouteImport } from './routes/admin/utm-analytics'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
 import { Route as AdminCommentsRouteImport } from './routes/admin/comments'
@@ -260,6 +261,11 @@ const AgentsSlugRoute = AgentsSlugRouteImport.update({
   path: '/agents/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminUtmAnalyticsRoute = AdminUtmAnalyticsRouteImport.update({
+  id: '/utm-analytics',
+  path: '/utm-analytics',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -468,6 +474,7 @@ export interface FileRoutesByFullPath {
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/admin/utm-analytics': typeof AdminUtmAnalyticsRoute
   '/agents/$slug': typeof AgentsSlugRoute
   '/agents/new': typeof AgentsNewRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -531,6 +538,7 @@ export interface FileRoutesByTo {
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/admin/utm-analytics': typeof AdminUtmAnalyticsRoute
   '/agents/$slug': typeof AgentsSlugRoute
   '/agents/new': typeof AgentsNewRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -596,6 +604,7 @@ export interface FileRoutesById {
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/admin/utm-analytics': typeof AdminUtmAnalyticsRoute
   '/agents/$slug': typeof AgentsSlugRoute
   '/agents/new': typeof AgentsNewRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -664,6 +673,7 @@ export interface FileRouteTypes {
     | '/admin/comments'
     | '/admin/settings'
     | '/admin/users'
+    | '/admin/utm-analytics'
     | '/agents/$slug'
     | '/agents/new'
     | '/blog/$slug'
@@ -727,6 +737,7 @@ export interface FileRouteTypes {
     | '/admin/comments'
     | '/admin/settings'
     | '/admin/users'
+    | '/admin/utm-analytics'
     | '/agents/$slug'
     | '/agents/new'
     | '/blog/$slug'
@@ -791,6 +802,7 @@ export interface FileRouteTypes {
     | '/admin/comments'
     | '/admin/settings'
     | '/admin/users'
+    | '/admin/utm-analytics'
     | '/agents/$slug'
     | '/agents/new'
     | '/blog/$slug'
@@ -1175,6 +1187,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/utm-analytics': {
+      id: '/admin/utm-analytics'
+      path: '/utm-analytics'
+      fullPath: '/admin/utm-analytics'
+      preLoaderRoute: typeof AdminUtmAnalyticsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/users': {
       id: '/admin/users'
       path: '/users'
@@ -1473,6 +1492,7 @@ interface AdminRouteRouteChildren {
   AdminCommentsRoute: typeof AdminCommentsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminUsersRoute: typeof AdminUsersRoute
+  AdminUtmAnalyticsRoute: typeof AdminUtmAnalyticsRoute
   AdminBlogNewRoute: typeof AdminBlogNewRoute
   AdminLaunchKitsTagsRoute: typeof AdminLaunchKitsTagsRoute
   AdminNewsNewRoute: typeof AdminNewsNewRoute
@@ -1493,6 +1513,7 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminCommentsRoute: AdminCommentsRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminUsersRoute: AdminUsersRoute,
+  AdminUtmAnalyticsRoute: AdminUtmAnalyticsRoute,
   AdminBlogNewRoute: AdminBlogNewRoute,
   AdminLaunchKitsTagsRoute: AdminLaunchKitsTagsRoute,
   AdminNewsNewRoute: AdminNewsNewRoute,

@@ -92,6 +92,12 @@ const navigation: NavigationItem[] = [
     icon: Target,
     category: "business",
   },
+  {
+    name: "UTM Analytics",
+    href: "/admin/utm-analytics",
+    icon: TrendingUp,
+    category: "business",
+  },
   
   // Communications
   {
