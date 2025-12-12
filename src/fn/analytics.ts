@@ -146,6 +146,59 @@ export const trackPageViewFn = createServerFn()
     }
   });
 
+// UTM visit tracking
+const utmVisitSchema = z.object({
+  sessionId: z.string(),
+  pagePath: z.string(),
+  utmSource: z.string().optional(),
+  utmMedium: z.string().optional(),
+  utmCampaign: z.string().optional(),
+  utmContent: z.string().optional(),
+  utmTerm: z.string().optional(),
+});
+
+export const trackUtmVisitFn = createServerFn()
+  .validator(utmVisitSchema)
+  .handler(async ({ data }) => {
+    const headers = getHeaders();
+    const userAgent = headers["User-Agent"] || undefined;
+    const referrer = headers["Referer"] || undefined;
+    const ipAddress =
+      headers["X-Forwarded-For"] || headers["X-Real-IP"] || undefined;
+
+    const { trackAnalyticsEvent } = await import("~/data-access/analytics");
+    const { hashIpAddress } = await import("~/utils/analytics");
+
+    try {
+      await trackAnalyticsEvent({
+        sessionId: data.sessionId,
+        eventType: "utm_visit",
+        pagePath: data.pagePath,
+        referrer,
+        userAgent,
+        ipAddressHash: hashIpAddress(ipAddress),
+        utmParams: {
+          utmSource: data.utmSource,
+          utmMedium: data.utmMedium,
+          utmCampaign: data.utmCampaign,
+          utmContent: data.utmContent,
+          utmTerm: data.utmTerm,
+        },
+        metadata: {
+          utmSource: data.utmSource,
+          utmMedium: data.utmMedium,
+          utmCampaign: data.utmCampaign,
+          utmContent: data.utmContent,
+          utmTerm: data.utmTerm,
+        },
+      });
+      return { success: true };
+    } catch (error) {
+      console.error("UTM visit tracking error:", error);
+      return { success: false, error: "Failed to track UTM visit" };
+    }
+  });
+
 // Comprehensive analytics functions
 
 const limitSchema = z.object({

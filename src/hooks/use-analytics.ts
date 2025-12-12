@@ -1,13 +1,55 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "@tanstack/react-router";
-import { generateSessionIdFn, trackPageViewFn } from "~/fn/analytics";
+import { generateSessionIdFn, trackPageViewFn, trackUtmVisitFn } from "~/fn/analytics";
 
 // Store session ID in memory for the browser session
 let browserSessionId: string | null = null;
 
+// Track if UTM params have been processed this session
+let utmProcessed = false;
+
+// List of UTM parameter names
+const UTM_PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"];
+
+// Check if URL has any UTM parameters
+function hasUtmParams(url: URL): boolean {
+  return UTM_PARAMS.some((param) => url.searchParams.has(param));
+}
+
+// Extract UTM parameters from URL
+function extractUtmParams(url: URL) {
+  return {
+    utmSource: url.searchParams.get("utm_source") || undefined,
+    utmMedium: url.searchParams.get("utm_medium") || undefined,
+    utmCampaign: url.searchParams.get("utm_campaign") || undefined,
+    utmContent: url.searchParams.get("utm_content") || undefined,
+    utmTerm: url.searchParams.get("utm_term") || undefined,
+  };
+}
+
+// Remove UTM parameters from URL and update browser history
+function stripUtmFromUrl() {
+  const url = new URL(window.location.href);
+  let hasParams = false;
+
+  UTM_PARAMS.forEach((param) => {
+    if (url.searchParams.has(param)) {
+      url.searchParams.delete(param);
+      hasParams = true;
+    }
+  });
+
+  if (hasParams) {
+    // Use replaceState to update URL without adding to history
+    const newUrl = url.pathname + (url.search || "") + url.hash;
+    window.history.replaceState(window.history.state, "", newUrl);
+  }
+}
+
 export function useAnalytics() {
   const location = useLocation();
   const prevPathnameRef = useRef<string>("");
+  const initialLoadRef = useRef(true);
 
   useEffect(() => {
     // Only run on client side
@@ -21,8 +63,34 @@ export function useAnalytics() {
           browserSessionId = result.sessionId;
         }
 
-        // Track page view when pathname changes
+        const currentUrl = new URL(window.location.href);
         const currentPathname = location.pathname;
+
+        // Check for UTM params on initial load only (once per session)
+        if (initialLoadRef.current && !utmProcessed && hasUtmParams(currentUrl)) {
+          utmProcessed = true;
+          const utmParams = extractUtmParams(currentUrl);
+
+          // Track UTM visit event
+          try {
+            await trackUtmVisitFn({
+              data: {
+                sessionId: browserSessionId,
+                pagePath: currentPathname,
+                ...utmParams,
+              },
+            });
+          } catch (error) {
+            console.error("[Analytics] Failed to track UTM visit:", error);
+          }
+
+          // Strip UTM params from URL after tracking
+          stripUtmFromUrl();
+        }
+
+        initialLoadRef.current = false;
+
+        // Track page view when pathname changes
         if (prevPathnameRef.current !== currentPathname) {
           prevPathnameRef.current = currentPathname;
 

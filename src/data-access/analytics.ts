@@ -369,7 +369,8 @@ export async function trackAnalyticsEvent({
     | "page_view"
     | "purchase_intent"
     | "purchase_completed"
-    | "course_access";
+    | "course_access"
+    | "utm_visit";
   pagePath: string;
   referrer?: string;
   userAgent?: string;
