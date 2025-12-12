@@ -9,7 +9,14 @@ let browserSessionId: string | null = null;
 let utmProcessed = false;
 
 // List of UTM parameter names
-const UTM_PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"];
+const UTM_PARAMS = [
+  "utm",
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_content",
+  "utm_term",
+];
 
 // Check if URL has any UTM parameters
 function hasUtmParams(url: URL): boolean {
@@ -46,17 +53,21 @@ export function useAnalytics() {
 
     const trackPageView = async () => {
       try {
+        // Capture URL immediately before any async operations
+        const capturedUrl = window.location.href;
+
         // Generate session ID if not exists
         if (!browserSessionId) {
           const result = await generateSessionIdFn();
           browserSessionId = result.sessionId;
         }
 
-        const currentUrl = new URL(window.location.href);
+        const currentUrl = new URL(capturedUrl);
         const currentPathname = location.pathname;
+        const hasUtm = hasUtmParams(currentUrl);
 
         // Check for UTM params on initial load only (once per session)
-        if (initialLoadRef.current && !utmProcessed && hasUtmParams(currentUrl)) {
+        if (initialLoadRef.current && !utmProcessed && hasUtm) {
           utmProcessed = true;
 
           // Track page view with full path including UTM query string
@@ -67,7 +78,7 @@ export function useAnalytics() {
               data: {
                 sessionId: browserSessionId,
                 pagePath: fullPath, // e.g., /purchase?utm_source=google&utm_medium=cpc
-                fullUrl: window.location.href,
+                fullUrl: capturedUrl,
               },
             });
           } catch (error) {

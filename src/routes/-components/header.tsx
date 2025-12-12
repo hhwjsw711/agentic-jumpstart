@@ -20,6 +20,7 @@ import {
   Rocket,
   BookOpen,
   MessageSquare,
+  Link2,
 } from "lucide-react";
 import {
   Sheet,
@@ -221,6 +222,12 @@ const ADMIN_MENU_ITEMS: AdminMenuItem[] = [
     to: "/admin/conversions",
     label: "Conversions",
     icon: Target,
+    category: "business",
+  },
+  {
+    to: "/admin/utm-analytics",
+    label: "UTM Analytics",
+    icon: Link2,
     category: "business",
   },
 

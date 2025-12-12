@@ -11,7 +11,17 @@ import {
   type AnalyticsEventCreate,
   type AnalyticsSessionCreate,
 } from "~/db/schema";
-import { sql, count, eq, and, desc, gte, lte, like } from "drizzle-orm";
+import { sql, count, eq, and, desc, gte, lte, like, or } from "drizzle-orm";
+
+// Helper to create UTM query string filter (only matches UTM in query params, not pathname)
+function hasUtmInQueryString() {
+  return or(
+    like(analyticsEvents.pagePath, "%?utm=%"),
+    like(analyticsEvents.pagePath, "%&utm=%"),
+    like(analyticsEvents.pagePath, "%?utm_%"),
+    like(analyticsEvents.pagePath, "%&utm_%")
+  );
+}
 
 // Helper to parse UTM parameters from a pagePath that includes query string
 function parseUtmFromUrl(path: string): {
@@ -23,10 +33,13 @@ function parseUtmFromUrl(path: string): {
 } {
   try {
     const url = new URL(path, "http://placeholder");
+    // Support both standard utm_* params and shorthand "utm" param
+    const utmShorthand = url.searchParams.get("utm");
     return {
       utmSource: url.searchParams.get("utm_source") || undefined,
       utmMedium: url.searchParams.get("utm_medium") || undefined,
-      utmCampaign: url.searchParams.get("utm_campaign") || undefined,
+      // Use "utm" shorthand as campaign if utm_campaign not present
+      utmCampaign: url.searchParams.get("utm_campaign") || utmShorthand || undefined,
       utmContent: url.searchParams.get("utm_content") || undefined,
       utmTerm: url.searchParams.get("utm_term") || undefined,
     };
@@ -373,7 +386,11 @@ export async function trackAnalyticsEvent({
   metadata,
 }: {
   sessionId: string;
-  eventType: "page_view" | "purchase_intent" | "purchase_completed" | "course_access";
+  eventType:
+    | "page_view"
+    | "purchase_intent"
+    | "purchase_completed"
+    | "course_access";
   pagePath: string;
   referrer?: string;
   userAgent?: string;
@@ -446,9 +463,9 @@ export async function getConversionFunnel(dateRange?: {
       total: count(analyticsSessions.id),
     })
     .from(analyticsSessions);
-  
-  console.log('Total sessions in database:', totalCheck.total);
-  
+
+  console.log("Total sessions in database:", totalCheck.total);
+
   const whereCondition = dateRange
     ? and(
         gte(analyticsSessions.firstSeen, dateRange.start),
@@ -456,7 +473,7 @@ export async function getConversionFunnel(dateRange?: {
       )
     : undefined;
 
-  console.log('Date range filter:', dateRange);
+  console.log("Date range filter:", dateRange);
 
   const [funnelData] = await database
     .select({
@@ -473,7 +490,7 @@ export async function getConversionFunnel(dateRange?: {
     .from(analyticsSessions)
     .where(whereCondition);
 
-  console.log('Filtered sessions:', funnelData.totalSessions);
+  console.log("Filtered sessions:", funnelData.totalSessions);
 
   return funnelData;
 }
@@ -530,8 +547,12 @@ export async function getDailyConversions(dateRange?: {
     })
     .from(analyticsEvents)
     .where(whereCondition)
-    .groupBy(sql`date(${analyticsEvents.createdAt} AT TIME ZONE 'UTC' AT TIME ZONE 'America/New_York')`)
-    .orderBy(sql`date(${analyticsEvents.createdAt} AT TIME ZONE 'UTC' AT TIME ZONE 'America/New_York')`)
+    .groupBy(
+      sql`date(${analyticsEvents.createdAt} AT TIME ZONE 'UTC' AT TIME ZONE 'America/New_York')`
+    )
+    .orderBy(
+      sql`date(${analyticsEvents.createdAt} AT TIME ZONE 'UTC' AT TIME ZONE 'America/New_York')`
+    )
     .limit(30);
 
   return dailyData;
@@ -579,7 +600,7 @@ export async function getAllAnalyticsSessions(
       total: count(analyticsSessions.id),
     })
     .from(analyticsSessions);
-  
+
   // Get sample sessions to check date format
   const sampleSessions = await database
     .select({
@@ -588,11 +609,14 @@ export async function getAllAnalyticsSessions(
     })
     .from(analyticsSessions)
     .limit(3);
-  
-  console.log('getAllAnalyticsSessions - Total sessions in database:', totalCheck.total);
-  console.log('getAllAnalyticsSessions - Sample sessions:', sampleSessions);
-  console.log('getAllAnalyticsSessions - Date range:', dateRange);
-  
+
+  console.log(
+    "getAllAnalyticsSessions - Total sessions in database:",
+    totalCheck.total
+  );
+  console.log("getAllAnalyticsSessions - Sample sessions:", sampleSessions);
+  console.log("getAllAnalyticsSessions - Date range:", dateRange);
+
   const whereCondition = dateRange
     ? and(
         gte(analyticsSessions.firstSeen, dateRange.start),
@@ -608,8 +632,11 @@ export async function getAllAnalyticsSessions(
     })
     .from(analyticsSessions)
     .limit(3);
-  
-  console.log('getAllAnalyticsSessions - Sessions without filter:', sessionsWithoutFilter.length);
+
+  console.log(
+    "getAllAnalyticsSessions - Sessions without filter:",
+    sessionsWithoutFilter.length
+  );
 
   const sessions = await database
     .select({
@@ -626,7 +653,7 @@ export async function getAllAnalyticsSessions(
     .orderBy(desc(analyticsSessions.firstSeen))
     .limit(limit);
 
-  console.log('getAllAnalyticsSessions - Found sessions:', sessions.length);
+  console.log("getAllAnalyticsSessions - Found sessions:", sessions.length);
 
   return sessions;
 }
@@ -725,14 +752,15 @@ export async function getUniqueUtmCampaigns(dateRange?: {
   start: Date;
   end: Date;
 }) {
-  // Query events where pagePath contains UTM parameters
+  // Query events where pagePath contains UTM parameters in query string
+  const utmFilter = hasUtmInQueryString();
   const whereCondition = dateRange
     ? and(
         gte(analyticsEvents.createdAt, dateRange.start),
         lte(analyticsEvents.createdAt, dateRange.end),
-        like(analyticsEvents.pagePath, "%utm_%")
+        utmFilter
       )
-    : like(analyticsEvents.pagePath, "%utm_%");
+    : utmFilter;
 
   const events = await database
     .select({
@@ -770,21 +798,24 @@ export async function getUniqueUtmCampaigns(dateRange?: {
     }
   }
 
-  return Array.from(utmMap.values()).sort((a, b) => b.totalEvents - a.totalEvents);
+  return Array.from(utmMap.values()).sort(
+    (a, b) => b.totalEvents - a.totalEvents
+  );
 }
 
 export async function getDailyUtmPageViews(dateRange?: {
   start: Date;
   end: Date;
 }) {
-  // Query events where pagePath contains UTM parameters
+  // Query events where pagePath contains UTM parameters in query string
+  const utmFilter = hasUtmInQueryString();
   const whereCondition = dateRange
     ? and(
         gte(analyticsEvents.createdAt, dateRange.start),
         lte(analyticsEvents.createdAt, dateRange.end),
-        like(analyticsEvents.pagePath, "%utm_%")
+        utmFilter
       )
-    : like(analyticsEvents.pagePath, "%utm_%");
+    : utmFilter;
 
   const events = await database
     .select({
@@ -825,21 +856,21 @@ export async function getDailyUtmPageViews(dateRange?: {
     }
   }
 
-  return Array.from(dailyMap.values()).sort((a, b) => a.date.localeCompare(b.date));
+  return Array.from(dailyMap.values()).sort((a, b) =>
+    a.date.localeCompare(b.date)
+  );
 }
 
-export async function getUtmStats(dateRange?: {
-  start: Date;
-  end: Date;
-}) {
-  // Query events where pagePath contains UTM parameters
+export async function getUtmStats(dateRange?: { start: Date; end: Date }) {
+  // Query events where pagePath contains UTM parameters in query string
+  const utmFilter = hasUtmInQueryString();
   const whereCondition = dateRange
     ? and(
         gte(analyticsEvents.createdAt, dateRange.start),
         lte(analyticsEvents.createdAt, dateRange.end),
-        like(analyticsEvents.pagePath, "%utm_%")
+        utmFilter
       )
-    : like(analyticsEvents.pagePath, "%utm_%");
+    : utmFilter;
 
   const events = await database
     .select({
