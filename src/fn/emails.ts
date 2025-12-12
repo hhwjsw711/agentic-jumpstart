@@ -11,6 +11,8 @@ import {
   getUsersForEmailing,
   createMissingEmailPreferences,
   getUserByEmail,
+  getEveryoneForEmailing,
+  getEveryoneForEmailingCount,
 } from "~/data-access/users";
 import { getEmailSignupAnalytics } from "~/data-access/newsletter";
 import { sendEmail, renderEmailTemplate, sendBulkEmails } from "~/utils/email";
@@ -25,7 +27,14 @@ const emailFormSchema = z.object({
     .min(1, "Subject is required")
     .max(200, "Subject too long"),
   content: z.string().min(1, "Content is required"),
-  recipientType: z.enum(["all", "premium", "free", "newsletter", "waitlist"]),
+  recipientType: z.enum([
+    "all",
+    "premium",
+    "free",
+    "newsletter",
+    "waitlist",
+    "everyone",
+  ]),
 });
 
 const testEmailSchema = z.object({
@@ -46,10 +55,16 @@ export const createEmailBatchFn = createServerFn({
       await createMissingEmailPreferences();
 
       // Get users for emailing based on criteria (always include marketing email users since all emails now have unsubscribe)
-      const users = await getUsersForEmailing(
-        data.recipientType,
-        true // Always treat as marketing email
-      );
+      let users: Array<{ id?: number; email: string }>;
+      if (data.recipientType === "everyone") {
+        // Get everyone (all users + newsletter/waitlist subscribers, deduplicated)
+        users = await getEveryoneForEmailing();
+      } else {
+        users = await getUsersForEmailing(
+          data.recipientType,
+          true // Always treat as marketing email
+        );
+      }
 
       // Render email content to HTML (always include unsubscribe link)
       const htmlContent = await renderEmailTemplate({
@@ -214,6 +229,7 @@ export const getUsersForEmailingFn = createServerFn({
       const freeUsers = await getUsersForEmailing("free", false);
       const newsletterUsers = await getUsersForEmailing("newsletter", true);
       const waitlistUsers = await getUsersForEmailing("waitlist", true);
+      const everyoneCount = await getEveryoneForEmailingCount();
 
       return {
         totalUsers: allUsers.length,
@@ -221,6 +237,7 @@ export const getUsersForEmailingFn = createServerFn({
         freeUsers: freeUsers.length,
         newsletterUsers: newsletterUsers.length,
         waitlistUsers: waitlistUsers.length,
+        everyoneCount,
       };
     } catch (error) {
       console.error("Failed to get users for emailing:", error);

@@ -32,7 +32,14 @@ const emailFormSchema = z.object({
     .min(1, "Subject is required")
     .max(200, "Subject too long"),
   content: z.string().min(1, "Content is required"),
-  recipientType: z.enum(["all", "premium", "free", "newsletter", "waitlist"]),
+  recipientType: z.enum([
+    "all",
+    "premium",
+    "free",
+    "newsletter",
+    "waitlist",
+    "everyone",
+  ]),
 });
 
 type EmailFormData = z.infer<typeof emailFormSchema>;
@@ -185,6 +192,10 @@ export function EmailComposer({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
+                        <SelectItem value="everyone">
+                          Everyone - Users + Waitlist (
+                          {getRecipientCount("everyone")})
+                        </SelectItem>
                         <SelectItem value="all">
                           All Users ({getRecipientCount("all")})
                         </SelectItem>

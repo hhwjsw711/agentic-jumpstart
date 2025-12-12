@@ -183,6 +183,98 @@ export async function getAllUsersWithProfiles() {
   return usersWithProfiles;
 }
 
+// Get combined count of all users + newsletter/waitlist subscribers (deduplicated by email)
+export async function getEveryoneForEmailingCount(): Promise<number> {
+  const recipients = new Set<string>();
+
+  // 1. Get all users who allow promotional emails
+  const allUsers = await database
+    .select({
+      email: users.email,
+    })
+    .from(users)
+    .leftJoin(userEmailPreferences, eq(users.id, userEmailPreferences.userId))
+    .where(
+      and(
+        isNotNull(users.email),
+        or(
+          isNull(userEmailPreferences.userId),
+          eq(userEmailPreferences.allowPromotional, true)
+        )
+      )
+    );
+
+  allUsers.forEach((user) => {
+    if (user.email) {
+      recipients.add(user.email);
+    }
+  });
+
+  // 2. Get all newsletter/waitlist subscribers who haven't unsubscribed
+  const newsletterSubs = await database
+    .select({
+      email: newsletterSignups.email,
+    })
+    .from(newsletterSignups)
+    .where(eq(newsletterSignups.isUnsubscribed, false));
+
+  newsletterSubs.forEach((sub) => {
+    if (sub.email) {
+      recipients.add(sub.email);
+    }
+  });
+
+  return recipients.size;
+}
+
+// Get everyone for emailing (all users + newsletter/waitlist subscribers, deduplicated)
+export async function getEveryoneForEmailing(): Promise<
+  Array<{ id?: number; email: string }>
+> {
+  const recipients = new Map<string, { id?: number; email: string }>();
+
+  // 1. Get all users who allow promotional emails
+  const allUsers = await database
+    .select({
+      id: users.id,
+      email: users.email,
+    })
+    .from(users)
+    .leftJoin(userEmailPreferences, eq(users.id, userEmailPreferences.userId))
+    .where(
+      and(
+        isNotNull(users.email),
+        or(
+          isNull(userEmailPreferences.userId),
+          eq(userEmailPreferences.allowPromotional, true)
+        )
+      )
+    );
+
+  allUsers.forEach((user) => {
+    if (user.email) {
+      recipients.set(user.email, { id: user.id, email: user.email });
+    }
+  });
+
+  // 2. Get all newsletter/waitlist subscribers who haven't unsubscribed
+  const newsletterSubs = await database
+    .select({
+      email: newsletterSignups.email,
+    })
+    .from(newsletterSignups)
+    .where(eq(newsletterSignups.isUnsubscribed, false));
+
+  // Add newsletter subscribers (they don't have user IDs, and only if not already in the map)
+  newsletterSubs.forEach((sub) => {
+    if (sub.email && !recipients.has(sub.email)) {
+      recipients.set(sub.email, { email: sub.email });
+    }
+  });
+
+  return Array.from(recipients.values());
+}
+
 // Get all recipients for video notifications (premium, free users, and newsletter subscribers)
 export async function getAllVideoNotificationRecipients(): Promise<
   Array<{ id?: number; email: string; isPremium?: boolean }>
