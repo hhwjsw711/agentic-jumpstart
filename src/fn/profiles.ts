@@ -11,6 +11,7 @@ import {
   deleteProject,
   getUserProjects,
   getPublicMembers,
+  getCommunityStats,
 } from "~/data-access/profiles";
 import { getStorage } from "~/utils/storage";
 
@@ -149,4 +150,13 @@ export const getPublicMembersFn = createServerFn({
   .middleware([unauthenticatedMiddleware])
   .handler(async () => {
     return await getPublicMembers();
+  });
+
+// Community stats
+export const getCommunityStatsFn = createServerFn({
+  method: "GET",
+})
+  .middleware([unauthenticatedMiddleware])
+  .handler(async () => {
+    return await getCommunityStats();
   });

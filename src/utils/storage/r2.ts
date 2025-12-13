@@ -137,3 +137,16 @@ export class R2Storage implements IStorage {
     return Buffer.concat(chunks);
   }
 }
+
+/**
+ * Generates a quality variant key from a base video key
+ * @param baseKey - The original video key (e.g., "abc123.mp4")
+ * @param quality - The quality variant ("720p" or "480p")
+ * @returns The quality variant key (e.g., "abc123_720p.mp4")
+ */
+export function getVideoQualityKey(
+  baseKey: string,
+  quality: "720p" | "480p"
+): string {
+  return baseKey.replace(".mp4", `_${quality}.mp4`);
+}

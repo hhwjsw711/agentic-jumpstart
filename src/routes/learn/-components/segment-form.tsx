@@ -39,6 +39,7 @@ import {
 import { AutoComplete } from "~/components/ui/autocomplete";
 import { Switch } from "~/components/ui/switch";
 import type { UploadProgress } from "~/utils/storage/helpers";
+import { TranscodeVideoButton } from "./edit-segment/transcode-video-button";
 
 export const formSchema = z.object({
   title: z
@@ -76,6 +77,10 @@ interface SegmentFormProps {
   onSubmit: (values: SegmentFormValues) => Promise<void>;
   isSubmitting: boolean;
   uploadProgress?: UploadProgress | null;
+
+  // Video transcoding (for edit mode)
+  segmentId?: number;
+  existingVideoKey?: string | null;
 }
 
 export function SegmentForm({
@@ -90,6 +95,8 @@ export function SegmentForm({
   onSubmit,
   isSubmitting,
   uploadProgress,
+  segmentId,
+  existingVideoKey,
 }: SegmentFormProps) {
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -442,6 +449,15 @@ export function SegmentForm({
                                     </div>
                                   </CardContent>
                                 </Card>
+                              )}
+
+                              {segmentId && existingVideoKey && !value && (
+                                <div className="pt-2">
+                                  <TranscodeVideoButton
+                                    segmentId={segmentId}
+                                    videoKey={existingVideoKey}
+                                  />
+                                </div>
                               )}
                             </div>
                           </FormControl>

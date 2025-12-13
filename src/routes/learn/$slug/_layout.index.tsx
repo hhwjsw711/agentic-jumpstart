@@ -135,7 +135,7 @@ function ViewSegment({
         </div>
       ) : currentSegment.videoKey ? (
         <div className="relative">
-          <div className="border border-theme-500 aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-background to-muted shadow-elevation-3">
+          <div className="border border-theme-500 aspect-video rounded-xl bg-gradient-to-br from-background to-muted shadow-elevation-3">
             <VideoPlayer
               segmentId={currentSegment.id}
               videoKey={currentSegment.videoKey}

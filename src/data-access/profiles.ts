@@ -8,7 +8,7 @@ import {
   users,
 } from "~/db/schema";
 import { UserId } from "~/use-cases/types";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, count } from "drizzle-orm";
 
 export async function createProfile(
   userId: UserId,
@@ -141,4 +141,20 @@ export async function getPublicMembers() {
     .orderBy(desc(profiles.updatedAt));
 
   return members;
+}
+
+export async function getCommunityStats() {
+  const [totalUsersResult] = await database
+    .select({ count: count() })
+    .from(users);
+
+  const [publicProfilesResult] = await database
+    .select({ count: count() })
+    .from(profiles)
+    .where(eq(profiles.isPublicProfile, true));
+
+  return {
+    totalUsers: totalUsersResult.count,
+    publicProfiles: publicProfilesResult.count,
+  };
 }
