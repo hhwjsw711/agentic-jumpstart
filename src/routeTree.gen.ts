@@ -76,6 +76,7 @@ import { Route as AdminLaunchKitsCreateIndexRouteImport } from './routes/admin/l
 import { Route as AdminNewsIdEditRouteImport } from './routes/admin/news/$id/edit'
 import { Route as AdminLaunchKitsEditIdRouteImport } from './routes/admin/launch-kits/edit/$id'
 import { Route as AdminBlogIdEditRouteImport } from './routes/admin/blog/$id/edit'
+import { ServerRoute as HealthServerRouteImport } from './routes/health'
 import { ServerRoute as ApiLogoutServerRouteImport } from './routes/api/logout'
 import { ServerRoute as ApiHealthServerRouteImport } from './routes/api/health'
 import { ServerRoute as ApiStripeWebhookServerRouteImport } from './routes/api/stripe/webhook'
@@ -411,6 +412,11 @@ const AdminBlogIdEditRoute = AdminBlogIdEditRouteImport.update({
   id: '/blog/$id/edit',
   path: '/blog/$id/edit',
   getParentRoute: () => AdminRouteRoute,
+} as any)
+const HealthServerRoute = HealthServerRouteImport.update({
+  id: '/health',
+  path: '/health',
+  getParentRoute: () => rootServerRouteImport,
 } as any)
 const ApiLogoutServerRoute = ApiLogoutServerRouteImport.update({
   id: '/api/logout',
@@ -880,6 +886,7 @@ export interface RootRouteChildren {
   LearnSlugRoute: typeof LearnSlugRouteWithChildren
 }
 export interface FileServerRoutesByFullPath {
+  '/health': typeof HealthServerRoute
   '/api/health': typeof ApiHealthServerRoute
   '/api/logout': typeof ApiLogoutServerRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookServerRoute
@@ -888,6 +895,7 @@ export interface FileServerRoutesByFullPath {
   '/api/login/google/callback': typeof ApiLoginGoogleCallbackIndexServerRoute
 }
 export interface FileServerRoutesByTo {
+  '/health': typeof HealthServerRoute
   '/api/health': typeof ApiHealthServerRoute
   '/api/logout': typeof ApiLogoutServerRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookServerRoute
@@ -897,6 +905,7 @@ export interface FileServerRoutesByTo {
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
+  '/health': typeof HealthServerRoute
   '/api/health': typeof ApiHealthServerRoute
   '/api/logout': typeof ApiLogoutServerRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookServerRoute
@@ -907,6 +916,7 @@ export interface FileServerRoutesById {
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath
   fullPaths:
+    | '/health'
     | '/api/health'
     | '/api/logout'
     | '/api/stripe/webhook'
@@ -915,6 +925,7 @@ export interface FileServerRouteTypes {
     | '/api/login/google/callback'
   fileServerRoutesByTo: FileServerRoutesByTo
   to:
+    | '/health'
     | '/api/health'
     | '/api/logout'
     | '/api/stripe/webhook'
@@ -923,6 +934,7 @@ export interface FileServerRouteTypes {
     | '/api/login/google/callback'
   id:
     | '__root__'
+    | '/health'
     | '/api/health'
     | '/api/logout'
     | '/api/stripe/webhook'
@@ -932,6 +944,7 @@ export interface FileServerRouteTypes {
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
+  HealthServerRoute: typeof HealthServerRoute
   ApiHealthServerRoute: typeof ApiHealthServerRoute
   ApiLogoutServerRoute: typeof ApiLogoutServerRoute
   ApiStripeWebhookServerRoute: typeof ApiStripeWebhookServerRoute
@@ -1401,6 +1414,13 @@ declare module '@tanstack/react-router' {
 }
 declare module '@tanstack/react-start/server' {
   interface ServerFileRoutesByPath {
+    '/health': {
+      id: '/health'
+      path: '/health'
+      fullPath: '/health'
+      preLoaderRoute: typeof HealthServerRouteImport
+      parentRoute: typeof rootServerRouteImport
+    }
     '/api/logout': {
       id: '/api/logout'
       path: '/api/logout'
@@ -1597,6 +1617,7 @@ export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 const rootServerRouteChildren: RootServerRouteChildren = {
+  HealthServerRoute: HealthServerRoute,
   ApiHealthServerRoute: ApiHealthServerRoute,
   ApiLogoutServerRoute: ApiLogoutServerRoute,
   ApiStripeWebhookServerRoute: ApiStripeWebhookServerRoute,

@@ -4,6 +4,9 @@ FROM node:22-alpine
 # Set working directory
 WORKDIR /app
 
+# Install ffmpeg for audio/video processing
+RUN apk add --no-cache ffmpeg
+
 # Copy package files
 COPY package*.json ./
 

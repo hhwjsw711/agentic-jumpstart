@@ -17,6 +17,7 @@ interface ModulePanelProps {
   progress: Progress[];
   isAdmin: boolean;
   isPremium: boolean;
+  isLoggedIn?: boolean;
   onSegmentClick: (segmentId: number) => void;
   onDragEnd: (result: any, moduleId: number) => void;
 }
@@ -28,6 +29,7 @@ export function ModulePanel({
   progress,
   isAdmin,
   isPremium,
+  isLoggedIn,
   onSegmentClick,
   onDragEnd,
 }: ModulePanelProps) {
@@ -90,6 +92,7 @@ export function ModulePanel({
                             isCompleted={isCompleted}
                             isPremium={isPremium}
                             isAdmin={isAdmin}
+                            isLoggedIn={isLoggedIn}
                             onSegmentClick={onSegmentClick}
                             provided={provided}
                             snapshot={snapshot}
@@ -139,6 +142,7 @@ export function ModulePanel({
                   isCompleted={isCompleted}
                   isPremium={isPremium}
                   isAdmin={isAdmin}
+                  isLoggedIn={isLoggedIn}
                   onSegmentClick={onSegmentClick}
                 />
               );

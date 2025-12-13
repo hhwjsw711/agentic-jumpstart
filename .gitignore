@@ -26,3 +26,5 @@ files/*
 backups/*
 .nitro/
 .tanstack/
+
+.automaker/features

@@ -132,6 +132,7 @@ export async function getPublicMembers() {
       displayName: profiles.displayName,
       image: profiles.image,
       bio: profiles.bio,
+      flair: profiles.flair,
       updatedAt: profiles.updatedAt,
     })
     .from(profiles)

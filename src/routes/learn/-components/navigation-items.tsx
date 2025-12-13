@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { reorderSegmentsFn } from "~/fn/segments";
 import { ModuleAccordionHeader } from "./module-accordion-header";
 import { ModulePanel } from "./module-panel";
+import { useAuth } from "~/hooks/use-auth";
 
 interface ModuleWithSegments extends Module {
   segments: Segment[];
@@ -32,6 +33,8 @@ export function NavigationItems({
   onItemClick,
   dragHandleProps,
 }: NavigationItemsProps) {
+  const user = useAuth();
+  const isLoggedIn = !!user?.id;
   const { setCurrentSegmentId } = useSegment();
   const queryClient = useQueryClient();
 
@@ -163,6 +166,7 @@ export function NavigationItems({
                 progress={progress}
                 isAdmin={isAdmin}
                 isPremium={isPremium}
+                isLoggedIn={isLoggedIn}
                 onSegmentClick={handleSegmentClick}
                 onDragEnd={handleDragEnd}
               />

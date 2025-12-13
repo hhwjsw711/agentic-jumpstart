@@ -1,6 +1,7 @@
 import { type Segment } from "~/db/schema";
 import { EditVideoButton } from "./edit-video-button";
 import { DeleteSegmentButton } from "./delete-segment-button";
+import { GenerateTranscriptButton } from "./generate-transcript-button";
 
 interface AdminControlsProps {
   currentSegment: Segment;
@@ -9,6 +10,7 @@ interface AdminControlsProps {
 export function AdminControls({ currentSegment }: AdminControlsProps) {
   return (
     <div className="flex items-center gap-2">
+      <GenerateTranscriptButton currentSegment={currentSegment} />
       <EditVideoButton currentSegment={currentSegment} />
       <DeleteSegmentButton currentSegmentId={currentSegment.id} />
     </div>

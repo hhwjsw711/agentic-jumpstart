@@ -4,7 +4,7 @@ import { z } from "zod";
 import { useEffect } from "react";
 import { getSegmentBySlugUseCase } from "~/use-cases/segments";
 import { getSegments } from "~/data-access/segments";
-import { type Segment } from "~/db/schema";
+import { type Segment, type Progress } from "~/db/schema";
 
 import { VideoPlayer } from "~/routes/learn/-components/video-player";
 
@@ -78,6 +78,7 @@ function ViewSegment({
   defaultTab,
   commentId,
   showContentTabs,
+  progress,
 }: {
   segments: Segment[];
   currentSegment: Segment;
@@ -87,6 +88,7 @@ function ViewSegment({
   defaultTab?: "content" | "transcripts" | "comments";
   commentId?: number;
   showContentTabs: boolean;
+  progress: Progress[];
 }) {
   const { setCurrentSegmentId } = useSegment();
 
@@ -103,7 +105,14 @@ function ViewSegment({
   return (
     <div className="max-w-5xl mx-auto space-y-4">
       {/* Header Section */}
-      <VideoHeader currentSegment={currentSegment} isAdmin={isAdmin} />
+      <VideoHeader
+        currentSegment={currentSegment}
+        isAdmin={isAdmin}
+        currentSegmentId={currentSegmentId}
+        isLoggedIn={isLoggedIn}
+        progress={progress}
+        isPremium={isPremium}
+      />
 
       {showUpgradePanel ? (
         <UpgradePlaceholder currentSegment={currentSegment} />
@@ -142,6 +151,8 @@ function ViewSegment({
         isLoggedIn={isLoggedIn}
         setCurrentSegmentId={setCurrentSegmentId}
         currentSegment={currentSegment}
+        isPremium={isPremium}
+        isAdmin={isAdmin}
       />
 
       {/* Tabs Section - Hide when coming soon is enabled */}
@@ -160,7 +171,7 @@ function ViewSegment({
 }
 
 function RouteComponent() {
-  const { segment, segments, isPremium, isAdmin, showContentTabs } =
+  const { segment, segments, isPremium, isAdmin, showContentTabs, progress } =
     Route.useLoaderData();
   const { tab, commentId } = Route.useSearch();
 
@@ -175,6 +186,7 @@ function RouteComponent() {
         defaultTab={tab}
         commentId={commentId}
         showContentTabs={showContentTabs}
+        progress={progress}
       />
       {/* <FloatingFeedbackButton /> */}
     </>

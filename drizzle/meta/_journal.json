@@ -288,6 +288,13 @@
       "when": 1765561290827,
       "tag": "0040_wild_skaar",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1765605525304,
+      "tag": "0041_ordinary_shard",
+      "breakpoints": true
     }
   ]
 }

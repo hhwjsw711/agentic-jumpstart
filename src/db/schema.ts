@@ -51,6 +51,7 @@ export const profiles = tableCreator("profile", {
   githubHandle: text("githubHandle"),
   websiteUrl: text("websiteUrl"),
   isPublicProfile: boolean("isPublicProfile").notNull().default(false),
+  flair: text("flair"), // Format: "Label:#hexcolor" e.g. "Automaker Core:#ff0000"
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 

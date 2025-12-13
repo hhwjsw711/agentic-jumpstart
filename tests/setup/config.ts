@@ -35,8 +35,12 @@ export const TEST_CONFIG = {
   },
   LABELS: {
     TOGGLE_MODULE_GETTING_STARTED: "Toggle module Getting Started",
+    TOGGLE_MODULE_ADVANCED_TOPICS: "Toggle module Advanced Topics",
     SELECT_SEGMENT_WELCOME: "Select segment Welcome to the Course",
-    SELECT_SEGMENT_SETUP: "Select segment Setting up your Environment"
+    SELECT_SEGMENT_SETUP: "Select segment Setting up your Environment",
+    SELECT_SEGMENT_FIRST_PROJECT: "Select segment Your First Project",
+    SELECT_SEGMENT_ADVANCED_PATTERNS: "Select segment Advanced Patterns",
+    SELECT_SEGMENT_PERFORMANCE: "Select segment Performance Optimization"
   },
   UI_TEXT: {
     EARLY_ACCESS_INDICATOR: "early",

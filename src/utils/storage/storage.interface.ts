@@ -8,6 +8,7 @@ export interface IStorage {
   ): Promise<StreamFileResponse>;
   getPresignedUrl(key: string): Promise<string>;
   getPresignedUploadUrl(key: string, contentType?: string): Promise<string>;
+  getBuffer(key: string): Promise<Buffer>;
 }
 
 export type StreamFileRange = Partial<{

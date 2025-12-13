@@ -13,6 +13,13 @@ export const markedAsWatchedFn = createServerFn()
     await markAsWatchedUseCase(context.userId, data.segmentId);
   });
 
+export const markAsCompletedFn = createServerFn()
+  .middleware([authenticatedMiddleware])
+  .validator(z.object({ segmentId: z.coerce.number() }))
+  .handler(async ({ data, context }) => {
+    await markAsWatchedUseCase(context.userId, data.segmentId);
+  });
+
 export const getProgressFn = createServerFn()
   .middleware([unauthenticatedMiddleware])
   .handler(async ({ context }) => {

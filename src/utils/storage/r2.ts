@@ -113,4 +113,27 @@ export class R2Storage implements IStorage {
       { expiresIn: 60 * 60 } // 1 hour
     );
   }
+
+  async getBuffer(key: string): Promise<Buffer> {
+    const command = new GetObjectCommand({
+      Bucket: this.bucket,
+      Key: key,
+    });
+
+    const response = await this.client.send(command);
+
+    if (!response.Body) {
+      throw new Error(`No body returned for key: ${key}`);
+    }
+
+    // Convert the readable stream to a buffer
+    const chunks: Uint8Array[] = [];
+    const stream = response.Body as AsyncIterable<Uint8Array>;
+
+    for await (const chunk of stream) {
+      chunks.push(chunk);
+    }
+
+    return Buffer.concat(chunks);
+  }
 }

@@ -7,6 +7,24 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Users } from "lucide-react";
 import { getPublicMembersFn } from "~/fn/profiles";
 
+function FlairBadge({ flair }: { flair: string }) {
+  // Parse flair format: "Label:#hexcolor"
+  const parts = flair.split(":");
+  if (parts.length < 2) return null;
+
+  const label = parts[0];
+  const color = parts[1];
+
+  return (
+    <div
+      className="absolute -top-1 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-bold text-white uppercase tracking-wide shadow-md ring-2 ring-white dark:ring-gray-900 z-10 whitespace-nowrap"
+      style={{ backgroundColor: color }}
+    >
+      {label}
+    </div>
+  );
+}
+
 export const Route = createFileRoute("/members")({
   component: MembersPage,
   loader: async () => {
@@ -39,42 +57,43 @@ function MembersPage() {
                 to="/profile/$userId"
                 params={{ userId: member.id.toString() }}
               >
-                <Card className="hover:shadow-elevation-2 transition-all duration-200 cursor-pointer group">
-                  <CardContent className="p-6">
-                    <div className="flex flex-col items-center text-center space-y-4">
-                      {/* Avatar */}
-                      <Avatar className="w-20 h-20 shadow-elevation-1 group-hover:shadow-elevation-2 transition-shadow">
-                        <AvatarImage
-                          src={member.image || undefined}
-                          alt={member.displayName || "Member"}
-                          className="object-cover"
-                        />
-                        <AvatarFallback className="bg-theme-500 text-white text-xl font-semibold">
-                          {member.displayName
-                            ? member.displayName
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")
-                                .toUpperCase()
-                                .slice(0, 2)
-                            : "U"}
-                        </AvatarFallback>
-                      </Avatar>
+                <Card className="h-full hover:shadow-elevation-2 transition-all duration-200 cursor-pointer group">
+                  <CardContent className="p-6 h-full">
+                    <div className="flex flex-col items-center text-center h-full">
+                      {/* Avatar with Flair Badge */}
+                      <div className="relative pt-2">
+                        {member.flair && <FlairBadge flair={member.flair} />}
+                        <Avatar className="w-20 h-20 shadow-elevation-1 group-hover:shadow-elevation-2 transition-shadow">
+                          <AvatarImage
+                            src={member.image || undefined}
+                            alt={member.displayName || "Member"}
+                            className="object-cover"
+                          />
+                          <AvatarFallback className="bg-theme-500 text-white text-xl font-semibold">
+                            {member.displayName
+                              ? member.displayName
+                                  .split(" ")
+                                  .map((n) => n[0])
+                                  .join("")
+                                  .toUpperCase()
+                                  .slice(0, 2)
+                              : "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                      </div>
 
                       {/* Name */}
-                      <div>
+                      <div className="mt-4 flex-1">
                         <h3 className="font-semibold text-lg group-hover:text-theme-600 dark:group-hover:text-theme-400 transition-colors">
                           {member.displayName || "Anonymous"}
                         </h3>
-                        {member.bio && (
-                          <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                            {member.bio}
-                          </p>
-                        )}
+                        <p className="text-sm text-muted-foreground line-clamp-2 mt-1 min-h-[2.5rem]">
+                          {member.bio || "\u00A0"}
+                        </p>
                       </div>
 
                       {/* Join date */}
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-muted-foreground mt-4">
                         Joined{" "}
                         {new Date(member.updatedAt).toLocaleDateString(
                           "en-US",

@@ -1,4 +1,11 @@
-import { Check, Lock, GripVertical, Star, PlayCircle, Sparkles } from "lucide-react";
+import {
+  Check,
+  Lock,
+  GripVertical,
+  Star,
+  PlayCircle,
+  Sparkles,
+} from "lucide-react";
 import type { Segment } from "~/db/schema";
 import { cn } from "~/lib/utils";
 
@@ -16,6 +23,7 @@ interface SegmentItemProps {
   isCompleted: boolean;
   isPremium: boolean;
   isAdmin: boolean;
+  isLoggedIn?: boolean;
   onSegmentClick: (segmentId: number) => void;
   provided?: any;
   snapshot?: any;
@@ -28,6 +36,7 @@ export function SegmentItem({
   isCompleted,
   isPremium,
   isAdmin,
+  isLoggedIn,
   onSegmentClick,
   provided,
   snapshot,
@@ -94,18 +103,20 @@ export function SegmentItem({
           </div>
 
           <div className="flex-shrink-0 ml-2 flex flex-col gap-1 items-end">
-            {isNewSegment(segment.createdAt) && !isCompleted && !segment.isComingSoon && (
-              <div
-                data-testid="new-segment-badge"
-                className={cn(
-                  "flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium whitespace-nowrap",
-                  "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                )}
-              >
-                <Sparkles className="h-3 w-3 flex-shrink-0" />
-                <span>New</span>
-              </div>
-            )}
+            {isNewSegment(segment.createdAt) &&
+              !isCompleted &&
+              !segment.isComingSoon && (
+                <div
+                  data-testid="new-segment-badge"
+                  className={cn(
+                    "flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium whitespace-nowrap",
+                    "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                  )}
+                >
+                  <Sparkles className="h-3 w-3 flex-shrink-0" />
+                  <span>New</span>
+                </div>
+              )}
             {segment.isComingSoon && (
               <div
                 data-testid="coming-soon-badge"

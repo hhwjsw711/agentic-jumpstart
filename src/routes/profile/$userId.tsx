@@ -19,6 +19,7 @@ import {
   Twitter,
   User,
   Pencil,
+  Lock,
 } from "lucide-react";
 import { getPublicProfileFn } from "~/fn/profiles";
 import { getUserInfoFn } from "~/fn/users";
@@ -32,20 +33,47 @@ export const Route = createFileRoute("/profile/$userId")({
       throw new Error("Invalid user ID");
     }
     const { user: currentUser } = await getUserInfoFn();
-    return { userId, currentUserId: currentUser?.id };
+    const currentUserId = currentUser?.id;
+
+    // Fetch the profile to check if it's public
+    const profile = await getPublicProfileFn({ data: { userId } });
+
+    if (!profile) {
+      return { userId, currentUserId, profile: null, hasAccess: false };
+    }
+
+    // Check access: profile is public OR user is viewing their own profile
+    const hasAccess = profile.isPublicProfile || currentUserId === userId;
+
+    // If no access, return early with access denied flag
+    if (!hasAccess) {
+      return { userId, currentUserId, profile: null, hasAccess: false };
+    }
+
+    return { userId, currentUserId, profile, hasAccess: true };
   },
 });
 
 function ProfilePage() {
-  const { userId, currentUserId } = Route.useLoaderData();
+  const {
+    userId,
+    currentUserId,
+    profile: loaderProfile,
+    hasAccess,
+  } = Route.useLoaderData();
   const isOwnProfile = currentUserId === userId;
 
+  // Use loader data for initial render, query for updates
   const { data: profile } = useSuspenseQuery({
     queryKey: ["profile", "public", userId],
     queryFn: () => getPublicProfileFn({ data: { userId } }),
   });
 
-  if (!profile) {
+  // Use query data if available, otherwise fall back to loader data
+  const profileData = profile || loaderProfile;
+
+  // Check if profile exists
+  if (!profileData) {
     return (
       <Page>
         <div className="text-center py-16">
@@ -72,7 +100,40 @@ function ProfilePage() {
     );
   }
 
-  const initials = profile.displayName
+  // Check access: profile is public OR user is viewing their own profile
+  // This check happens both in loader and component for security
+  const canAccess = profileData.isPublicProfile || isOwnProfile;
+
+  // Early return if user doesn't have access
+  if (!canAccess) {
+    return (
+      <Page>
+        <div className="text-center py-16">
+          <div className="max-w-md mx-auto space-y-6">
+            <div className="flex justify-center mb-4">
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-theme-100 to-theme-200 dark:from-theme-900 dark:to-theme-800 shadow-elevation-2">
+                <Lock className="h-8 w-8 text-theme-600 dark:text-theme-400" />
+              </div>
+            </div>
+            <div className="space-y-3">
+              <h3 className="text-xl font-semibold text-foreground">
+                Profile is Private
+              </h3>
+              <p className="text-muted-foreground">
+                This profile is set to private and is only visible to the
+                profile owner.
+              </p>
+            </div>
+            <Link to="/">
+              <Button>Go Home</Button>
+            </Link>
+          </div>
+        </div>
+      </Page>
+    );
+  }
+
+  const initials = profileData.displayName
     ? profile.displayName
         .split(" ")
         .map((n) => n[0])
@@ -117,8 +178,8 @@ function ProfilePage() {
                       className="object-cover"
                     />
                     <AvatarFallback className="bg-theme-500 text-white text-4xl font-semibold">
-                      {profile.displayName
-                        ? profile.displayName
+                      {profileData.displayName
+                        ? profileData.displayName
                             .split(" ")
                             .map((n) => n[0])
                             .join("")
@@ -133,50 +194,50 @@ function ProfilePage() {
                 <div className="flex-1 space-y-4">
                   <div>
                     <h1 className="text-3xl font-bold mb-2">
-                      {profile.displayName || "User"}
+                      {profileData.displayName || "User"}
                     </h1>
-                    {profile.bio && (
+                    {profileData.bio && (
                       <p className="text-muted-foreground text-lg leading-relaxed">
-                        {profile.bio}
+                        {profileData.bio}
                       </p>
                     )}
                   </div>
 
                   {/* Social Links */}
-                  {(profile.twitterHandle ||
-                    profile.githubHandle ||
-                    profile.websiteUrl) && (
+                  {(profileData.twitterHandle ||
+                    profileData.githubHandle ||
+                    profileData.websiteUrl) && (
                     <div className="flex flex-wrap gap-3">
-                      {profile.twitterHandle && (
+                      {profileData.twitterHandle && (
                         <Button variant="outline" size="sm" asChild>
                           <a
-                            href={`https://twitter.com/${profile.twitterHandle}`}
+                            href={`https://twitter.com/${profileData.twitterHandle}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-2"
                           >
                             <Twitter className="h-4 w-4" />@
-                            {profile.twitterHandle}
+                            {profileData.twitterHandle}
                           </a>
                         </Button>
                       )}
-                      {profile.githubHandle && (
+                      {profileData.githubHandle && (
                         <Button variant="outline" size="sm" asChild>
                           <a
-                            href={`https://github.com/${profile.githubHandle}`}
+                            href={`https://github.com/${profileData.githubHandle}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-2"
                           >
                             <Github className="h-4 w-4" />
-                            {profile.githubHandle}
+                            {profileData.githubHandle}
                           </a>
                         </Button>
                       )}
-                      {profile.websiteUrl && (
+                      {profileData.websiteUrl && (
                         <Button variant="outline" size="sm" asChild>
                           <a
-                            href={profile.websiteUrl}
+                            href={profileData.websiteUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-2"
@@ -194,21 +255,23 @@ function ProfilePage() {
           </Card>
 
           {/* Projects Section */}
-          {profile.projects && profile.projects.length > 0 && (
+          {profileData.projects && profileData.projects.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   Projects & Showcases
-                  <Badge variant="secondary">{profile.projects.length}</Badge>
+                  <Badge variant="secondary">
+                    {profileData.projects.length}
+                  </Badge>
                 </CardTitle>
                 <CardDescription>
                   Explore the projects and work by{" "}
-                  {profile.displayName || "this user"}
+                  {profileData.displayName || "this user"}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {profile.projects.map((project) => (
+                  {profileData.projects.map((project) => (
                     <Card
                       key={project.id}
                       className="hover:shadow-elevation-2 transition-all duration-200"
@@ -285,7 +348,7 @@ function ProfilePage() {
           )}
 
           {/* Empty Projects State */}
-          {(!profile.projects || profile.projects.length === 0) && (
+          {(!profileData.projects || profileData.projects.length === 0) && (
             <Card>
               <CardContent className="p-8 text-center">
                 <div className="space-y-4">
@@ -297,7 +360,7 @@ function ProfilePage() {
                       No Projects Yet
                     </h3>
                     <p className="text-muted-foreground">
-                      {profile.displayName || "This user"} hasn't added any
+                      {profileData.displayName || "This user"} hasn't added any
                       projects to showcase yet.
                     </p>
                   </div>

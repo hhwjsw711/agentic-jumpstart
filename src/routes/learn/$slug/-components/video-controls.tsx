@@ -21,6 +21,8 @@ interface VideoControlsProps {
   isLoggedIn: boolean;
   setCurrentSegmentId: (id: number) => void;
   currentSegment: Segment;
+  isPremium: boolean;
+  isAdmin: boolean;
 }
 
 export function VideoControls({
@@ -29,6 +31,8 @@ export function VideoControls({
   isLoggedIn,
   setCurrentSegmentId,
   currentSegment,
+  isPremium,
+  isAdmin,
 }: VideoControlsProps) {
   const navigate = useNavigate();
 
@@ -164,7 +168,10 @@ export function VideoControls({
 
       <Button
         onClick={async () => {
-          if (isLoggedIn && !currentSegment.isComingSoon) {
+          // Only mark as watched if user can actually access the video content
+          const canAccessVideo =
+            !currentSegment.isPremium || isPremium || isAdmin;
+          if (isLoggedIn && !currentSegment.isComingSoon && canAccessVideo) {
             await markedAsWatchedFn({
               data: { segmentId: currentSegmentId },
             });

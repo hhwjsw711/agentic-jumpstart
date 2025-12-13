@@ -1,14 +1,55 @@
 import { Badge } from "~/components/ui/badge";
-import { BookOpen, Clock, Lock } from "lucide-react";
-import { type Segment } from "~/db/schema";
+import { Button } from "~/components/ui/button";
+import { BookOpen, Clock, Lock, CheckCircle } from "lucide-react";
+import { type Segment, type Progress } from "~/db/schema";
 import { AdminControls } from "./admin-controls";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "@tanstack/react-router";
+import { markAsCompletedFn } from "~/fn/progress";
+import { toast } from "sonner";
 
 interface VideoHeaderProps {
   currentSegment: Segment;
   isAdmin: boolean;
+  currentSegmentId: number;
+  isLoggedIn: boolean;
+  progress: Progress[];
+  isPremium: boolean;
 }
 
-export function VideoHeader({ currentSegment, isAdmin }: VideoHeaderProps) {
+export function VideoHeader({
+  currentSegment,
+  isAdmin,
+  currentSegmentId,
+  isLoggedIn,
+  progress,
+  isPremium,
+}: VideoHeaderProps) {
+  const router = useRouter();
+
+  const isCompleted = progress.some((p) => p.segmentId === currentSegmentId);
+  const canMarkComplete =
+    isLoggedIn &&
+    !isCompleted &&
+    !currentSegment.isComingSoon &&
+    (!currentSegment.isPremium || isPremium || isAdmin);
+
+  const markCompleteMutation = useMutation({
+    mutationFn: (segmentId: number) =>
+      markAsCompletedFn({ data: { segmentId } }),
+    onSuccess: () => {
+      router.invalidate();
+      toast.success("Video marked as complete");
+    },
+    onError: () => {
+      toast.error("Failed to mark video as complete");
+    },
+  });
+
+  const handleMarkComplete = () => {
+    markCompleteMutation.mutate(currentSegmentId);
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-start justify-between">
@@ -30,6 +71,19 @@ export function VideoHeader({ currentSegment, isAdmin }: VideoHeaderProps) {
         </div>
 
         <div className="flex items-center gap-3">
+          {canMarkComplete && (
+            <Button
+              onClick={handleMarkComplete}
+              disabled={markCompleteMutation.isPending}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <CheckCircle className="h-4 w-4" />
+              Mark as Complete
+            </Button>
+          )}
+
           {isAdmin && currentSegment.isPremium && (
             <Badge
               variant="outline"
