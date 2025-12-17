@@ -21,7 +21,7 @@ export async function createUnsubscribeToken(
 
   await database.insert(unsubscribeTokens).values({
     token,
-    userId: userId,
+    userId: userId ?? null, // Explicitly use null for newsletter-only subscribers
     emailAddress,
     expiresAt,
   });
