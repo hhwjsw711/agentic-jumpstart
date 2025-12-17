@@ -296,10 +296,9 @@ async function processBulkEmails(
       batchSize: 5,
       logPrefix: `Email Batch ${batchId}`,
       onProgress: async (sentCount, total) => {
-        // Update progress in database
+        // Update progress in database (don't set failedCount during processing - those are pending, not failed)
         await updateEmailBatchProgress(batchId, {
           sentCount,
-          failedCount: total - sentCount,
         });
       },
     });
@@ -616,10 +615,9 @@ async function processMultiSegmentNotificationEmails(
       batchSize: 5,
       logPrefix: `Segment Batch ${batchId}`,
       onProgress: async (sentCount, total) => {
-        // Update progress in database
+        // Update progress in database (don't set failedCount during processing - those are pending, not failed)
         await updateEmailBatchProgress(batchId, {
           sentCount,
-          failedCount: total - sentCount,
         });
       },
     });
