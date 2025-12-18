@@ -99,13 +99,16 @@ export async function queueAllJobsForSegmentUseCase(segmentId: number) {
   }
 
   // Verify the video actually exists in storage
-  const { storage } = getStorage();
+  const { storage, type } = getStorage();
   const videoExists = await storage.exists(segment.videoKey);
   if (!videoExists) {
     throw new Error(
       `Video file not found in storage: ${segment.videoKey}. The video may have been deleted or the key is incorrect.`
     );
   }
+
+  // Only support R2 storage for transcoding and thumbnails
+  const canTranscode = type === "r2";
 
   // Check existing jobs
   const existingJobs = await getVideoProcessingJobsBySegmentId(segmentId);
@@ -125,7 +128,8 @@ export async function queueAllJobsForSegmentUseCase(segmentId: number) {
       (job.status === "pending" || job.status === "processing")
   );
 
-  if (!hasActiveTranscriptJob) {
+  // Queue transcript job if missing and no active job
+  if (!segment.transcripts && !hasActiveTranscriptJob) {
     jobs.push({
       segmentId,
       jobType: "transcript",
@@ -133,20 +137,41 @@ export async function queueAllJobsForSegmentUseCase(segmentId: number) {
     });
   }
 
-  if (!hasActiveTranscodeJob) {
-    jobs.push({
-      segmentId,
-      jobType: "transcode",
-      status: "pending",
-    });
+  // Queue transcode job if missing (only for R2 storage)
+  if (canTranscode && !hasActiveTranscodeJob) {
+    // Check if 720p or 480p variants exist
+    const has720p = await storage.exists(
+      getVideoQualityKey(segment.videoKey, "720p")
+    );
+    const has480p = await storage.exists(
+      getVideoQualityKey(segment.videoKey, "480p")
+    );
+
+    if (!has720p || !has480p) {
+      jobs.push({
+        segmentId,
+        jobType: "transcode",
+        status: "pending",
+      });
+    }
   }
 
-  if (!hasActiveThumbnailJob) {
-    jobs.push({
-      segmentId,
-      jobType: "thumbnail",
-      status: "pending",
-    });
+  // Queue thumbnail job if missing (only for R2 storage)
+  if (canTranscode && !hasActiveThumbnailJob) {
+    // Only check thumbnail if thumbnailKey exists in database
+    // If thumbnailKey was deleted from DB, we need to queue a job to regenerate it
+    let hasThumbnail = false;
+    if (segment.thumbnailKey) {
+      hasThumbnail = await storage.exists(segment.thumbnailKey);
+    }
+
+    if (!hasThumbnail) {
+      jobs.push({
+        segmentId,
+        jobType: "thumbnail",
+        status: "pending",
+      });
+    }
   }
 
   if (jobs.length === 0) {
@@ -239,10 +264,13 @@ export async function queueMissingJobsForAllSegmentsUseCase() {
     }
 
     // Queue thumbnail job if missing (only for R2 storage)
-    if (canTranscode && !hasActiveThumbnailJob && !segment.thumbnailKey) {
-      // Check if thumbnail already exists in storage
-      const thumbnailKey = getThumbnailKey(segment.videoKey);
-      const hasThumbnail = await storage.exists(thumbnailKey);
+    if (canTranscode && !hasActiveThumbnailJob) {
+      // Only check thumbnail if thumbnailKey exists in database
+      // If thumbnailKey was deleted from DB, we need to queue a job to regenerate it
+      let hasThumbnail = false;
+      if (segment.thumbnailKey) {
+        hasThumbnail = await storage.exists(segment.thumbnailKey);
+      }
 
       if (!hasThumbnail) {
         jobsToCreate.push({

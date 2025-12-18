@@ -200,9 +200,11 @@ export const getSegmentsWithProcessingStatusFn = createServerFn({
           has480p = await storage.exists(
             getVideoQualityKey(segment.videoKey, "480p")
           );
-          hasThumbnail =
-            !!segment.thumbnailKey ||
-            (await storage.exists(getThumbnailKey(segment.videoKey)));
+          // Only check thumbnail if thumbnailKey exists in database
+          // If thumbnailKey was deleted from DB, hasThumbnail should be false
+          if (segment.thumbnailKey) {
+            hasThumbnail = await storage.exists(segment.thumbnailKey);
+          }
         }
 
         return {
