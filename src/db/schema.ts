@@ -99,6 +99,7 @@ export const modules = tableCreator(
   {
     id: serial("id").primaryKey(),
     title: text("title").notNull(),
+    icon: text("icon"), // Lucide icon name, e.g., "BookOpen", "Code", "Rocket"
     order: integer("order").notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -116,12 +117,14 @@ export const segments = tableCreator(
     transcripts: text("transcripts"),
     order: integer("order").notNull(),
     length: text("length"),
+    icon: text("icon"), // Lucide icon name, e.g., "PlayCircle", "Code", "FileText"
     isPremium: boolean("isPremium").notNull().default(false),
     isComingSoon: boolean("isComingSoon").notNull().default(false),
     moduleId: serial("moduleId")
       .notNull()
       .references(() => modules.id, { onDelete: "cascade" }),
     videoKey: text("videoKey"),
+    thumbnailKey: text("thumbnailKey"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
@@ -138,7 +141,7 @@ export const videoProcessingJobs = tableCreator(
     segmentId: serial("segmentId")
       .notNull()
       .references(() => segments.id, { onDelete: "cascade" }),
-    jobType: text("jobType").notNull(), // "transcript" | "transcode"
+    jobType: text("jobType").notNull(), // "transcript" | "transcode" | "thumbnail"
     status: text("status").notNull().default("pending"), // pending | processing | completed | failed
     error: text("error"),
     createdAt: timestamp("created_at").notNull().defaultNow(),

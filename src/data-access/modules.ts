@@ -59,7 +59,7 @@ export async function reorderModules(updates: { id: number; order: number }[]) {
   });
 }
 
-export async function updateModule(moduleId: number, updates: Partial<Pick<Module, "title">>) {
+export async function updateModule(moduleId: number, updates: Partial<Pick<Module, "title" | "icon">>) {
   return database
     .update(modules)
     .set({ ...updates, updatedAt: new Date() })

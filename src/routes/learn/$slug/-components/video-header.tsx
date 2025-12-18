@@ -1,12 +1,12 @@
 import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
-import { BookOpen, Clock, Lock, CheckCircle } from "lucide-react";
+import { Lock, CheckCircle, Edit } from "lucide-react";
 import { type Segment, type Progress } from "~/db/schema";
-import { AdminControls } from "./admin-controls";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { markAsCompletedFn } from "~/fn/progress";
 import { toast } from "sonner";
+import { Link } from "@tanstack/react-router";
+import { DeleteSegmentButton } from "./delete-segment-button";
 
 interface VideoHeaderProps {
   currentSegment: Segment;
@@ -51,39 +51,12 @@ export function VideoHeader({
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-start justify-between">
+    <header className="h-16 flex items-center justify-between px-8 border-b border-slate-200/60 dark:border-white/5 bg-white/60 dark:bg-[#0b101a]/40 backdrop-blur-md z-20 shrink-0">
+      <div>
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-gradient-to-br from-theme-100 to-theme-200 dark:from-theme-900 dark:to-theme-800">
-            <BookOpen className="h-6 w-6 text-theme-600 dark:text-theme-400" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground leading-tight">
-              {currentSegment.title}
-            </h1>
-            {currentSegment.length && (
-              <p className="text-muted-foreground mt-1 flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                {currentSegment.length}
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {canMarkComplete && (
-            <Button
-              onClick={handleMarkComplete}
-              disabled={markCompleteMutation.isPending}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
-            >
-              <CheckCircle className="h-4 w-4" />
-              Mark as Complete
-            </Button>
-          )}
-
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+            {currentSegment.title}
+          </h2>
           {isAdmin && currentSegment.isPremium && (
             <Badge
               variant="outline"
@@ -93,10 +66,40 @@ export function VideoHeader({
               PREMIUM
             </Badge>
           )}
-
-          {isAdmin && <AdminControls currentSegment={currentSegment} />}
         </div>
+        {currentSegment.length && (
+          <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-bold font-mono">
+            {currentSegment.length}
+          </p>
+        )}
       </div>
-    </div>
+
+      <div className="flex items-center gap-5">
+        {canMarkComplete && (
+          <button
+            onClick={handleMarkComplete}
+            disabled={markCompleteMutation.isPending}
+            className="cursor-pointer flex items-center gap-2 glass px-5 py-2 rounded-xl text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-white/10 transition"
+          >
+            <CheckCircle className="w-3.5 h-3.5" />
+            Mark as Complete
+          </button>
+        )}
+
+        {isAdmin && (
+          <>
+            <Link
+              to="/learn/$slug/edit"
+              params={{ slug: currentSegment.slug }}
+              className="btn-cyan px-6 py-2 rounded-xl text-xs font-black flex items-center gap-2 shadow-lg shadow-cyan-500/20"
+            >
+              <Edit className="w-4 h-4 stroke-[3.5px]" />
+              Edit
+            </Link>
+            <DeleteSegmentButton currentSegmentId={currentSegmentId} />
+          </>
+        )}
+      </div>
+    </header>
   );
 }

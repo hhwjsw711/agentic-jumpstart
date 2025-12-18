@@ -1,10 +1,7 @@
 import { useState, useMemo } from "react";
 import {
-  Check,
   ChevronRight,
-  CircleCheck,
   GripVertical,
-  BookOpen,
   MoreVertical,
   Edit2,
   Trash2,
@@ -12,6 +9,7 @@ import {
 import type { Module, Progress, Segment } from "~/db/schema";
 import { cn } from "~/lib/utils";
 import { EditModuleDialog } from "./edit-module-dialog";
+import { renderIcon } from "~/components/icon-picker";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -107,140 +105,89 @@ export function ModuleAccordionHeader({
   };
 
   return (
-    <div
-      className="group animate-fade-in"
-      style={{ animationDelay: `${moduleIndex * 150}ms` }}
-    >
-      <div className="w-full">
-        <div className="relative p-4 w-full">
-          <div className="flex items-center gap-3">
+    <div className="group">
+      <div className="relative">
+        <button
+          aria-label={`Toggle module ${module.title}`}
+          onClick={onToggle}
+          className={cn(
+            "cursor-pointer w-full flex items-center justify-between px-6 py-3 text-sm transition",
+            isExpanded
+              ? "nav-active"
+              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
+          )}
+        >
+          <div className="flex items-center gap-3 flex-1 min-w-0">
             {dragHandleProps && isAdmin && (
               <div
                 {...dragHandleProps}
-                className="cursor-grab active:cursor-grabbing p-1 rounded-md hover:bg-theme-100 dark:hover:bg-theme-800 transition-colors"
+                className="cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={(e) => e.stopPropagation()}
               >
-                <GripVertical className="h-4 w-4 text-muted-foreground" />
+                <GripVertical className="h-3 w-3 text-slate-400 dark:text-slate-500" />
               </div>
             )}
-
-            <div className="flex-1 flex items-center gap-2">
-              <button
-                aria-label={`Toggle module ${module.title}`}
-                onClick={onToggle}
-                className="flex items-center justify-between flex-1 text-left group/module"
-              >
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="p-1.5 rounded-lg bg-gradient-to-br from-theme-500/10 to-theme-600/10 group-hover/module:from-theme-500/20 group-hover/module:to-theme-600/20 transition-all duration-300 flex-shrink-0">
-                    <BookOpen className="h-4 w-4 text-theme-600 dark:text-theme-400" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-base font-semibold text-foreground group-hover/module:text-theme-600 dark:group-hover/module:text-theme-400 transition-colors duration-200 line-clamp-2">
-                      {module.title}
-                    </h3>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      {moduleProgress.percentage === 100 ? (
-                        <div className="flex items-center gap-1 text-theme-600 dark:text-theme-400">
-                          <CircleCheck className="h-3 w-3" />
-                          <span className="text-xs font-medium">Complete</span>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">
-                          {moduleProgress.completed} of {moduleProgress.total}{" "}
-                          completed
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  {!isAdmin && (
-                    <div className="relative w-8 h-8">
-                      <svg
-                        className="w-8 h-8 transform progress-ring"
-                        viewBox="0 0 36 36"
-                      >
-                        <path
-                          className="text-gray-200 dark:text-gray-700"
-                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        />
-                        <path
-                          className="text-theme-500 progress-ring-path"
-                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeDasharray={`${moduleProgress.percentage}, 100`}
-                          strokeLinecap="round"
-                          style={{ transition: "stroke-dasharray 0.3s ease" }}
-                        />
-                      </svg>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        {moduleProgress.percentage === 100 ? (
-                          <Check className="h-3 w-3 text-theme-600 dark:text-theme-400" />
-                        ) : (
-                          <span className="text-xs font-semibold text-theme-600 dark:text-theme-400"></span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  <ChevronRight
-                    className={cn(
-                      "h-4 w-4 text-muted-foreground transition-all duration-300 group-hover/module:text-theme-600 dark:group-hover/module:text-theme-400",
-                      isExpanded && "rotate-90"
-                    )}
-                  />
-                </div>
-              </button>
-
-              {isAdmin && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <MoreVertical className="h-4 w-4" />
-                      <span className="sr-only">Open menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEditDialogOpen(true);
-                      }}
-                    >
-                      <Edit2 className="mr-2 h-4 w-4" />
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setDeleteDialogOpen(true);
-                      }}
-                      className="text-destructive focus:text-destructive"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-            </div>
+            {renderIcon(module.icon, { className: "w-4 h-4 flex-shrink-0" })}
+            <span className="font-medium truncate">{module.title}</span>
+            {moduleProgress.total > 0 && (
+              <span className="mono text-[10px] bg-slate-200/60 dark:bg-white/5 px-2.5 py-0.5 rounded-full text-slate-500 border border-slate-300/60 dark:border-white/5 flex-shrink-0">
+                {moduleProgress.completed}/{moduleProgress.total}
+              </span>
+            )}
           </div>
-        </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <ChevronRight
+              className={cn(
+                "h-4 w-4 text-slate-400 dark:text-slate-500 transition-all duration-300",
+                isExpanded && "rotate-90 text-cyan-600 dark:text-cyan-400"
+              )}
+            />
+          </div>
+        </button>
+        {isAdmin && (
+          <div className="absolute right-10 top-1/2 -translate-y-1/2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 opacity-0 group-hover:opacity-100 transition-all"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MoreVertical className="h-3.5 w-3.5" />
+                  <span className="sr-only">Open menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditDialogOpen(true);
+                  }}
+                >
+                  <Edit2 className="mr-2 h-4 w-4" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDeleteDialogOpen(true);
+                  }}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
       </div>
 
       <EditModuleDialog
         moduleId={module.id}
         moduleTitle={module.title}
+        moduleIcon={module.icon}
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
       />

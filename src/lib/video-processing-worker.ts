@@ -16,6 +16,9 @@ import {
   transcodeVideo,
   writeBufferToTempFile,
   cleanupTempFiles,
+  extractThumbnail,
+  createTempThumbnailPath,
+  getThumbnailKey,
   type VideoQuality,
 } from "~/utils/video-transcoding";
 import { readFile } from "node:fs/promises";
@@ -116,6 +119,8 @@ class VideoProcessingWorker {
         await this.processTranscriptJob(job.segmentId);
       } else if (job.jobType === "transcode") {
         await this.processTranscodeJob(job.segmentId);
+      } else if (job.jobType === "thumbnail") {
+        await this.processThumbnailJob(job.segmentId);
       } else {
         throw new Error(`Unknown job type: ${job.jobType}`);
       }
@@ -251,6 +256,89 @@ class VideoProcessingWorker {
       console.error("Transcoding error:", error);
       throw new Error(
         `Failed to transcode video: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    } finally {
+      // Clean up temporary files
+      await cleanupTempFiles(...tempFiles);
+    }
+  }
+
+  /**
+   * Process a thumbnail job - extract first frame from video
+   */
+  private async processThumbnailJob(segmentId: number): Promise<void> {
+    const { storage, type } = getStorage();
+
+    // Only support R2 storage for thumbnails
+    if (type !== "r2") {
+      throw new Error("Thumbnail extraction is only supported with R2 storage");
+    }
+
+    // Get the segment
+    const segment = await getSegmentByIdUseCase(segmentId);
+    if (!segment) {
+      throw new Error("Segment not found");
+    }
+
+    if (!segment.videoKey) {
+      throw new Error("Segment does not have a video attached");
+    }
+
+    const originalKey = segment.videoKey;
+    const thumbnailKey = getThumbnailKey(originalKey);
+    const tempFiles: string[] = [];
+
+    try {
+      // Check if video exists in storage before processing
+      const videoExists = await storage.exists(originalKey);
+      if (!videoExists) {
+        throw new Error(
+          `Video file not found in storage: ${originalKey}. The video may have been deleted or the key is incorrect.`
+        );
+      }
+
+      // Download the original video from R2
+      console.log(
+        `[Worker] Downloading video for thumbnail extraction: ${originalKey}`
+      );
+      const originalBuffer = await storage.getBuffer(originalKey);
+      const originalTempPath = await writeBufferToTempFile(
+        originalBuffer,
+        "original_for_thumb"
+      );
+      tempFiles.push(originalTempPath);
+
+      // Create temp path for thumbnail
+      const thumbnailTempPath = createTempThumbnailPath("thumbnail");
+      tempFiles.push(thumbnailTempPath);
+
+      // Extract the thumbnail
+      console.log(`[Worker] Extracting thumbnail for segment ${segmentId}`);
+      const thumbnailBuffer = await extractThumbnail({
+        inputPath: originalTempPath,
+        outputPath: thumbnailTempPath,
+        width: 640,
+        seekTime: 1,
+      });
+
+      // Upload thumbnail to R2 with correct content type
+      await storage.upload(thumbnailKey, thumbnailBuffer, "image/jpeg");
+      console.log(`[Worker] Uploaded thumbnail for segment ${segmentId}`);
+
+      // Update the segment with the thumbnail key
+      await editSegmentUseCase(segmentId, {
+        thumbnailKey: thumbnailKey,
+      });
+
+      console.log(
+        `[Worker] Thumbnail extraction completed for segment ${segmentId}`
+      );
+    } catch (error) {
+      console.error("Thumbnail extraction error:", error);
+      throw new Error(
+        `Failed to extract thumbnail: ${
           error instanceof Error ? error.message : String(error)
         }`
       );

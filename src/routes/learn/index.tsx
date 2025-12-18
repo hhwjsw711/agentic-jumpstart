@@ -5,7 +5,17 @@ import { getSegments } from "~/data-access/segments";
 import { Button, buttonVariants } from "~/components/ui/button";
 import { isAdminFn } from "~/fn/auth";
 import { ScrollAnimation } from "~/components/scroll-animation";
-import { ArrowRight, BookOpen, Play } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  Play,
+  Layers,
+  Zap,
+  Terminal,
+  Database,
+  Search,
+  LayoutGrid,
+} from "lucide-react";
 
 const getSegmentsFn = createServerFn()
   .middleware([unauthenticatedMiddleware])
@@ -22,182 +32,213 @@ export const Route = createFileRoute("/learn/")({
   },
 });
 
+function PrismBackground() {
+  return <div className="prism-bg" />;
+}
+
+const cardStyles =
+  "kanban-card group glass hover:border-slate-300 dark:hover:border-white/[0.15] hover:shadow-2xl hover:shadow-cyan-500/10";
+
+const buttonCyanStyles =
+  "btn-cyan inline-flex items-center justify-center gap-2 rounded-xl px-6 py-2 text-xs shadow-lg shadow-cyan-500/20";
+
+const buttonGlassStyles =
+  "glass inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 transition-all hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white";
+
 function RouteComponent() {
   const { isAdmin, segments } = Route.useLoaderData();
 
   if (segments.length === 0) {
     return (
-      <section className="relative w-full min-h-screen flex items-center justify-center">
-        {/* Modern AI-themed gradient background */}
-        <div className="absolute inset-0 hero-background-ai"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-theme-500/5 dark:via-theme-950/20 to-transparent"></div>
+      <div className="flex w-full h-screen overflow-hidden bg-slate-50 dark:bg-[#0b101a] text-slate-800 dark:text-slate-200">
+        <PrismBackground />
 
-        {/* AI circuit pattern overlay */}
-        <div className="absolute inset-0 opacity-5 dark:opacity-10">
-          <div className="circuit-pattern absolute inset-0"></div>
-        </div>
-
-        {/* AI-themed floating elements */}
-        <div className="floating-elements">
-          <div className="floating-element-1"></div>
-          <div className="floating-element-2"></div>
-          <div className="floating-element-3"></div>
-          <div className="floating-element-small top-10 right-10"></div>
-        </div>
-
-        {/* Content */}
-        <div className="relative z-10 container mx-auto px-4 py-16">
-          <div className="max-w-2xl mx-auto text-center">
-            <ScrollAnimation direction="down" delay={0}>
-              <div className="inline-flex items-center px-4 py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-sm font-medium mb-8">
-                <BookOpen className="w-4 h-4 mr-2" />
-                Learning Platform
+        {/* Main Content Area - full width when no sidebar */}
+        <main className="flex-1 flex flex-col min-w-0 h-full">
+          {/* Header */}
+          <header className="h-16 flex items-center justify-between px-8 border-b border-slate-200/60 dark:border-white/5 bg-white/60 dark:bg-[#0b101a]/40 backdrop-blur-md z-20 shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="bg-cyan-600/10 dark:bg-cyan-500/10 p-1.5 rounded-lg border border-cyan-600/30 dark:border-cyan-500/30">
+                <BookOpen className="w-5 h-5 text-cyan-700 dark:text-cyan-400 stroke-[2.5px]" />
               </div>
-            </ScrollAnimation>
-
-            <ScrollAnimation direction="up" delay={0.1}>
-              <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-theme-500 to-theme-600 dark:from-theme-400 dark:to-theme-500 bg-clip-text text-transparent leading-tight">
-                {isAdmin ? "Ready to Create?" : "Coming Soon"}
-              </h1>
-            </ScrollAnimation>
-
-            <ScrollAnimation direction="up" delay={0.2}>
-              <p className="text-description mb-12 max-w-xl mx-auto">
-                {isAdmin
-                  ? "You have not added any learning content yet. Get started by creating your first module and begin building your course."
-                  : "The course content is still under development. Please check back later for exciting learning materials."}
-              </p>
-            </ScrollAnimation>
-
-            <ScrollAnimation direction="up" delay={0.3}>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                {isAdmin ? (
-                  <Link
-                    to="/learn/add"
-                    className={buttonVariants({ variant: "default" })}
-                  >
-                    <BookOpen className="mr-2 h-4 w-4" />
-                    Create a Module
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                ) : (
-                  <Link
-                    to="/"
-                    className={buttonVariants({ variant: "outline" })}
-                  >
-                    Back to Home
-                  </Link>
-                )}
+              <div>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+                  Course Overview
+                </h2>
+                <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-bold font-mono">
+                  No Content Available
+                </p>
               </div>
-            </ScrollAnimation>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {isAdmin && (
+                <Link
+                  to="/learn/add"
+                  className="inline-flex items-center gap-2 rounded-xl bg-cyan-600 dark:bg-[#22d3ee] px-6 py-2 text-xs font-black text-white dark:text-[#0b101a] shadow-lg shadow-cyan-500/20 transition-all duration-200 hover:brightness-110 hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]"
+                >
+                  <BookOpen className="w-4 h-4 stroke-[3.5px]" />
+                  CREATE MODULE
+                </Link>
+              )}
+              {!isAdmin && (
+                <Link
+                  to="/"
+                  className="inline-flex items-center gap-2 rounded-xl glass px-5 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 transition-all hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white"
+                >
+                  <ArrowRight className="w-3.5 h-3.5 rotate-180" />
+                  Back to Home
+                </Link>
+              )}
+            </div>
+          </header>
+
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar flex items-center justify-center">
+            <div className="container mx-auto px-4 py-16">
+              <div className="max-w-2xl mx-auto text-center">
+                <ScrollAnimation direction="down" delay={0}>
+                  <div className="inline-flex items-center px-3 py-1.5 rounded-lg border border-cyan-600/30 dark:border-cyan-500/30 bg-cyan-600/10 dark:bg-cyan-500/10 mb-8 backdrop-blur-md">
+                    <BookOpen className="w-4 h-4 mr-2 text-cyan-700 dark:text-cyan-400 stroke-[2.5px]" />
+                    <span className="text-[11px] font-bold tracking-tight text-cyan-800 dark:text-cyan-100">
+                      LEARNING PLATFORM
+                    </span>
+                  </div>
+                </ScrollAnimation>
+
+                <ScrollAnimation direction="up" delay={0.1}>
+                  <h1 className="text-5xl md:text-7xl font-bold mb-8 tracking-tighter text-slate-900 dark:text-white">
+                    {isAdmin ? "Ready to Create?" : "Coming Soon"}
+                    <span className="text-cyan-600 dark:text-[#22d3ee] block mt-2">
+                      {isAdmin ? "Build Future." : "Stay Tuned."}
+                    </span>
+                  </h1>
+                </ScrollAnimation>
+
+                <ScrollAnimation direction="up" delay={0.2}>
+                  <p className="text-slate-600 dark:text-slate-400 mb-12 max-w-xl mx-auto text-sm md:text-base leading-relaxed font-medium">
+                    {isAdmin
+                      ? "You have not added any learning content yet. Get started by creating your first module and begin building your course."
+                      : "The course content is still under development. Please check back later for exciting learning materials."}
+                  </p>
+                </ScrollAnimation>
+              </div>
+            </div>
           </div>
-        </div>
-
-        {/* Bottom gradient fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
-        <div className="section-divider-glow-bottom"></div>
-      </section>
+        </main>
+      </div>
     );
   }
 
   return (
-    <section className="relative w-full min-h-screen flex items-center justify-center">
-      {/* Modern AI-themed gradient background */}
-      <div className="absolute inset-0 hero-background-ai"></div>
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-theme-500/5 dark:via-theme-950/20 to-transparent"></div>
+    <div className="flex w-full h-screen overflow-hidden bg-slate-50 dark:bg-[#0b101a] text-slate-800 dark:text-slate-200">
+      <PrismBackground />
 
-      {/* AI circuit pattern overlay */}
-      <div className="absolute inset-0 opacity-5 dark:opacity-10">
-        <div className="circuit-pattern absolute inset-0"></div>
-      </div>
-
-      {/* AI-themed floating elements */}
-      <div className="floating-elements">
-        <div className="floating-element-1"></div>
-        <div className="floating-element-2"></div>
-        <div className="floating-element-3"></div>
-        <div className="floating-element-small top-10 right-10"></div>
-        <div className="floating-element-small bottom-20 left-20"></div>
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 py-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <ScrollAnimation direction="down" delay={0}>
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-sm font-medium mb-8">
-              <span className="w-2 h-2 bg-theme-500 dark:bg-theme-400 rounded-full mr-2 animate-pulse"></span>
-              Agentic Coding Course
+      {/* Main Content Area - full width when no sidebar */}
+      <main className="flex-1 flex flex-col min-w-0 h-full">
+        {/* Header */}
+        <header className="h-16 flex items-center justify-between px-8 border-b border-slate-200/60 dark:border-white/5 bg-white/60 dark:bg-[#0b101a]/40 backdrop-blur-md z-20 shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="bg-cyan-600/10 dark:bg-cyan-500/10 p-1.5 rounded-lg border border-cyan-600/30 dark:border-cyan-500/30">
+              <BookOpen className="w-5 h-5 text-cyan-700 dark:text-cyan-400 stroke-[2.5px]" />
             </div>
-          </ScrollAnimation>
+            <div>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+                Course Overview
+              </h2>
+              <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-bold font-mono">
+                {segments.length} {segments.length === 1 ? "Segment" : "Segments"}
+              </p>
+            </div>
+          </div>
 
-          <ScrollAnimation direction="up" delay={0.1}>
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-              Welcome to the{" "}
-              <span className="bg-gradient-to-r from-theme-500 to-theme-600 dark:from-theme-400 dark:to-theme-500 bg-clip-text text-transparent">
-                Course
-              </span>
-            </h1>
-          </ScrollAnimation>
-
-          <ScrollAnimation direction="up" delay={0.2}>
-            <p className="text-description mb-12 max-w-2xl mx-auto">
-              Ready to start your journey into agentic coding? Begin with the
-              first lesson and master AI-first development techniques that will
-              transform your programming workflow.
-            </p>
-          </ScrollAnimation>
-
-          <ScrollAnimation direction="up" delay={0.3}>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 max-w-2xl mx-auto">
+          <div className="flex items-center gap-3">
+            <Link
+              to={`/learn/$slug`}
+              params={{ slug: segments[0].slug }}
+              className="inline-flex items-center gap-2 rounded-xl glass px-5 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 transition-all hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white"
+            >
+              <Play className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 fill-cyan-600 dark:fill-cyan-400" />
+              Start Learning
+            </Link>
+            {isAdmin && (
               <Link
-                to={`/learn/$slug`}
-                params={{ slug: segments[0].slug }}
-                className={buttonVariants({ variant: "default", size: "lg" })}
+                to="/learn/add"
+                className="inline-flex items-center gap-2 rounded-xl bg-cyan-600 dark:bg-[#22d3ee] px-6 py-2 text-xs font-black text-white dark:text-[#0b101a] shadow-lg shadow-cyan-500/20 transition-all duration-200 hover:brightness-110 hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]"
               >
-                <Play className="mr-2 h-5 w-5" />
-                Start Learning
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <BookOpen className="w-4 h-4 stroke-[3.5px]" />
+                ADD MODULE
               </Link>
-            </div>
-          </ScrollAnimation>
+            )}
+          </div>
+        </header>
 
-          <ScrollAnimation direction="up" delay={0.4}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
-              <div className="module-card p-6 rounded-xl bg-white/5 dark:bg-white/5 backdrop-blur-sm border border-white/10 dark:border-white/10">
-                <div className="w-12 h-12 rounded-lg bg-theme-500/10 dark:bg-theme-400/10 flex items-center justify-center mb-4 mx-auto">
-                  <Play className="w-6 h-6 text-theme-600 dark:text-theme-400" />
-                </div>
-                <h3 className="font-semibold mb-2">Interactive Learning</h3>
-                <p className="text-sm text-muted-foreground">
-                  Hands-on lessons with real code examples
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <div className="container mx-auto px-4 py-16">
+            <div className="max-w-5xl mx-auto text-center">
+              <ScrollAnimation direction="up" delay={0.1}>
+                <h1 className="text-5xl md:text-7xl font-bold mb-8 tracking-tighter text-slate-900 dark:text-white">
+                  Welcome to the <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 dark:from-[#22d3ee] to-cyan-500 dark:to-[#00acc1] drop-shadow-[0_0_30px_rgba(34,211,238,0.3)]">
+                    Course
+                  </span>
+                </h1>
+              </ScrollAnimation>
+
+              <ScrollAnimation direction="up" delay={0.2}>
+                <p className="text-slate-600 dark:text-slate-400 mb-12 max-w-2xl mx-auto text-base leading-relaxed font-medium">
+                  Ready to start your journey into agentic coding? Begin with the
+                  first lesson and master AI-first development techniques that
+                  will transform your programming workflow.
                 </p>
-              </div>
-              <div className="module-card p-6 rounded-xl bg-white/5 dark:bg-white/5 backdrop-blur-sm border border-white/10 dark:border-white/10">
-                <div className="w-12 h-12 rounded-lg bg-theme-500/10 dark:bg-theme-400/10 flex items-center justify-center mb-4 mx-auto">
-                  <BookOpen className="w-6 h-6 text-theme-600 dark:text-theme-400" />
+              </ScrollAnimation>
+
+              <ScrollAnimation direction="up" delay={0.4}>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto perspective-[1000px]">
+                  <div className={cardStyles}>
+                    <div className="w-12 h-12 rounded-xl bg-cyan-600/10 dark:bg-cyan-500/10 flex items-center justify-center mb-4 border border-cyan-600/20 dark:border-cyan-500/20 shadow-[0_0_15px_rgba(34,211,238,0.1)]">
+                      <Terminal className="w-6 h-6 text-cyan-600 dark:text-[#22d3ee]" />
+                    </div>
+                    <h3 className="font-bold text-slate-900 dark:text-white mb-2 text-lg tracking-tight">
+                      Interactive Learning
+                    </h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                      Hands-on lessons with real code examples and immediate
+                      feedback.
+                    </p>
+                  </div>
+
+                  <div className={cardStyles}>
+                    <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-4 border border-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.1)]">
+                      <LayoutGrid className="w-6 h-6 text-purple-500 dark:text-purple-400" />
+                    </div>
+                    <h3 className="font-bold text-slate-900 dark:text-white mb-2 text-lg tracking-tight">
+                      Structured Modules
+                    </h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                      Step-by-step progression through concepts designed for
+                      mastery.
+                    </p>
+                  </div>
+
+                  <div className={cardStyles}>
+                    <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center mb-4 border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
+                      <Zap className="w-6 h-6 text-amber-500 dark:text-amber-400" />
+                    </div>
+                    <h3 className="font-bold text-slate-900 dark:text-white mb-2 text-lg tracking-tight">
+                      Expert Guidance
+                    </h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                      Learn from industry best practices and proven patterns.
+                    </p>
+                  </div>
                 </div>
-                <h3 className="font-semibold mb-2">Structured Modules</h3>
-                <p className="text-sm text-muted-foreground">
-                  Step-by-step progression through concepts
-                </p>
-              </div>
-              <div className="module-card p-6 rounded-xl bg-white/5 dark:bg-white/5 backdrop-blur-sm border border-white/10 dark:border-white/10">
-                <div className="w-12 h-12 rounded-lg bg-theme-500/10 dark:bg-theme-400/10 flex items-center justify-center mb-4 mx-auto">
-                  <ArrowRight className="w-6 h-6 text-theme-600 dark:text-theme-400" />
-                </div>
-                <h3 className="font-semibold mb-2">Expert Guidance</h3>
-                <p className="text-sm text-muted-foreground">
-                  Learn from industry best practices
-                </p>
-              </div>
+              </ScrollAnimation>
             </div>
-          </ScrollAnimation>
+          </div>
         </div>
-      </div>
-
-      {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
-      <div className="section-divider-glow-bottom"></div>
-    </section>
+      </main>
+    </div>
   );
 }

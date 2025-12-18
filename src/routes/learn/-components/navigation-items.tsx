@@ -21,6 +21,7 @@ interface NavigationItemsProps {
   className?: string;
   onItemClick?: () => void;
   dragHandleProps?: any;
+  searchQuery?: string;
 }
 
 export function NavigationItems({
@@ -32,6 +33,7 @@ export function NavigationItems({
   progress,
   onItemClick,
   dragHandleProps,
+  searchQuery = "",
 }: NavigationItemsProps) {
   const user = useAuth();
   const isLoggedIn = !!user?.id;
@@ -78,6 +80,13 @@ export function NavigationItems({
       setExpandedModules((prev) => ({ ...prev, [currentModule.id]: true }));
     }
   }, [currentSegmentId, modules]);
+
+  // Determine if a module should be expanded (auto-expand all when searching)
+  const isSearching = searchQuery.trim().length > 0;
+  const getIsExpanded = (moduleId: number) => {
+    if (isSearching) return true;
+    return expandedModules[moduleId] ?? false;
+  };
 
   const reorderMutation = useMutation({
     mutationFn: (updates: { id: number; order: number }[]) =>
@@ -142,14 +151,14 @@ export function NavigationItems({
   };
 
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className={cn("space-y-0.5", className)}>
       {modules &&
         Array.isArray(modules) &&
         modules.map((module, moduleIndex) => {
-          const isExpanded = expandedModules[module.id];
+          const isExpanded = getIsExpanded(module.id);
 
           return (
-            <div key={module.id} className="module-card">
+            <div key={module.id}>
               <ModuleAccordionHeader
                 module={module}
                 progress={progress}

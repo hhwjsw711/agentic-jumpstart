@@ -19,6 +19,7 @@ import {
   User,
   ShoppingCart,
 } from "lucide-react";
+import { GlassPanel } from "~/components/ui/glass-panel";
 import { useAuth } from "~/hooks/use-auth";
 import { useContinueSlug } from "~/hooks/use-continue-slug";
 import { Link } from "@tanstack/react-router";
@@ -178,23 +179,8 @@ function RouteComponent() {
   };
 
   return (
-    <div className="relative w-full min-h-screen">
-      {/* Modern AI-themed gradient background - matching hero */}
-      <div className="absolute inset-0 hero-background-ai"></div>
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-theme-500/5 dark:via-theme-950/20 to-transparent"></div>
-
-      {/* AI circuit pattern overlay */}
-      <div className="absolute inset-0 opacity-5 dark:opacity-10">
-        <div className="circuit-pattern absolute inset-0"></div>
-      </div>
-
-      {/* AI-themed floating elements */}
-      <div className="floating-elements">
-        <div className="floating-element-1"></div>
-        <div className="floating-element-2"></div>
-        <div className="floating-element-3"></div>
-        <div className="floating-element-small top-10 right-10"></div>
-      </div>
+    <div className="relative w-full min-h-screen bg-slate-50 dark:bg-[#0b101a] text-slate-800 dark:text-slate-200">
+      <div className="prism-bg" />
 
       {/* Content */}
       <div className="relative z-10 h-full">
@@ -202,131 +188,136 @@ function RouteComponent() {
           <div className="flex items-center justify-center h-full">
             <div className="text-center max-w-5xl">
               {/* Badge - matching hero style */}
-              <div className="inline-flex items-center px-4 py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-sm font-medium mb-8">
-                <span className="w-2 h-2 bg-theme-500 dark:bg-theme-400 rounded-full mr-2 animate-pulse"></span>
-                Limited Time Offer - {PRICING_CONFIG.DISCOUNT_PERCENTAGE}% OFF
-              </div>
+              <GlassPanel variant="cyan" padding="sm" className="inline-block mb-8">
+                <div className="inline-flex items-center text-sm font-medium text-slate-700 dark:text-cyan-400">
+                  <span className="w-2 h-2 bg-cyan-600 dark:bg-cyan-400 rounded-full mr-2 animate-pulse"></span>
+                  Limited Time Offer - {PRICING_CONFIG.DISCOUNT_PERCENTAGE}% OFF
+                </div>
+              </GlassPanel>
 
-              <h1 className="text-6xl leading-tight mb-8">
+              <h1 className="text-6xl leading-tight mb-8 text-slate-900 dark:text-white">
                 Agentic Coding{" "}
-                <span className="text-theme-400">Mastery Course</span>
+                <span className="text-cyan-600 dark:text-cyan-400">Mastery Course</span>
               </h1>
 
-              <p className="text-description mb-12 max-w-3xl mx-auto">
+              <p className="text-slate-600 dark:text-slate-400 text-xl mb-12 max-w-3xl mx-auto">
                 Transform your development workflow with AI-first programming.
                 Master Cursor IDE, Claude Code CLI, and advanced AI models to
                 build applications 10x faster than traditional methods. Get
                 lifetime access to cutting-edge techniques.
               </p>
 
-              <div className="video-container max-w-4xl mx-auto mb-16">
-                <div className="video-wrapper p-8">
-                  <div className="relative z-10">
-                    <div className="text-center mb-8">
-                      <h2 className="text-4xl font-bold text-theme-600 dark:text-theme-400 mb-2">
-                        Complete Learning Package
-                      </h2>
-                      <p className="text-muted-foreground">
-                        Everything you need to master AI-first development
-                      </p>
-                    </div>
+              <GlassPanel variant="cyan" padding="lg" className="max-w-4xl mx-auto mb-16 relative">
+                <div className="relative z-10">
+                  <div className="text-center mb-8">
+                    <h2 className="text-4xl font-bold text-cyan-600 dark:text-cyan-400 mb-2">
+                      Complete Learning Package
+                    </h2>
+                    <p className="text-slate-600 dark:text-slate-400">
+                      Everything you need to master AI-first development
+                    </p>
+                  </div>
 
-                    {/* Features Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-                      {features.map((feature) => (
-                        <div
-                          key={feature.title}
-                          className="flex items-start gap-3 p-4 rounded-lg hover:bg-theme-50/20 dark:hover:bg-background/20 transition-colors group"
-                        >
+                  {/* Features Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                    {features.map((feature) => (
+                      <GlassPanel
+                        key={feature.title}
+                        variant="default"
+                        padding="md"
+                        className="group transition-all duration-200 hover:border-cyan-600/30 dark:hover:border-cyan-500/30"
+                      >
+                        <div className="flex items-start gap-3">
                           <div className="flex-shrink-0">
-                            <feature.icon className="h-6 w-6 text-theme-500 dark:text-theme-400 group-hover:scale-110 transition-transform" />
+                            <feature.icon className="h-6 w-6 text-cyan-600 dark:text-cyan-400 group-hover:scale-110 transition-transform" />
                           </div>
                           <div className="text-left">
-                            <p className="text-foreground font-medium group-hover:text-theme-600 dark:group-hover:text-theme-400 transition-colors">
+                            <p className="text-slate-900 dark:text-white font-medium group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
                               {feature.title}
                             </p>
-                            <p className="text-muted-foreground text-sm">
+                            <p className="text-slate-600 dark:text-slate-400 text-sm">
                               {feature.description}
                             </p>
                           </div>
                         </div>
-                      ))}
+                      </GlassPanel>
+                    ))}
+                  </div>
+
+                  {/* Pricing */}
+                  <div className="text-center space-y-6">
+                    <div>
+                      <div className="text-slate-600 dark:text-slate-400 mb-2">
+                        Regular price{" "}
+                        <span className="line-through">
+                          {PRICING_CONFIG.FORMATTED_ORIGINAL_PRICE}
+                        </span>
+                      </div>
+                      <div className="text-6xl font-bold text-slate-900 dark:text-white mb-2">
+                        {PRICING_CONFIG.FORMATTED_CURRENT_PRICE}
+                      </div>
+                      <div className="text-cyan-600 dark:text-cyan-400 font-medium">
+                        Limited Time Offer
+                      </div>
+                      <div className="text-slate-600 dark:text-slate-400 text-sm mt-1">
+                        One-time payment, lifetime access
+                      </div>
                     </div>
 
-                    {/* Pricing */}
-                    <div className="text-center space-y-6">
-                      <div>
-                        <div className="text-muted-foreground/70 mb-2">
-                          Regular price{" "}
-                          <span className="line-through">
-                            {PRICING_CONFIG.FORMATTED_ORIGINAL_PRICE}
-                          </span>
-                        </div>
-                        <div className="text-6xl font-bold text-foreground mb-2">
-                          {PRICING_CONFIG.FORMATTED_CURRENT_PRICE}
-                        </div>
-                        <div className="text-theme-500 dark:text-theme-400 font-medium">
-                          Limited Time Offer
-                        </div>
-                        <div className="text-muted-foreground text-sm mt-1">
-                          One-time payment, lifetime access
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col items-center gap-4">
-                        {user ? (
-                          !user.isPremium ? (
-                            <Button size="lg" onClick={handlePurchaseClick}>
-                              <ShoppingCart className="mr-2 h-4 w-4" />
-                              Get Instant Access
-                            </Button>
-                          ) : (
-                            <Link
-                              to="/learn/$slug"
-                              params={{ slug: continueSlug }}
-                              className={buttonVariants({
-                                variant: "secondary",
-                                size: "lg",
-                              })}
-                            >
-                              Continue with Course
-                              <ArrowRight className="ml-2 h-4 w-4" />
-                            </Link>
-                          )
+                    <div className="flex flex-col items-center gap-4">
+                      {user ? (
+                        !user.isPremium ? (
+                          <Button variant="cyan" size="lg" onClick={handlePurchaseClick} className="rounded-xl px-6 py-2.5 text-sm font-bold">
+                            <ShoppingCart className="mr-2 h-4 w-4" />
+                            Get Instant Access
+                          </Button>
                         ) : (
-                          <a
-                            href={`/api/login/google?redirect_uri=${encodeURIComponent("/purchase")}`}
-                            onClick={async () => {
-                              if (sessionId) {
-                                try {
-                                  await trackPurchaseIntentFn({
-                                    data: {
-                                      sessionId,
-                                      buttonType: "login_to_purchase_button",
-                                    },
-                                  });
-                                } catch (error) {
-                                  console.error(
-                                    "Failed to track purchase intent:",
-                                    error
-                                  );
-                                }
-                              }
-                            }}
+                          <Link
+                            to="/learn/$slug"
+                            params={{ slug: continueSlug }}
+                            className={buttonVariants({
+                              variant: "glass",
+                              size: "lg",
+                              className: "rounded-xl px-5 py-2.5 text-xs font-bold",
+                            })}
                           >
-                            <Button size="lg">
-                              <User className="mr-2 h-4 w-4" />
-                              Login to Purchase
-                            </Button>
-                          </a>
-                        )}
+                            Continue with Course
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                          </Link>
+                        )
+                      ) : (
+                        <a
+                          href={`/api/login/google?redirect_uri=${encodeURIComponent("/purchase")}`}
+                          onClick={async () => {
+                            if (sessionId) {
+                              try {
+                                await trackPurchaseIntentFn({
+                                  data: {
+                                    sessionId,
+                                    buttonType: "login_to_purchase_button",
+                                  },
+                                });
+                              } catch (error) {
+                                console.error(
+                                  "Failed to track purchase intent:",
+                                  error
+                                );
+                              }
+                            }
+                          }}
+                        >
+                          <Button variant="cyan" size="lg" className="rounded-xl px-6 py-2.5 text-sm font-bold">
+                            <User className="mr-2 h-4 w-4" />
+                            Login to Purchase
+                          </Button>
+                        </a>
+                      )}
 
-                        <div className="flex items-center gap-2 text-muted-foreground/70">
-                          <Lock className="h-4 w-4" />
-                          <span className="text-sm">
-                            Secure payment with Stripe
-                          </span>
-                        </div>
+                      <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                        <Lock className="h-4 w-4" />
+                        <span className="text-sm">
+                          Secure payment with Stripe
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -335,14 +326,14 @@ function RouteComponent() {
                 {/* Decorative elements - matching hero */}
                 <div className="video-decorative-1"></div>
                 <div className="video-decorative-2"></div>
-              </div>
+              </GlassPanel>
             </div>
           </div>
         </div>
       </div>
 
       {/* Bottom gradient fade with theme accent - matching hero */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-50 via-slate-50/80 to-transparent dark:from-[#0b101a] dark:via-[#0b101a]/80"></div>
       <div className="section-divider-glow-bottom"></div>
 
       {/* Discount Dialog - Hidden until discount codes are implemented */}

@@ -1,16 +1,25 @@
 import { useQuery } from "@tanstack/react-query";
 import { createServerFn, useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { AuthenticationError } from "~/use-cases/errors";
 import { getSegmentByIdUseCase } from "~/use-cases/segments";
 import { getAuthenticatedUser } from "~/utils/auth";
 import { getStorage } from "~/utils/storage";
 import type { IStorage } from "~/utils/storage/storage.interface";
-import { Play, Loader2 } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { getAvailableQualitiesFn } from "~/fn/video-transcoding";
+import { Play, Loader2, Settings } from "lucide-react";
+import ReactPlayer from "react-player";
+import {
+  getAvailableQualitiesFn,
+  getThumbnailUrlFn,
+} from "~/fn/video-transcoding";
 import { unauthenticatedMiddleware } from "~/lib/auth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 
 const VIDEO_AVAILABILITY_MAX_ATTEMPTS = 5;
 const VIDEO_AVAILABILITY_INITIAL_DELAY_MS = 300;
@@ -38,40 +47,63 @@ function setStoredQualityPreference(quality: string): void {
   }
 }
 
-// Map display quality names to actual quality values
-const QUALITY_DISPLAY_TO_VALUE: Record<string, string> = {
-  "480p": "480p",
-  "720p": "720p",
-  "1080p": "original",
-};
-
-const QUALITY_VALUE_TO_DISPLAY: Record<string, string> = {
-  "480p": "480p",
-  "720p": "720p",
+// Map quality values to display labels
+const QUALITY_TO_LABEL: Record<string, string> = {
   original: "1080p",
+  "720p": "720p",
+  "480p": "480p",
 };
 
-// Order of quality tabs
-const QUALITY_ORDER = ["480p", "720p", "1080p"];
-
-function getAvailableQualityTabs(availableQualities: string[]): string[] {
-  // Filter and order qualities according to QUALITY_ORDER
-  return QUALITY_ORDER.filter((displayQuality) => {
-    const value = QUALITY_DISPLAY_TO_VALUE[displayQuality];
-    return availableQualities.includes(value);
-  });
-}
+// Order of qualities (highest to lowest)
+const QUALITY_ORDER = ["original", "720p", "480p"];
 
 interface VideoPlayerProps {
   segmentId: number;
   videoKey: string;
+  initialThumbnailUrl?: string | null;
 }
 
-export function VideoPlayer({ segmentId, videoKey }: VideoPlayerProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
+export function VideoPlayer({
+  segmentId,
+  videoKey,
+  initialThumbnailUrl,
+}: VideoPlayerProps) {
+  const [isClient, setIsClient] = useState(false);
+  const playerRef = useRef<HTMLVideoElement>(null);
   const [selectedQuality, setSelectedQuality] = useState<string>("original");
+  const [showQualityMenu, setShowQualityMenu] = useState(false);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(
+    initialThumbnailUrl || null
+  );
+  const [playing, setPlaying] = useState(false);
+  const [playedSeconds, setPlayedSeconds] = useState(0);
+  const [isReady, setIsReady] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const getAvailableQualities = useServerFn(getAvailableQualitiesFn);
-  const getVideoUrl = useServerFn(getVideoUrlFn);
+  const getThumbnailUrl = useServerFn(getThumbnailUrlFn);
+
+  // Ensure client-side only rendering for ReactPlayer
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsClient(true);
+    }
+  }, []);
+
+  // Fetch thumbnail URL independently (never blocks video loading)
+  // Only fetch if we don't already have an initial thumbnail
+  useEffect(() => {
+    if (!videoKey || initialThumbnailUrl) return;
+
+    getThumbnailUrl({ data: { segmentId } })
+      .then((result) => {
+        if (result?.thumbnailUrl) {
+          setThumbnailUrl(result.thumbnailUrl);
+        }
+      })
+      .catch(() => {
+        // Silently ignore - thumbnail is optional
+      });
+  }, [segmentId, videoKey, getThumbnailUrl, initialThumbnailUrl]);
 
   // Fetch available qualities
   const { data: qualitiesData, isLoading: isLoadingQualities } = useQuery({
@@ -84,93 +116,99 @@ export function VideoPlayer({ segmentId, videoKey }: VideoPlayerProps) {
     enabled: Boolean(videoKey),
   });
 
-  // Initialize quality preference from localStorage or default to 1080p
+  // Get available quality URLs
+  const qualityUrls = useMemo(() => {
+    if (!qualitiesData?.urls) return {};
+    return qualitiesData.urls as Record<string, string>;
+  }, [qualitiesData?.urls]);
+
+  // Get available qualities list
+  const availableQualities = useMemo(() => {
+    if (!qualitiesData?.availableQualities) return [];
+    return qualitiesData.availableQualities as string[];
+  }, [qualitiesData?.availableQualities]);
+
+  // Get current video URL based on selected quality
+  const currentVideoUrl = useMemo(() => {
+    if (!qualityUrls[selectedQuality]) {
+      // Fallback to first available quality
+      return qualityUrls[availableQualities[0]] || null;
+    }
+    return qualityUrls[selectedQuality];
+  }, [qualityUrls, selectedQuality, availableQualities]);
+
+  // Initialize quality preference from localStorage
   useEffect(() => {
-    if (qualitiesData?.availableQualities) {
+    if (availableQualities.length > 0) {
       const stored = getStoredQualityPreference();
-      const available = qualitiesData.availableQualities as string[];
-
-      // Use stored preference if it exists and is available, otherwise default to 1080p (original)
-      let initialQuality: string;
-      if (stored && (available as string[]).includes(stored)) {
-        initialQuality = stored;
+      if (stored && availableQualities.includes(stored)) {
+        setSelectedQuality(stored);
       } else {
-        // Fallback to 1080p (original) if stored preference doesn't exist or isn't available
-        initialQuality = (available as string[]).includes("original")
-          ? "original"
-          : (available as string[])[0] || "original";
-      }
-
-      setSelectedQuality(initialQuality);
-    }
-  }, [qualitiesData]);
-
-  // Get video URL for selected quality
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["video-url", segmentId, selectedQuality, qualitiesData?.urls],
-    queryFn: async () => {
-      if (qualitiesData?.urls) {
-        const urls = qualitiesData.urls as Record<string, string>;
-        const url = urls[selectedQuality];
-        if (url) {
-          return { videoUrl: url };
+        // Default to highest available quality
+        if (availableQualities.includes("original")) {
+          setSelectedQuality("original");
+        } else if (availableQualities.includes("720p")) {
+          setSelectedQuality("720p");
+        } else if (availableQualities.includes("480p")) {
+          setSelectedQuality("480p");
+        } else {
+          setSelectedQuality(availableQualities[0]);
         }
       }
-      // Fallback to original getVideoUrlFn
-      return getVideoUrl({ data: { segmentId } });
-    },
-    refetchOnWindowFocus: false,
-    retry: false,
-    staleTime: 1000 * 60 * 55, // 55 minutes
-    gcTime: 1000 * 60 * 60, // 1 hour
-    enabled: Boolean(videoKey && qualitiesData),
-  });
-
-  const handleQualityChange = (displayQuality: string) => {
-    const video = videoRef.current;
-    const currentTime = video?.currentTime || 0;
-    const wasPlaying = !video?.paused;
-
-    // Convert display quality (e.g., "1080p") to actual quality value (e.g., "original")
-    const actualQuality =
-      QUALITY_DISPLAY_TO_VALUE[displayQuality] || displayQuality;
-
-    setSelectedQuality(actualQuality);
-    // Store globally so it applies to all videos
-    setStoredQualityPreference(actualQuality);
-
-    // Restore playback position after a short delay to allow video to load
-    if (video) {
-      setTimeout(() => {
-        if (video) {
-          video.currentTime = currentTime;
-          if (wasPlaying) {
-            video.play().catch(() => {
-              // Ignore play errors
-            });
-          }
-        }
-      }, 100);
     }
+  }, [availableQualities]);
+
+  // Handle quality change
+  const handleQualityChange = (quality: string) => {
+    const videoElement = playerRef.current;
+    const currentTime = videoElement?.currentTime || playedSeconds;
+    const wasPlaying = playing;
+
+    setSelectedQuality(quality);
+    setStoredQualityPreference(quality);
+    setShowQualityMenu(false);
+
+    // Restore playback position after a short delay
+    setTimeout(() => {
+      if (videoElement) {
+        videoElement.currentTime = currentTime;
+        if (wasPlaying) {
+          setPlaying(true);
+        }
+      }
+    }, 100);
   };
 
-  if (isLoading || isLoadingQualities) {
+  // Get available quality options for dropdown
+  const qualityOptions = useMemo(() => {
+    return QUALITY_ORDER.filter((quality) =>
+      availableQualities.includes(quality)
+    );
+  }, [availableQualities]);
+
+  // Show thumbnail immediately if available, otherwise show minimal loading
+  if (!isClient || isLoadingQualities) {
+    // If we have a thumbnail, show it immediately without any spinner or text
+    if (thumbnailUrl) {
+      return (
+        <div
+          className="w-full h-full bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url(${thumbnailUrl})`,
+          }}
+        />
+      );
+    }
+
+    // Only show spinner if no thumbnail available
     return (
       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-background to-muted">
-        <div className="flex flex-col items-center gap-4 text-foreground">
-          <div className="relative">
-            <div className="p-4 rounded-full bg-foreground/10 backdrop-blur-sm">
-              <Play className="h-8 w-8" />
-            </div>
-            <Loader2 className="absolute -top-1 -left-1 h-10 w-10 animate-spin text-theme-500" />
-          </div>
-          <p className="text-sm text-muted-foreground">Loading video...</p>
-        </div>
+        <Loader2 className="h-8 w-8 animate-spin text-theme-500" />
       </div>
     );
   }
 
-  if (error) {
+  if (!qualitiesData || !currentVideoUrl) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-background to-muted">
         <div className="flex flex-col items-center gap-4 text-foreground p-8">
@@ -190,54 +228,109 @@ export function VideoPlayer({ segmentId, videoKey }: VideoPlayerProps) {
     );
   }
 
-  const availableQualities = qualitiesData?.availableQualities || [];
-  const availableTabs = getAvailableQualityTabs(availableQualities);
-  const showQualitySelector = availableTabs.length > 1;
+  const handlePlayClick = () => {
+    setPlaying(true);
+  };
 
-  // Get the display quality for the currently selected quality value
-  const selectedDisplayQuality =
-    QUALITY_VALUE_TO_DISPLAY[selectedQuality] || selectedQuality;
-
-  if (data) {
-    return (
-      <>
-        {showQualitySelector && (
-          <div className="absolute top-[-34px] right-0 z-10">
-            <Tabs
-              value={selectedDisplayQuality}
-              onValueChange={handleQualityChange}
+  return (
+    <div className="w-full h-full overflow-hidden relative group">
+      {/* Thumbnail overlay that fades out when video starts playing */}
+      {thumbnailUrl && !playing && !hasError && (
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-500 z-[1]"
+          style={{
+            backgroundImage: `url(${thumbnailUrl})`,
+          }}
+        >
+          {/* Play button overlay - shows when video is ready or if we have thumbnail */}
+          {(isReady || thumbnailUrl) && (
+            <button
+              onClick={handlePlayClick}
+              className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 transition-colors group/play"
+              aria-label="Play video"
             >
-              <TabsList className="h-8 bg-background/90 backdrop-blur-sm border-border/50">
-                {availableTabs.map((displayQuality) => (
-                  <TabsTrigger
-                    key={displayQuality}
-                    value={displayQuality}
-                    className="h-7 px-3 text-xs"
-                  >
-                    {displayQuality}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-          </div>
-        )}
-        <div className="w-full h-full overflow-hidden rounded-xl">
-          <video
-            ref={videoRef}
-            src={data.videoUrl}
-            controls
-            className="w-full h-full object-contain bg-background"
-            preload="metadata"
-            poster=""
-          >
-            Your browser does not support the video tag.
-          </video>
+              <div className="relative">
+                <div className="p-6 rounded-full bg-white/90 dark:bg-white/80 backdrop-blur-sm group-hover/play:scale-110 transition-transform shadow-lg">
+                  <Play
+                    className="h-12 w-12 text-slate-900 dark:text-slate-900 ml-1"
+                    fill="currentColor"
+                  />
+                </div>
+              </div>
+            </button>
+          )}
         </div>
-      </>
-    );
-  }
-
-  return null;
+      )}
+      <div className="relative z-10 w-full h-full">
+        <ReactPlayer
+          ref={playerRef}
+          src={currentVideoUrl}
+          playing={playing}
+          controls
+          width="100%"
+          height="100%"
+          onReady={() => setIsReady(true)}
+          onPlay={() => {
+            setPlaying(true);
+            setHasError(false);
+          }}
+          onPause={() => setPlaying(false)}
+          onError={(error) => {
+            console.error("Video player error:", error);
+            setHasError(true);
+            setIsReady(false);
+          }}
+          light={false}
+        />
+      </div>
+      {hasError && (
+        <div className="absolute inset-0 z-[20] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="text-center p-4">
+            <p className="text-sm text-white mb-2">Unable to load video</p>
+            <p className="text-xs text-white/70">
+              Please try refreshing the page
+            </p>
+          </div>
+        </div>
+      )}
+      {qualityOptions.length > 1 && (
+        <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+          <DropdownMenu
+            open={showQualityMenu}
+            onOpenChange={setShowQualityMenu}
+          >
+            <DropdownMenuTrigger asChild>
+              <button
+                className="flex items-center gap-2 px-3 py-2 bg-background/90 backdrop-blur-sm border border-border/50 rounded-md text-sm hover:bg-background transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowQualityMenu(!showQualityMenu);
+                }}
+              >
+                <Settings className="h-4 w-4" />
+                <span>
+                  {QUALITY_TO_LABEL[selectedQuality] || selectedQuality}
+                </span>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-32">
+              {qualityOptions.map((quality) => (
+                <DropdownMenuItem
+                  key={quality}
+                  onClick={() => handleQualityChange(quality)}
+                  className={
+                    selectedQuality === quality ? "bg-accent font-medium" : ""
+                  }
+                >
+                  {QUALITY_TO_LABEL[quality] || quality}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export const getVideoUrlFn = createServerFn({ method: "GET" })

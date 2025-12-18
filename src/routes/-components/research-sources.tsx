@@ -1,4 +1,4 @@
-import { ScrollAnimation } from "~/components/scroll-animation";
+import { DotPattern } from "~/components/ui/background-patterns";
 
 const researchSources = [
   {
@@ -60,8 +60,6 @@ const researchSources = [
         stroke="currentColor"
         strokeWidth="2"
         fill="none"
-        className="animate-spin"
-        style={{ animationDuration: "3s" }}
       />
     ),
   },
@@ -79,32 +77,34 @@ const researchSources = [
 
 export function ResearchSourcesSection() {
   return (
-    <section className="relative py-16 bg-gradient-to-b from-background to-muted/20">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+    <section className="relative py-16 bg-gradient-to-b from-background to-muted/20 overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 z-0 opacity-[0.3]">
+        <DotPattern
+          width={24}
+          height={24}
+          cx={1}
+          cy={1}
+          cr={1}
+          className="fill-gray-400/30 dark:fill-gray-600/30"
+        />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12">
         <div className="text-center mb-12">
-          <ScrollAnimation direction="up" delay={0}>
-            <h2 className="text-4xl font-bold mb-5">
-              The <span className="text-theme-400">Evidence</span> is Clear
-            </h2>
-          </ScrollAnimation>
-          <ScrollAnimation direction="up" delay={0.1}>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Agentic coding isn't just hype—it's the proven future of software
-              development. Here's the research that shows why every developer
-              needs to adapt now.
-            </p>
-          </ScrollAnimation>
+          <h2 className="text-4xl font-bold mb-5">
+            The <span className="text-theme-400">Evidence</span> is Clear
+          </h2>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Agentic coding isn't just hype—it's the proven future of software
+            development. Here's the research that shows why every developer
+            needs to adapt now.
+          </p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {researchSources.map((source, index) => (
-            <ScrollAnimation
-              key={index}
-              direction="up"
-              delay={0.1 + index * 0.1}
-            >
-              <ResearchCard {...source} />
-            </ScrollAnimation>
+            <ResearchCard key={index} {...source} />
           ))}
         </div>
 
@@ -156,13 +156,12 @@ function ResearchCard({
           {glyphPath.includes("M") ? (
             <path
               d={glyphPath}
-              className="animate-pulse"
               stroke={glyphPath.includes("L") ? "currentColor" : undefined}
               strokeWidth={glyphPath.includes("L") ? "2" : undefined}
               fill={glyphPath.includes("L") ? "none" : "currentColor"}
             />
           ) : (
-            <path d={glyphPath} className="animate-pulse" />
+            <path d={glyphPath} />
           )}
           {extraGlyph}
         </svg>

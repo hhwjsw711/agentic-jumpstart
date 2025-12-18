@@ -85,6 +85,7 @@
     "react-google-recaptcha": "^3.1.0",
     "react-hook-form": "^7.62.0",
     "react-markdown": "^10.1.0",
+    "react-player": "^3.4.0",
     "react-use": "^17.6.0",
     "recharts": "^3.1.2",
     "redaxios": "^0.5.1",

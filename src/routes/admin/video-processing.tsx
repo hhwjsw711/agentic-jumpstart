@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   Video,
   FileText,
+  Image,
   Loader2,
   Play,
   CheckCircle2,
@@ -96,7 +97,7 @@ function AdminVideoProcessing() {
   });
 
   const handleQueueAll = () => {
-    queueAllMutation.mutate();
+    queueAllMutation.mutate({});
   };
 
   const handleQueueSegment = (segmentId: number) => {
@@ -155,8 +156,11 @@ function AdminVideoProcessing() {
   const segmentsNeedingTranscode = segments.filter(
     (s) => s.needsTranscode && !s.activeTranscodeJob
   ).length;
+  const segmentsNeedingThumbnail = segments.filter(
+    (s) => s.needsThumbnail && !s.activeThumbnailJob
+  ).length;
   const activeJobs = segments.filter(
-    (s) => s.activeTranscriptJob || s.activeTranscodeJob
+    (s) => s.activeTranscriptJob || s.activeTranscodeJob || s.activeThumbnailJob
   ).length;
 
   return (
@@ -171,7 +175,8 @@ function AdminVideoProcessing() {
             disabled={
               queueAllMutation.isPending ||
               (segmentsNeedingTranscript === 0 &&
-                segmentsNeedingTranscode === 0)
+                segmentsNeedingTranscode === 0 &&
+                segmentsNeedingThumbnail === 0)
             }
             className="flex items-center gap-2"
           >
@@ -191,7 +196,7 @@ function AdminVideoProcessing() {
       />
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -232,6 +237,16 @@ function AdminVideoProcessing() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{segmentsNeedingTranscode}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Need Thumbnail
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{segmentsNeedingThumbnail}</div>
           </CardContent>
         </Card>
       </div>
@@ -279,7 +294,8 @@ interface SegmentRowProps {
 function SegmentRow({ segment, onProcess, isProcessing }: SegmentRowProps) {
   const needsProcessing =
     (segment.needsTranscript && !segment.activeTranscriptJob) ||
-    (segment.needsTranscode && !segment.activeTranscodeJob);
+    (segment.needsTranscode && !segment.activeTranscodeJob) ||
+    (segment.needsThumbnail && !segment.activeThumbnailJob);
 
   return (
     <div className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
@@ -320,6 +336,13 @@ function SegmentRow({ segment, onProcess, isProcessing }: SegmentRowProps) {
             active={segment.activeTranscodeJob}
             needs={segment.needsTranscode}
           />
+          <StatusBadge
+            icon={Image}
+            label="Thumb"
+            has={segment.hasThumbnail}
+            active={segment.activeThumbnailJob}
+            needs={segment.needsThumbnail}
+          />
         </div>
       </div>
       <div className="ml-4">
@@ -342,7 +365,9 @@ function SegmentRow({ segment, onProcess, isProcessing }: SegmentRowProps) {
               </>
             )}
           </Button>
-        ) : segment.activeTranscriptJob || segment.activeTranscodeJob ? (
+        ) : segment.activeTranscriptJob ||
+          segment.activeTranscodeJob ||
+          segment.activeThumbnailJob ? (
           <Badge variant="secondary" className="flex items-center gap-1">
             <Loader2 className="h-3 w-3 animate-spin" />
             Processing

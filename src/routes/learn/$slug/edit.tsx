@@ -47,6 +47,7 @@ function RouteComponent() {
             transcripts: segment.transcripts ?? "",
             slug: segment.slug,
             moduleTitle: segment.moduleTitle,
+            icon: segment.icon,
             isPremium: segment.isPremium,
             isComingSoon: segment.isComingSoon,
           }}

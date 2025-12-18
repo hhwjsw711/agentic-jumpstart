@@ -13,12 +13,15 @@ import {
   SegmentProvider,
   useSegment,
 } from "~/routes/learn/-components/segment-context";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { NavigationSkeleton } from "../-components/navigation-skeleton";
 import { MobileNavigationSkeleton } from "../-components/mobile-navigation-skeleton";
 import { getProgressFn } from "~/fn/progress";
 import { getModulesWithSegmentsFn } from "~/fn/modules";
+import { VideoHeader } from "./-components/video-header";
+import { QuickNavigationBar } from "./-components/quick-navigation-bar";
+import { useAuth } from "~/hooks/use-auth";
 
 export const modulesQueryOptions = queryOptions({
   queryKey: ["modules"],
@@ -49,6 +52,9 @@ function LayoutContent() {
   const { segment, isPremium, isAdmin, progress } = Route.useLoaderData();
   const navigate = useNavigate();
   const { currentSegmentId, setCurrentSegmentId } = useSegment();
+  const user = useAuth();
+  const isLoggedIn = !!user?.id;
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const { data: modulesWithSegments, isLoading: isModulesLoading } =
     useQuery(modulesQueryOptions);
@@ -82,9 +88,11 @@ function LayoutContent() {
   const shouldRenderNavigation = !isModulesLoading && modulesWithSegments;
 
   return (
-    <div className="flex w-full">
-      {/* Desktop Navigation */}
-      <div className="hidden lg:block w-80 xl:w-[440px] flex-shrink-0">
+    <div className="flex w-full h-screen overflow-hidden bg-slate-50 dark:bg-[#0b101a] text-slate-800 dark:text-slate-200">
+      {/* Left Sidebar - Collapsible width */}
+      <aside
+        className={`hidden lg:flex h-full shrink-0 z-30 transition-all duration-300 ${sidebarCollapsed ? "w-16" : "w-96"}`}
+      >
         {shouldRenderNavigation ? (
           <DesktopNavigation
             modules={modulesWithSegments}
@@ -92,13 +100,16 @@ function LayoutContent() {
             isAdmin={isAdmin}
             progress={progress}
             isPremium={isPremium}
+            isCollapsed={sidebarCollapsed}
+            onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
           />
         ) : (
           <NavigationSkeleton />
         )}
-      </div>
+      </aside>
 
-      <div className="flex-1 w-full min-w-0">
+      {/* Main Content Area - flex-1, with header and scrollable content */}
+      <main className="flex-1 flex flex-col min-w-0 h-full">
         {/* Mobile Navigation */}
         {shouldRenderNavigation ? (
           <MobileNavigation
@@ -112,12 +123,38 @@ function LayoutContent() {
           <MobileNavigationSkeleton />
         )}
 
-        <main className="w-full p-4 lg:p-6">
+        {/* Video Header - Fixed height, shrink-0 */}
+        <VideoHeader
+          currentSegment={segment}
+          isAdmin={isAdmin}
+          currentSegmentId={segment.id}
+          isLoggedIn={isLoggedIn}
+          progress={progress}
+          isPremium={isPremium}
+        />
+
+        {/* Quick Navigation Bar */}
+        {shouldRenderNavigation && (
+          <QuickNavigationBar
+            modules={modulesWithSegments}
+            currentSegmentId={segment.id}
+            progress={progress}
+            isPremium={isPremium}
+            isAdmin={isAdmin}
+          />
+        )}
+
+        {/* Scrollable content area */}
+        <div className="relative z-0 flex-1 overflow-y-auto custom-scrollbar">
           <Outlet />
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
+}
+
+function PrismBackground() {
+  return <div className="prism-bg" />;
 }
 
 function RouteComponent() {
@@ -125,6 +162,7 @@ function RouteComponent() {
 
   return (
     <SidebarProvider>
+      <PrismBackground />
       {segment && (
         <SegmentProvider>
           <LayoutContent />

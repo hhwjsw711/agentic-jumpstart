@@ -1,10 +1,5 @@
 import { useNewsletterSubscription } from "~/hooks/use-newsletter-subscription";
 import { Button } from "~/components/ui/button";
-import {
-  ScrollAnimation,
-  ScrollScale,
-  ScrollFadeIn,
-} from "~/components/scroll-animation";
 
 interface NewsletterFormProps {
   showStats?: boolean;
@@ -17,8 +12,7 @@ export function NewsletterForm({ showStats = true }: NewsletterFormProps) {
   return (
     <>
       {isSubmitted ? (
-        <ScrollScale delay={0.5}>
-          <div className="relative">
+        <div className="relative">
             {/* Success card with glass morphism */}
             <div className="relative bg-white/10 dark:bg-theme-500/10 backdrop-blur-md border border-theme-200/50 dark:border-theme-500/30 rounded-2xl p-8 max-w-md mx-auto shadow-2xl">
               {/* Glow effect behind card */}
@@ -53,10 +47,8 @@ export function NewsletterForm({ showStats = true }: NewsletterFormProps) {
               </div>
             </div>
           </div>
-        </ScrollScale>
       ) : (
-        <ScrollAnimation direction="up" delay={0.5}>
-          <form onSubmit={handleSubmit} className="max-w-md mx-auto relative">
+        <form onSubmit={handleSubmit} className="max-w-md mx-auto relative">
             {/* Form glow effect */}
             <div className="absolute inset-0 bg-theme-500/5 blur-3xl"></div>
 
@@ -68,7 +60,6 @@ export function NewsletterForm({ showStats = true }: NewsletterFormProps) {
                 placeholder="Enter your email"
                 className="flex-1 px-6 py-3 h-14 text-lg rounded-lg bg-white/80 dark:bg-background/80 backdrop-blur-sm text-foreground border border-theme-200/50 dark:border-border/50 focus:outline-none focus:border-theme-500 focus:ring-2 focus:ring-theme-500/30 transition-all duration-300 hover:border-theme-400/50"
                 required
-                autoFocus
               />
               <Button
                 type="submit"
@@ -102,12 +93,10 @@ export function NewsletterForm({ showStats = true }: NewsletterFormProps) {
               apply.
             </p>
           </form>
-        </ScrollAnimation>
       )}
 
       {showStats && (
-        <ScrollFadeIn delay={0.6}>
-          <div className="mt-16 relative">
+        <div className="mt-16 relative">
             {/* Stats container with glass morphism */}
             <div className="group relative bg-white/5 dark:bg-theme-500/5 backdrop-blur-sm border-2 border-gray-300 dark:border-gray-600 hover:border-theme-400 dark:hover:border-theme-500 rounded-2xl p-6 transition-all duration-500 hover:bg-white/10 dark:hover:bg-theme-500/10 hover:shadow-2xl hover:shadow-theme-500/20">
               {/* Glow effect */}
@@ -122,7 +111,6 @@ export function NewsletterForm({ showStats = true }: NewsletterFormProps) {
                 >
                   <path
                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    className="animate-pulse"
                   />
                 </svg>
               </div>
@@ -135,7 +123,6 @@ export function NewsletterForm({ showStats = true }: NewsletterFormProps) {
                 >
                   <path
                     d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                    className="animate-ping"
                   />
                 </svg>
               </div>
@@ -148,7 +135,6 @@ export function NewsletterForm({ showStats = true }: NewsletterFormProps) {
                 >
                   <path
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    className="animate-bounce"
                   />
                 </svg>
               </div>
@@ -185,7 +171,6 @@ export function NewsletterForm({ showStats = true }: NewsletterFormProps) {
               </div>
             </div>
           </div>
-        </ScrollFadeIn>
       )}
     </>
   );

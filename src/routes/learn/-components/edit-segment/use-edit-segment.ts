@@ -48,6 +48,7 @@ export function useEditSegment(segment: any) {
             moduleTitle: values.moduleTitle,
             slug: values.slug,
             length: videoDuration,
+            icon: values.icon,
             isPremium: values.isPremium,
             isComingSoon: values.isComingSoon,
           },

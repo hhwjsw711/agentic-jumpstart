@@ -1,47 +1,58 @@
 import { Play, Users, Award } from "lucide-react";
-import { ScrollAnimation } from "~/components/scroll-animation";
+import { GridPattern } from "~/components/ui/background-patterns";
 
 export function InstructorSection() {
   return (
-    <section className="relative py-24">
+    <section className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 hero-background-ai opacity-50"></div>
+      
+      {/* Background Pattern */}
+      <div className="absolute inset-0 z-0 opacity-[0.2]">
+        <GridPattern
+          width={40}
+          height={40}
+          x={-1}
+          y={-1}
+          className="stroke-gray-300/30 fill-gray-300/30 dark:stroke-gray-600/30 dark:fill-gray-600/30"
+          squares={[
+            [1, 2],
+            [12, 4],
+            [6, 10],
+          ]}
+        />
+      </div>
+
       <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12">
         <div className="text-center mb-16">
-          <ScrollAnimation delay={0.1}>
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-sm font-medium mb-8">
-              <span className="w-2 h-2 bg-theme-500 dark:bg-theme-400 rounded-full mr-2 animate-pulse"></span>
-              Your Instructor
-            </div>
-          </ScrollAnimation>
+          <div className="inline-flex items-center px-4 py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-sm font-medium mb-8">
+            <span className="w-2 h-2 bg-theme-500 dark:bg-theme-400 rounded-full mr-2"></span>
+            Your Instructor
+          </div>
 
           {/* Profile Picture with Gradient Background */}
-          <ScrollAnimation delay={0.2}>
-            <div className="mb-8 flex justify-center">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-theme-400 via-theme-500 to-theme-600 rounded-2xl blur-xl opacity-30"></div>
-                <div className="relative bg-gradient-to-br from-theme-400 via-theme-500 to-theme-600 rounded-2xl p-1">
-                  <img
-                    src="/cody.png"
-                    alt="Cody - Your Instructor"
-                    className="size-64 rounded-xl object-cover"
-                  />
-                </div>
+          <div className="mb-8 flex justify-center">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-theme-400 via-theme-500 to-theme-600 rounded-2xl blur-xl opacity-30"></div>
+              <div className="relative bg-gradient-to-br from-theme-400 via-theme-500 to-theme-600 rounded-2xl p-1">
+                <img
+                  src="/cody.png"
+                  alt="Cody - Your Instructor"
+                  className="size-64 rounded-xl object-cover"
+                />
               </div>
             </div>
-          </ScrollAnimation>
+          </div>
 
-          <ScrollAnimation delay={0.2}>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
-              Learn from{" "}
-              <span className="text-theme-400">
-                <br />
-                WebDevCody
-              </span>
-            </h2>
-          </ScrollAnimation>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+            Learn from{" "}
+            <span className="text-theme-400">
+              <br />
+              WebDevCody
+            </span>
+          </h2>
         </div>
 
-        <ScrollAnimation delay={0.3}>
+        <div>
           <div className="bg-white/10 dark:bg-theme-500/10 backdrop-blur-md border border-theme-200/50 dark:border-theme-500/30 rounded-3xl p-6 md:p-8 lg:p-12 max-w-4xl mx-auto">
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div>
@@ -120,9 +131,7 @@ export function InstructorSection() {
                   label="Educational Videos"
                   glyphColor="theme"
                   glyphPath="M8 5v14l11-7z"
-                  extraGlyph={
-                    <circle cx="12" cy="12" r="2" className="animate-ping" />
-                  }
+                  extraGlyph={null}
                 />
 
                 <InstructorStatCard
@@ -151,7 +160,6 @@ export function InstructorSection() {
                         stroke="currentColor"
                         strokeWidth="2"
                         fill="none"
-                        className="animate-pulse"
                       />
                     </svg>
                   </div>
@@ -169,7 +177,7 @@ export function InstructorSection() {
               </div>
             </div>
           </div>
-        </ScrollAnimation>
+        </div>
       </div>
     </section>
   );
@@ -204,7 +212,7 @@ function InstructorStatCard({
           fill="currentColor"
           viewBox="0 0 24 24"
         >
-          <path d={glyphPath} className="animate-pulse" />
+          <path d={glyphPath} />
           {extraGlyph}
         </svg>
       </div>

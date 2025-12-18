@@ -153,8 +153,10 @@ export function VideoControls({
   const isFirstSegment = !previousSegment;
 
   return (
-    <div className="flex justify-between items-center gap-4 mb-8">
+    <div className="flex justify-between items-center gap-4">
       <Button
+        variant="glass"
+        className="rounded-xl px-5 py-2.5 text-xs font-bold"
         disabled={isFirstSegment}
         onClick={() => {
           if (previousSegment) {
@@ -167,6 +169,8 @@ export function VideoControls({
       </Button>
 
       <Button
+        variant="cyan"
+        className="rounded-xl px-6 py-2.5 text-xs font-black shadow-lg shadow-cyan-500/20"
         onClick={async () => {
           // Only mark as watched if user can actually access the video content
           const canAccessVideo =
@@ -187,12 +191,12 @@ export function VideoControls({
         {isLastSegment ? (
           <>
             Complete Course
-            <CheckCircle className="ml-2 h-4 w-4" />
+            <CheckCircle className="ml-2 h-4 w-4 stroke-[2.5px]" />
           </>
         ) : (
           <>
             Next Video
-            <ArrowRight className="ml-2 h-4 w-4" />
+            <ArrowRight className="ml-2 h-4 w-4 stroke-[2.5px]" />
           </>
         )}
       </Button>

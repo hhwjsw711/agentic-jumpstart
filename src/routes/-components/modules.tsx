@@ -16,7 +16,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { getModules } from "~/data-access/modules";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "~/components/ui/button";
-import { ScrollAnimation, ScrollScale } from "~/components/scroll-animation";
+import { GlassPanel } from "~/components/ui/glass-panel";
+import { GridPattern } from "~/components/ui/background-patterns";
 
 function formatDuration(durationInMinutes: number) {
   const hours = Math.floor(durationInMinutes / 60);
@@ -89,22 +90,21 @@ export function ModulesSection({
   const formattedTotalDuration = formatDuration(totalDurationMinutes);
 
   return (
-    <section className="relative w-full py-12 md:py-24">
-      {/* Modern AI-themed gradient background - matching hero */}
-      <div className="absolute inset-0 hero-background-ai"></div>
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-theme-500/5 dark:via-theme-950/20 to-transparent"></div>
-
-      {/* AI circuit pattern overlay */}
-      <div className="absolute inset-0 opacity-5 dark:opacity-10">
-        <div className="circuit-pattern absolute inset-0"></div>
-      </div>
-
-      {/* AI-themed floating elements */}
-      <div className="floating-elements">
-        <div className="floating-element-1"></div>
-        <div className="floating-element-2"></div>
-        <div className="floating-element-3"></div>
-        <div className="floating-element-small top-10 right-10"></div>
+    <section className="relative w-full py-12 md:py-24 bg-slate-100/50 dark:bg-[#0d121f]">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 z-0 opacity-[0.3]">
+        <GridPattern
+          width={30}
+          height={30}
+          x={-1}
+          y={-1}
+          className="stroke-gray-300/30 fill-gray-300/30 dark:stroke-gray-600/30 dark:fill-gray-600/30"
+          squares={[
+            [2, 5],
+            [10, 2],
+            [15, 10],
+          ]}
+        />
       </div>
 
       {/* Content */}
@@ -113,28 +113,24 @@ export function ModulesSection({
           {/* Section header */}
           <div className="text-center mb-8 md:mb-16">
             {/* Badge - matching hero style */}
-            <ScrollAnimation direction="down" delay={0}>
-              <div className="inline-flex items-center px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-xs md:text-sm font-medium mb-6 md:mb-8">
-                <span className="w-2 h-2 bg-theme-500 dark:bg-theme-400 rounded-full mr-2 animate-pulse"></span>
+            <GlassPanel variant="cyan" padding="sm" className="inline-block mb-6 md:mb-8">
+              <div className="inline-flex items-center text-xs md:text-sm font-medium text-slate-700 dark:text-cyan-400">
+                <span className="w-2 h-2 bg-cyan-600 dark:bg-cyan-400 rounded-full mr-2"></span>
                 Everyone can be a 10x developer
               </div>
-            </ScrollAnimation>
+            </GlassPanel>
 
-            <ScrollAnimation direction="up" delay={0.0}>
-              <h2 className="text-3xl md:text-4xl lg:text-6xl leading-tight mb-6 md:mb-8">
-                The Perfect Curriculum to{" "}
-                <span className="text-theme-400">Master Agentic Coding</span>
-              </h2>
-            </ScrollAnimation>
+            <h2 className="text-3xl md:text-4xl lg:text-6xl leading-tight mb-6 md:mb-8 text-slate-900 dark:text-white">
+              The Perfect Curriculum to{" "}
+              <span className="text-cyan-600 dark:text-cyan-400">Master Agentic Coding</span>
+            </h2>
 
-            <ScrollAnimation direction="up" delay={0.1}>
-              <p className="text-sm md:text-base lg:text-lg text-description mb-8 md:mb-12 max-w-4xl mx-auto">
-                Learn to leverage AI tools like Cursor, Claude Code, and
-                advanced models to build applications faster than ever. From
-                setup to deployment, master the complete AI-assisted development
-                workflow.
-              </p>
-            </ScrollAnimation>
+            <p className="text-sm md:text-base lg:text-lg text-slate-600 dark:text-slate-400 mb-8 md:mb-12 max-w-4xl mx-auto">
+              Learn to leverage AI tools like Cursor, Claude Code, and
+              advanced models to build applications faster than ever. From
+              setup to deployment, master the complete AI-assisted development
+              workflow.
+            </p>
           </div>
 
           {/* Module progression */}
@@ -150,45 +146,43 @@ export function ModulesSection({
                 );
 
                 return (
-                  <ScrollAnimation
+                  <div
                     key={moduleId}
-                    direction="up"
-                    delay={0.1 + index * 0.15}
                     className="relative"
                   >
                     {/* Connector line */}
                     {index < moduleEntries.length - 1 && (
-                      <div className="absolute left-6 md:left-8 top-16 md:top-20 w-px h-12 md:h-16 bg-gradient-to-b from-theme-300 to-theme-100 dark:from-theme-700 dark:to-theme-900"></div>
+                      <div className="absolute left-6 md:left-8 top-16 md:top-20 w-px h-12 md:h-16 bg-gradient-to-b from-cyan-300 to-cyan-100 dark:from-cyan-700 dark:to-cyan-900"></div>
                     )}
 
                     <div className="flex gap-3 md:gap-6">
                       {/* Module indicator */}
                       <div className="flex-shrink-0">
-                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 md:border-4 border-theme-500 bg-theme-100 dark:bg-theme-900/50 flex items-center justify-center">
-                          <div className="text-theme-500 dark:text-theme-400 scale-75 md:scale-100">
+                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-full border-2 md:border-4 border-cyan-600 dark:border-cyan-400 bg-cyan-100 dark:bg-cyan-900/50 flex items-center justify-center">
+                          <div className="text-cyan-600 dark:text-cyan-400 scale-75 md:scale-100">
                             {getModuleIcon(moduleId)}
                           </div>
                         </div>
                       </div>
 
                       {/* Module content */}
-                      <div className="flex-grow bg-gradient-to-b from-white to-theme-50/20 dark:to-gray-900 dark:from-theme-900/40 backdrop-blur-sm p-4 md:p-6 lg:p-8 rounded-xl border border-border hover:border-theme-300 dark:hover:border-theme-700 transition-all duration-300">
+                      <GlassPanel variant="cyan" padding="lg" className="flex-grow">
                         <div className="flex flex-wrap items-center gap-2 md:gap-4 mb-4">
-                          <h4 className="text-lg md:text-xl lg:text-2xl font-bold">
+                          <h4 className="text-lg md:text-xl lg:text-2xl font-bold text-slate-900 dark:text-white">
                             {moduleInfo?.title || `Module ${moduleId}`}
                           </h4>
                           <Badge
                             variant="outline"
-                            className="text-theme-600 dark:text-theme-400"
+                            className="text-cyan-600 dark:text-cyan-400 border-cyan-600/30 dark:border-cyan-400/30"
                           >
                             {formattedModuleDuration}
                           </Badge>
-                          <Badge className="bg-theme-100 text-theme-800 dark:bg-theme-900/30 dark:text-theme-400">
+                          <Badge className="bg-cyan-600/10 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-400 border-cyan-600/30 dark:border-cyan-500/30">
                             {moduleSegments.length} lessons
                           </Badge>
                         </div>
 
-                        <p className="text-muted-foreground mb-4 md:mb-6 text-sm md:text-base lg:text-lg leading-relaxed">
+                        <p className="text-slate-600 dark:text-slate-400 mb-4 md:mb-6 text-sm md:text-base lg:text-lg leading-relaxed">
                           Learn essential AI development skills and master
                           cutting-edge tools in this comprehensive module.
                         </p>
@@ -199,7 +193,7 @@ export function ModulesSection({
                             const lessonContent = (
                               <>
                                 <div className="flex-shrink-0 mt-1">
-                                  <Circle className="w-4 h-4 text-theme-500 dark:text-theme-400" />
+                                  <Circle className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
                                 </div>
                                 <div className="flex-grow">
                                   <div className="flex items-center gap-2 mb-1">
@@ -241,12 +235,16 @@ export function ModulesSection({
 
                             if (isDisabled) {
                               return (
-                                <div
+                                <GlassPanel
                                   key={segment.id}
-                                  className="group/lesson flex items-start gap-2 md:gap-3 p-3 md:p-4 rounded-lg border border-border bg-white dark:bg-gray-900 opacity-60 cursor-not-allowed"
+                                  variant="default"
+                                  padding="sm"
+                                  className="opacity-60 cursor-not-allowed"
                                 >
-                                  {lessonContent}
-                                </div>
+                                  <div className="group/lesson flex items-start gap-2 md:gap-3">
+                                    {lessonContent}
+                                  </div>
+                                </GlassPanel>
                               );
                             }
 
@@ -255,9 +253,17 @@ export function ModulesSection({
                                 key={segment.id}
                                 to="/learn/$slug"
                                 params={{ slug: segment.slug }}
-                                className="group/lesson flex items-start gap-2 md:gap-3 p-3 md:p-4 rounded-lg border border-border bg-white dark:bg-gray-900 hover:border-theme-300 dark:hover:border-theme-700 transition-all duration-200 hover:bg-accent/50"
+                                className="block"
                               >
-                                {lessonContent}
+                                <GlassPanel
+                                  variant="default"
+                                  padding="sm"
+                                  className="group/lesson transition-all duration-200 hover:border-cyan-600/30 dark:hover:border-cyan-500/30 hover:bg-cyan-600/5 dark:hover:bg-cyan-500/5"
+                                >
+                                  <div className="flex items-start gap-2 md:gap-3">
+                                    {lessonContent}
+                                  </div>
+                                </GlassPanel>
                               </Link>
                             );
                           })}
@@ -277,15 +283,15 @@ export function ModulesSection({
                               to="/learn/$slug"
                               params={{ slug: moduleSegments[0]?.slug }}
                             >
-                              <Button className="bg-theme-600 hover:bg-theme-700 text-white">
+                              <Button variant="cyan" className="rounded-xl px-6 py-2.5 text-sm font-bold">
                                 Start Module <Play className="w-4 h-4 ml-2" />
                               </Button>
                             </Link>
                           )}
                         </div>
-                      </div>
+                      </GlassPanel>
                     </div>
-                  </ScrollAnimation>
+                  </div>
                 );
               })}
             </div>
@@ -294,7 +300,7 @@ export function ModulesSection({
       </div>
 
       {/* Bottom gradient fade with theme accent - matching hero */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-50 via-slate-50/80 to-transparent dark:from-[#0b101a] dark:via-[#0b101a]/80"></div>
       <div className="section-divider-glow-bottom"></div>
     </section>
   );

@@ -50,7 +50,7 @@ export async function reorderModulesUseCase(
   return reorderModules(updates);
 }
 
-export async function updateModuleUseCase(moduleId: number, updates: { title: string }) {
+export async function updateModuleUseCase(moduleId: number, updates: { title?: string; icon?: string | null }) {
   const [updated] = await updateModule(moduleId, updates);
   return updated;
 }

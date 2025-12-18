@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { env } from "~/utils/env";
 import { NewsletterForm } from "./newsletter-form";
+import { CircuitBoardPattern } from "~/components/ui/background-patterns";
 
 declare global {
   interface Window {
@@ -52,9 +53,9 @@ export function NewsletterSection() {
       <div className="absolute inset-0 hero-background-ai"></div>
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-theme-500/5 dark:via-theme-950/20 to-transparent"></div>
 
-      {/* Circuit pattern overlay */}
-      <div className="absolute inset-0 opacity-5 dark:opacity-10">
-        <div className="circuit-pattern absolute inset-0"></div>
+      {/* Background Pattern */}
+      <div className="absolute inset-0 z-0 opacity-[0.4]">
+        <CircuitBoardPattern className="text-theme-500/20 dark:text-theme-500/30" />
       </div>
 
       {/* Floating elements for visual appeal */}

@@ -5,6 +5,7 @@ import { type Segment } from "~/db/schema";
 import { ContentPanel } from "./content-panel";
 import { CommentsPanel } from "./comments-panel";
 import { MarkdownContent } from "~/routes/learn/-components/markdown-content";
+import { GlassPanel } from "~/components/ui/glass-panel";
 
 interface VideoContentTabsPanelProps {
   currentSegment: Segment;
@@ -48,16 +49,16 @@ export function VideoContentTabsPanel({
   }, [defaultTab, showContentTabs]);
 
   return (
-    <div className="module-card overflow-hidden">
+    <GlassPanel variant="cyan">
       {/* Tab Headers */}
-      <div className="flex border-b border-gray-200 dark:border-gray-700">
+      <div className="flex border-b border-slate-200/60 dark:border-white/10">
         <button
           onClick={() => setActiveTab("comments")}
           className={cn(
             "flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all duration-200 border-b-2 cursor-pointer",
             activeTab === "comments"
-              ? "border-theme-500 text-theme-600 dark:text-theme-400 bg-theme-50 dark:bg-theme-950/30"
-              : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              ? "border-cyan-600 dark:border-cyan-500 text-cyan-700 dark:text-cyan-400 bg-cyan-500/10"
+              : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
           )}
         >
           <MessageSquare className="h-4 w-4" />
@@ -69,8 +70,8 @@ export function VideoContentTabsPanel({
             className={cn(
               "flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all duration-200 border-b-2 cursor-pointer",
               activeTab === "content"
-                ? "border-theme-500 text-theme-600 dark:text-theme-400 bg-theme-50 dark:bg-theme-950/30"
-                : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                ? "border-cyan-600 dark:border-cyan-500 text-cyan-700 dark:text-cyan-400 bg-cyan-500/10"
+                : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
             )}
           >
             <FileText className="h-4 w-4" />
@@ -82,8 +83,8 @@ export function VideoContentTabsPanel({
           className={cn(
             "flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all duration-200 border-b-2 cursor-pointer",
             activeTab === "transcripts"
-              ? "border-theme-500 text-theme-600 dark:text-theme-400 bg-theme-50 dark:bg-theme-950/30"
-              : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              ? "border-cyan-600 dark:border-cyan-500 text-cyan-700 dark:text-cyan-400 bg-cyan-500/10"
+              : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
           )}
         >
           <FileText className="h-4 w-4" />
@@ -119,6 +120,6 @@ export function VideoContentTabsPanel({
           />
         )}
       </div>
-    </div>
+    </GlassPanel>
   );
 }

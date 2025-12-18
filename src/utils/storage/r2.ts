@@ -42,12 +42,12 @@ export class R2Storage implements IStorage {
     });
   }
 
-  async upload(key: string, data: Buffer) {
+  async upload(key: string, data: Buffer, contentType: string = "video/mp4") {
     const command = new PutObjectCommand({
       Bucket: this.bucket,
       Key: key,
       Body: data,
-      ContentType: "video/mp4",
+      ContentType: contentType,
     });
 
     await this.client.send(command);

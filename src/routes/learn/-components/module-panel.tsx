@@ -4,7 +4,7 @@ import { SegmentItem } from "./segment-item";
 import { useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { cn } from "~/lib/utils";
-import { useRef, useEffect, useState } from "react";
+import { useRef } from "react";
 
 interface ModuleWithSegments extends Module {
   segments: Segment[];
@@ -61,7 +61,7 @@ export function ModulePanel({
 
   return (
     <div
-      className="overflow-hidden transition-all duration-200 ease-out border-t border-border/60 w-full"
+      className="overflow-hidden transition-all duration-200 ease-out w-full"
       style={{ height: getContentHeight() }}
     >
       <div ref={contentRef}>
@@ -72,7 +72,7 @@ export function ModulePanel({
                 <div
                   {...provided.droppableProps}
                   ref={provided.innerRef}
-                  className="p-3 space-y-1"
+                  className="py-1 space-y-0.5"
                 >
                   {segments.map((segment, index) => {
                     const isActive = segment.id === currentSegmentId;
@@ -103,33 +103,22 @@ export function ModulePanel({
                   })}
                   {provided.placeholder}
 
-                  {/* Empty state for creating new segment */}
+                  {/* Add new segment button */}
                   <button
                     onClick={handleCreateSegment}
-                    className={cn(
-                      "w-full p-3 rounded-lg border-2 border-dashed border-theme-300/60 dark:border-theme-700/60",
-                      "bg-gradient-to-br from-theme-50/30 to-transparent dark:from-theme-950/20",
-                      "hover:border-theme-400/80 dark:hover:border-theme-600/80",
-                      "hover:from-theme-100/50 dark:hover:from-theme-900/30",
-                      "transition-all duration-300 hover:shadow-elevation-2",
-                      "group/add-segment"
-                    )}
+                    className="cursor-pointer w-full flex items-center gap-3 px-6 py-2.5 text-sm text-slate-500 hover:text-cyan-700 dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-white/5 transition group/add"
                   >
-                    <div className="flex items-center justify-center gap-2 text-theme-600 dark:text-theme-400">
-                      <div className="flex items-center justify-center w-6 h-6 rounded-md bg-theme-100 dark:bg-theme-900 group-hover/add-segment:bg-theme-200 dark:group-hover/add-segment:bg-theme-800 transition-colors duration-200">
-                        <Plus className="h-3 w-3" />
-                      </div>
-                      <span className="text-sm font-medium group-hover/add-segment:text-theme-700 dark:group-hover/add-segment:text-theme-300 transition-colors duration-200">
-                        New segment
-                      </span>
+                    <div className="flex items-center justify-center w-5 h-5 rounded bg-slate-200/60 dark:bg-white/5 group-hover/add:bg-cyan-500/20 transition">
+                      <Plus className="h-3 w-3" />
                     </div>
+                    <span>New segment</span>
                   </button>
                 </div>
               )}
             </Droppable>
           </DragDropContext>
         ) : (
-          <div className="p-3 space-y-1">
+          <div className="py-1 space-y-0.5">
             {segments.map((segment, index) => {
               const isActive = segment.id === currentSegmentId;
               const isCompleted = isSegmentCompleted(segment.id);

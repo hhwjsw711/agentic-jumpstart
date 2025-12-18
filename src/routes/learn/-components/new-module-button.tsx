@@ -60,21 +60,24 @@ export function NewModuleButton() {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}>
-        <Plus className="mr-2 h-4 w-4" />
-        New Module
-      </Button>
+      <button
+        onClick={() => setOpen(true)}
+        className="cursor-pointer w-full flex items-center gap-3 px-6 py-3 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition"
+      >
+        <Plus className="w-4 h-4" />
+        <span className="font-medium">New Module</span>
+      </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent animation="slide-in-bottom-left" className="sm:max-w-md">
+        <DialogContent animation="slide-in-bottom-left" className="sm:max-w-md glass border-slate-200/60 dark:border-white/10">
           <DialogHeader>
-            <DialogTitle>Create New Module</DialogTitle>
+            <DialogTitle className="text-slate-900 dark:text-white">Create New Module</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label
                 htmlFor="module-title"
-                className="block text-sm font-medium mb-2"
+                className="block text-sm font-medium mb-2 text-slate-700 dark:text-slate-300"
               >
                 Module Title
               </label>
@@ -85,18 +88,25 @@ export function NewModuleButton() {
                 placeholder="Enter module title..."
                 disabled={isLoading}
                 autoFocus
+                className="glass border-slate-300/60 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
               />
             </div>
             <DialogFooter className="flex gap-2">
               <Button
                 type="button"
-                variant="outline"
+                variant="glass"
+                className="rounded-xl px-5 py-2.5 text-xs font-bold"
                 onClick={() => setOpen(false)}
                 disabled={isLoading}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={!title.trim() || isLoading}>
+              <Button
+                type="submit"
+                variant="cyan"
+                className="rounded-xl px-5 py-2.5 text-xs font-black shadow-lg shadow-cyan-500/20"
+                disabled={!title.trim() || isLoading}
+              >
                 {isLoading ? "Creating..." : "Create Module"}
               </Button>
             </DialogFooter>

@@ -10,6 +10,7 @@ import {
   transcodeVideo,
   writeBufferToTempFile,
   cleanupTempFiles,
+  getThumbnailKey,
   type VideoQuality,
 } from "~/utils/video-transcoding";
 import { readFile } from "node:fs/promises";
@@ -181,4 +182,47 @@ export const getAvailableQualitiesFn = createServerFn({ method: "GET" })
       urls,
       keys: Object.fromEntries(qualities.map((q) => [q.quality, q.key])),
     };
+  });
+
+/**
+ * Gets the thumbnail URL for a segment (if available)
+ */
+export const getThumbnailUrlFn = createServerFn({ method: "GET" })
+  .middleware([unauthenticatedMiddleware])
+  .validator(
+    z.object({
+      segmentId: z.number(),
+    })
+  )
+  .handler(async ({ data }) => {
+    const { segmentId } = data;
+    const { storage, type } = getStorage();
+
+    // Only support R2 storage for thumbnails
+    if (type !== "r2") {
+      return { thumbnailUrl: null };
+    }
+
+    // Get the segment
+    const segment = await getSegmentByIdUseCase(segmentId);
+    if (!segment) {
+      return { thumbnailUrl: null };
+    }
+
+    if (!segment.videoKey) {
+      return { thumbnailUrl: null };
+    }
+
+    // Check if thumbnail key is stored in segment or derive from video key
+    const thumbnailKey = segment.thumbnailKey || getThumbnailKey(segment.videoKey);
+
+    // Check if thumbnail exists
+    const exists = await storage.exists(thumbnailKey);
+    if (!exists) {
+      return { thumbnailUrl: null };
+    }
+
+    // Generate presigned URL for the thumbnail
+    const thumbnailUrl = await storage.getPresignedUrl(thumbnailKey);
+    return { thumbnailUrl };
   });

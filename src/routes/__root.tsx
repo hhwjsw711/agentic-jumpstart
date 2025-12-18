@@ -98,6 +98,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootComponent() {
   // Initialize analytics tracking
   useAnalytics();
+  const routerState = useRouterState();
+
+  // Ensure home page starts at top on initial load (prevents scroll restoration issues)
+  React.useEffect(() => {
+    // Only scroll to top on home page initial load
+    if (routerState.location.pathname === "/" && !routerState.location.hash) {
+      window.scrollTo(0, 0);
+    }
+  }, []); // Only run on mount
 
   return (
     <RootDocument>

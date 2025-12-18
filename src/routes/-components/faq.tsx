@@ -1,6 +1,6 @@
 import * as React from "react";
 import { cn } from "~/lib/utils";
-import { ScrollAnimation, ScrollScale } from "~/components/scroll-animation";
+import { DotPattern } from "~/components/ui/background-patterns";
 
 interface FAQItemProps {
   question: string;
@@ -247,14 +247,21 @@ export function FAQSection({ isEarlyAccess = false }: FAQSectionProps) {
     ? [...faqData.earlyAccess, ...faqData.general.slice(0, 6)]
     : faqData.general;
   return (
-    <section className="relative w-full py-24">
+    <section className="relative w-full py-24 overflow-hidden">
       {/* Modern AI-themed gradient background - matching hero */}
       <div className="absolute inset-0 hero-background-ai"></div>
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-theme-500/5 dark:via-theme-950/20 to-transparent"></div>
 
-      {/* AI circuit pattern overlay */}
-      <div className="absolute inset-0 opacity-5 dark:opacity-10">
-        <div className="circuit-pattern absolute inset-0"></div>
+      {/* Background Pattern */}
+      <div className="absolute inset-0 z-0 opacity-[0.4]">
+        <DotPattern
+          width={24}
+          height={24}
+          cx={1}
+          cy={1}
+          cr={1}
+          className="fill-cyan-600/20 dark:fill-cyan-500/20"
+        />
       </div>
 
       {/* AI-themed floating elements */}
@@ -270,38 +277,31 @@ export function FAQSection({ isEarlyAccess = false }: FAQSectionProps) {
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="flex flex-col items-center mb-16 text-center">
             {/* Badge - matching hero style */}
-            <ScrollAnimation direction="down" delay={0.1}>
-              <div className="inline-flex items-center px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-xs md:text-sm font-medium mb-6 md:mb-8">
-                <span className="w-2 h-2 bg-theme-500 dark:bg-theme-400 rounded-full mr-2 animate-pulse"></span>
-                Got Questions? We've Got Answers
-              </div>
-            </ScrollAnimation>
+            <div className="inline-flex items-center px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-xs md:text-sm font-medium mb-6 md:mb-8">
+              <span className="w-2 h-2 bg-theme-500 dark:bg-theme-400 rounded-full mr-2"></span>
+              Got Questions? We've Got Answers
+            </div>
 
-            <ScrollAnimation direction="up" delay={0.1}>
-              <h2 className="text-3xl md:text-4xl lg:text-6xl leading-tight mb-6 md:mb-8">
-                Frequently Asked{" "}
-                <span className="text-theme-400">Questions</span>
-              </h2>
-            </ScrollAnimation>
+            <h2 className="text-3xl md:text-4xl lg:text-6xl leading-tight mb-6 md:mb-8">
+              Frequently Asked{" "}
+              <span className="text-theme-400">Questions</span>
+            </h2>
 
-            <ScrollAnimation direction="up" delay={0.1}>
-              <p className="text-sm md:text-base lg:text-lg text-description mb-8 md:mb-12 max-w-3xl mx-auto">
-                Get quick answers to common questions about our agentic coding
-                course, AI tools, and development techniques. Still have
-                questions? Reach out anytime.
-              </p>
-            </ScrollAnimation>
+            <p className="text-sm md:text-base lg:text-lg text-description mb-8 md:mb-12 max-w-3xl mx-auto">
+              Get quick answers to common questions about our agentic coding
+              course, AI tools, and development techniques. Still have
+              questions? Reach out anytime.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {questionsToShow.map((faq, index) => (
-              <ScrollScale
+              <div
                 key={index}
-                delay={0.1 + Math.floor(index / 2) * 0.05}
                 className="h-full flex"
               >
                 <FAQItem question={faq.question} answer={faq.answer} />
-              </ScrollScale>
+              </div>
             ))}
           </div>
         </div>

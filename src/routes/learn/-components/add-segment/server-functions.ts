@@ -19,6 +19,7 @@ export const createSegmentFn = createServerFn()
       slug: z.string(),
       moduleTitle: z.string(),
       length: z.string().optional(),
+      icon: z.string().nullable().optional(),
       isPremium: z.boolean(),
       isComingSoon: z.boolean(),
       notifyUsers: z.boolean().optional().default(false),
@@ -49,6 +50,7 @@ export const createSegmentFn = createServerFn()
       moduleTitle: data.moduleTitle,
       videoKey: data.videoKey,
       length: data.length,
+      icon: data.icon,
       isPremium: data.isPremium,
       isComingSoon: data.isComingSoon,
     });

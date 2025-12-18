@@ -35,10 +35,12 @@ import {
   LucideIcon,
   Clock,
   Mail,
+  Image as ImageIcon,
 } from "lucide-react";
 import { AutoComplete } from "~/components/ui/autocomplete";
 import { Switch } from "~/components/ui/switch";
 import type { UploadProgress } from "~/utils/storage/helpers";
+import { IconPicker } from "~/components/icon-picker";
 
 export const formSchema = z.object({
   title: z
@@ -50,6 +52,7 @@ export const formSchema = z.object({
   video: z.instanceof(File).optional(),
   moduleTitle: z.string().min(1, "Module ID is required"),
   slug: z.string().min(2, "Slug must be at least 2 characters"),
+  icon: z.string().nullable().optional(),
   isPremium: z.boolean().default(false),
   isComingSoon: z.boolean().default(false),
   notifyUsers: z.boolean().default(false),
@@ -106,6 +109,7 @@ export function SegmentForm({
       video: undefined,
       slug: defaultValues?.slug || "",
       moduleTitle: defaultValues?.moduleTitle || "",
+      icon: defaultValues?.icon || null,
       isPremium: defaultValues?.isPremium || false,
       isComingSoon: defaultValues?.isComingSoon || false,
       notifyUsers: defaultValues?.notifyUsers || false,
@@ -311,7 +315,7 @@ export function SegmentForm({
             <Card className="module-card animate-slide-up border-theme-200/40 dark:border-theme-800/40">
               <Tabs defaultValue="media" className="w-full">
                 <CardHeader className="pb-4">
-                  <TabsList className="grid w-full grid-cols-3">
+                  <TabsList className="grid w-full grid-cols-4">
                     <TabsTrigger
                       value="media"
                       className="flex items-center gap-2"
@@ -332,6 +336,13 @@ export function SegmentForm({
                     >
                       <FileText className="h-4 w-4" />
                       Transcripts
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="icon"
+                      className="flex items-center gap-2"
+                    >
+                      <ImageIcon className="h-4 w-4" />
+                      Icon
                     </TabsTrigger>
                   </TabsList>
                 </CardHeader>
@@ -502,6 +513,30 @@ export function SegmentForm({
                           <FormDescription className="text-xs">
                             Supports Markdown syntax; great for searchable,
                             accessible transcripts
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="icon" className="mt-0">
+                    <FormField
+                      control={form.control}
+                      name="icon"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm">
+                            Segment Icon (Optional)
+                          </FormLabel>
+                          <FormControl>
+                            <IconPicker
+                              value={field.value ?? null}
+                              onChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormDescription className="text-xs">
+                            Choose an icon to display next to this segment in the navigation
                           </FormDescription>
                           <FormMessage />
                         </FormItem>

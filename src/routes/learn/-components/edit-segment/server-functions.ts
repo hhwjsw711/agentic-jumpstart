@@ -26,6 +26,7 @@ export const updateSegmentFn = createServerFn()
         moduleTitle: z.string(),
         slug: z.string(),
         length: z.string().optional(),
+        icon: z.string().nullable().optional(),
         isPremium: z.boolean(),
         isComingSoon: z.boolean(),
       }),
@@ -47,7 +48,13 @@ export const updateSegmentFn = createServerFn()
     const isNewVideoUpload =
       updates.videoKey && existingSegment?.videoKey !== updates.videoKey;
 
-    const updatedSegment = await updateSegmentUseCase(segmentId, updates);
+    // If a new video is being uploaded, clear the old thumbnail
+    // so the wrong thumbnail isn't shown while the new one is being generated
+    const updatesWithThumbnailClear = isNewVideoUpload
+      ? { ...updates, thumbnailKey: null }
+      : updates;
+
+    const updatedSegment = await updateSegmentUseCase(segmentId, updatesWithThumbnailClear);
 
     // Queue video processing jobs if a new video was uploaded
     if (isNewVideoUpload && updates.videoKey) {

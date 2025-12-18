@@ -1,5 +1,5 @@
 import { Button } from "~/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "~/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { Skeleton } from "~/components/ui/skeleton";
 
@@ -21,6 +21,7 @@ export function MobileNavigationSkeleton() {
             </Button>
           </SheetTrigger>
           <SheetContent side="right" className="pr-0">
+            <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
             <div className="space-y-4 py-4">
               {/* Skeleton for mobile navigation content */}
               {Array.from({ length: 3 }).map((_, index) => (

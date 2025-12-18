@@ -44,6 +44,7 @@ export function useAddSegment() {
           moduleTitle: values.moduleTitle,
           length: videoDuration,
           videoKey,
+          icon: values.icon,
           isPremium: values.isPremium,
           isComingSoon: values.isComingSoon,
           notifyUsers: values.notifyUsers,

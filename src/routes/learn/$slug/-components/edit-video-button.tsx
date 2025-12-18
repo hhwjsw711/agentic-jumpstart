@@ -10,7 +10,7 @@ interface EditVideoButtonProps {
 export function EditVideoButton({ currentSegment }: EditVideoButtonProps) {
   return (
     <Link to="/learn/$slug/edit" params={{ slug: currentSegment.slug }}>
-      <Button>
+      <Button variant="cyan">
         <Edit className="h-4 w-4" />
         Edit
       </Button>

@@ -8,9 +8,10 @@ import {
 import { getSegments, getSegmentById } from "~/data-access/segments";
 import { getStorage } from "~/utils/storage";
 import { getVideoQualityKey } from "~/utils/storage/r2";
+import { getThumbnailKey } from "~/utils/video-transcoding";
 import type { VideoProcessingJobCreate } from "~/db/schema";
 
-export type JobType = "transcript" | "transcode";
+export type JobType = "transcript" | "transcode" | "thumbnail";
 
 /**
  * Queue a transcript job for a segment
@@ -59,7 +60,30 @@ export async function queueTranscodeJobUseCase(segmentId: number) {
 }
 
 /**
- * Queue both transcript and transcode jobs for a segment
+ * Queue a thumbnail job for a segment
+ */
+export async function queueThumbnailJobUseCase(segmentId: number) {
+  // Check if there's already a pending or processing thumbnail job
+  const existingJobs = await getVideoProcessingJobsBySegmentId(segmentId);
+  const hasActiveThumbnailJob = existingJobs.some(
+    (job) =>
+      job.jobType === "thumbnail" &&
+      (job.status === "pending" || job.status === "processing")
+  );
+
+  if (hasActiveThumbnailJob) {
+    return null; // Job already queued
+  }
+
+  return createVideoProcessingJob({
+    segmentId,
+    jobType: "thumbnail",
+    status: "pending",
+  });
+}
+
+/**
+ * Queue transcript, transcode, and thumbnail jobs for a segment
  */
 export async function queueAllJobsForSegmentUseCase(segmentId: number) {
   const jobs: VideoProcessingJobCreate[] = [];
@@ -95,6 +119,11 @@ export async function queueAllJobsForSegmentUseCase(segmentId: number) {
       job.jobType === "transcode" &&
       (job.status === "pending" || job.status === "processing")
   );
+  const hasActiveThumbnailJob = existingJobs.some(
+    (job) =>
+      job.jobType === "thumbnail" &&
+      (job.status === "pending" || job.status === "processing")
+  );
 
   if (!hasActiveTranscriptJob) {
     jobs.push({
@@ -108,6 +137,14 @@ export async function queueAllJobsForSegmentUseCase(segmentId: number) {
     jobs.push({
       segmentId,
       jobType: "transcode",
+      status: "pending",
+    });
+  }
+
+  if (!hasActiveThumbnailJob) {
+    jobs.push({
+      segmentId,
+      jobType: "thumbnail",
       status: "pending",
     });
   }
@@ -126,7 +163,7 @@ export async function queueMissingJobsForAllSegmentsUseCase() {
   const segments = await getSegments();
   const { storage, type } = getStorage();
 
-  // Only support R2 storage for transcoding
+  // Only support R2 storage for transcoding and thumbnails
   const canTranscode = type === "r2";
 
   const jobsToCreate: VideoProcessingJobCreate[] = [];
@@ -167,6 +204,11 @@ export async function queueMissingJobsForAllSegmentsUseCase() {
         job.jobType === "transcode" &&
         (job.status === "pending" || job.status === "processing")
     );
+    const hasActiveThumbnailJob = segmentJobs.some(
+      (job) =>
+        job.jobType === "thumbnail" &&
+        (job.status === "pending" || job.status === "processing")
+    );
 
     // Queue transcript job if missing
     if (!segment.transcripts && !hasActiveTranscriptJob) {
@@ -191,6 +233,21 @@ export async function queueMissingJobsForAllSegmentsUseCase() {
         jobsToCreate.push({
           segmentId: segment.id,
           jobType: "transcode",
+          status: "pending",
+        });
+      }
+    }
+
+    // Queue thumbnail job if missing (only for R2 storage)
+    if (canTranscode && !hasActiveThumbnailJob && !segment.thumbnailKey) {
+      // Check if thumbnail already exists in storage
+      const thumbnailKey = getThumbnailKey(segment.videoKey);
+      const hasThumbnail = await storage.exists(thumbnailKey);
+
+      if (!hasThumbnail) {
+        jobsToCreate.push({
+          segmentId: segment.id,
+          jobType: "thumbnail",
           status: "pending",
         });
       }

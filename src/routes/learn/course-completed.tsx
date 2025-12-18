@@ -126,9 +126,8 @@ function CourseCompleted() {
           <h2 className="text-2xl font-semibold text-foreground">Connect With Me</h2>
           <div className="flex gap-4 justify-center">
             <Button
-              variant="outline"
+              variant="glass"
               asChild
-              className="border-theme-400/20 hover:bg-theme-400 hover:text-primary-foreground transition-colors"
             >
               <a
                 href="https://twitter.com/webdevcody"
@@ -140,9 +139,8 @@ function CourseCompleted() {
               </a>
             </Button>
             <Button
-              variant="outline"
+              variant="glass"
               asChild
-              className="border-theme-400/20 hover:bg-theme-400 hover:text-primary-foreground transition-colors"
             >
               <a
                 href="https://github.com/webdevcody"
@@ -154,9 +152,8 @@ function CourseCompleted() {
               </a>
             </Button>
             <Button
-              variant="outline"
+              variant="glass"
               asChild
-              className="border-theme-400/20 hover:bg-theme-400 hover:text-primary-foreground transition-colors"
             >
               <a
                 href="https://discord.gg/webdevcody"

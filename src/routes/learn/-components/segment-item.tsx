@@ -1,13 +1,39 @@
+import { useState } from "react";
 import {
   Check,
   Lock,
   GripVertical,
-  Star,
   PlayCircle,
   Sparkles,
+  MoreVertical,
+  Edit2,
+  Trash2,
 } from "lucide-react";
 import type { Segment } from "~/db/schema";
 import { cn } from "~/lib/utils";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { AVAILABLE_ICONS } from "~/components/icon-picker";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { Button, buttonVariants } from "~/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "~/components/ui/alert-dialog";
+import { deleteSegmentFn } from "../$slug/-components/delete-segment-button";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { modulesQueryOptions } from "../$slug/_layout";
 
 function isNewSegment(createdAt: Date | null): boolean {
   if (!createdAt) return false;
@@ -41,135 +67,241 @@ export function SegmentItem({
   provided,
   snapshot,
 }: SegmentItemProps) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  // Get the icon component for the segment
+  const SegmentIcon = segment.icon && AVAILABLE_ICONS[segment.icon]
+    ? AVAILABLE_ICONS[segment.icon]
+    : PlayCircle;
+
+  const handleDeleteSegment = async () => {
+    try {
+      await deleteSegmentFn({ data: { segmentId: segment.id } });
+      queryClient.invalidateQueries(modulesQueryOptions);
+      toast.success("Segment deleted successfully");
+      setDeleteDialogOpen(false);
+      // Navigate to learn page if we're on the deleted segment
+      if (isActive) {
+        navigate({ to: "/learn" });
+      }
+    } catch (error) {
+      toast.error("Failed to delete segment", {
+        description: "Please try again.",
+      });
+    }
+  };
+
+  const segmentContent = (
+    <>
+      <div
+        className={cn(
+          "flex items-center justify-center w-5 h-5 rounded transition-all duration-200 flex-shrink-0",
+          isCompleted && isActive
+            ? "bg-emerald-500 text-white glow-green"
+            : isCompleted
+              ? "bg-emerald-500/40 dark:bg-emerald-500/30 text-emerald-600 dark:text-emerald-400"
+              : isActive
+                ? "bg-cyan-600/20 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-400"
+                : "bg-slate-200/60 dark:bg-white/5 text-slate-500 group-hover/segment:text-cyan-600 dark:group-hover/segment:text-cyan-400"
+        )}
+      >
+        {isCompleted ? (
+          <Check className="h-3 w-3" />
+        ) : (
+          <SegmentIcon className="h-3 w-3" />
+        )}
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <span
+          className={cn(
+            "text-sm transition-colors duration-200 truncate block",
+            isActive
+              ? "text-slate-900 dark:text-white font-medium"
+              : "text-slate-600 dark:text-slate-400 group-hover/segment:text-slate-900 dark:group-hover/segment:text-white"
+          )}
+        >
+          {segment.title}
+        </span>
+        {segment.length && (
+          <span className="text-[10px] text-slate-500 font-mono">
+            {segment.length}
+          </span>
+        )}
+      </div>
+
+      <div className="flex-shrink-0 flex items-center gap-1.5">
+        {isNewSegment(segment.createdAt) &&
+          !isCompleted &&
+          !segment.isComingSoon && (
+            <span
+              data-testid="new-segment-badge"
+              className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
+            >
+              <Sparkles className="h-2.5 w-2.5" />
+              NEW
+            </span>
+          )}
+        {segment.isComingSoon && (
+          <span
+            data-testid="coming-soon-badge"
+            className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-500/15 text-blue-400 border border-blue-500/20"
+          >
+            SOON
+          </span>
+        )}
+        {segment.isPremium && !isPremium && !isAdmin && (
+          <span className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/20">
+            <Lock className="h-2.5 w-2.5" />
+            PRO
+          </span>
+        )}
+      </div>
+    </>
+  );
+
   const content = (
     <div
       className={cn(
-        "segment-item group/segment p-3 rounded-lg border border-transparent transition-all duration-700 ease-out",
-        isActive &&
-          "active bg-gradient-to-r from-theme-50 to-theme-100/50 dark:from-theme-950/50 dark:to-theme-900/30 border-theme-200 dark:border-theme-800 shadow-lg",
-        !isActive && "hover:border-theme-200/50 dark:hover:border-theme-800/50"
+        "segment-item group/segment transition-all duration-200 ease-out",
+        isActive && "segment-active",
+        !isActive && "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
       )}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 px-6 py-2.5">
         {provided && (
           <div
             {...provided.dragHandleProps}
-            className="cursor-grab active:cursor-grabbing p-1 rounded opacity-0 group-hover/segment:opacity-100 transition-opacity"
+            onClick={(e) => e.stopPropagation()}
+            className="cursor-grab active:cursor-grabbing opacity-0 group-hover/segment:opacity-100 transition-opacity"
           >
-            <GripVertical className="h-3 w-3 text-muted-foreground" />
+            <GripVertical className="h-3 w-3 text-slate-400 dark:text-slate-500" />
           </div>
         )}
 
-        <button
-          onClick={() => onSegmentClick(segment.id)}
+        <Link
+          to="/learn/$slug"
+          params={{ slug: segment.slug }}
+          onClick={(e) => {
+            // Prevent navigation only if actively dragging
+            if (snapshot?.isDragging) {
+              e.preventDefault();
+              e.stopPropagation();
+              return;
+            }
+            // Update context for immediate UI feedback
+            // The Link will handle the actual navigation
+            onSegmentClick(segment.id);
+          }}
           aria-label={`Select segment ${segment.title}`}
-          className="cursor-pointer flex items-center gap-2 flex-1 text-left min-w-0"
+          className="cursor-pointer flex items-center gap-3 flex-1 text-left min-w-0"
         >
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <div
-              className={cn(
-                "flex items-center justify-center w-6 h-6 rounded-md transition-all duration-300 flex-shrink-0",
-                isCompleted
-                  ? "bg-theme-500 text-white shadow-glow-sm"
-                  : isActive
-                    ? "bg-theme-100 dark:bg-theme-900 text-theme-600 dark:text-theme-400"
-                    : "bg-muted text-muted-foreground group-hover/segment:bg-theme-100 dark:group-hover/segment:bg-theme-900 group-hover/segment:text-theme-600 dark:group-hover/segment:text-theme-400"
-              )}
-            >
-              {isCompleted ? (
-                <Check className="h-3 w-3" />
-              ) : (
-                <PlayCircle className="h-3 w-3" />
-              )}
-            </div>
+          {segmentContent}
+        </Link>
 
-            <div className="min-w-0 flex-1">
-              <h4
-                className={cn(
-                  "text-sm font-medium transition-colors duration-200 truncate",
-                  isActive
-                    ? "text-theme-700 dark:text-theme-300"
-                    : "text-foreground group-hover/segment:text-theme-600 dark:group-hover/segment:text-theme-400"
-                )}
-              >
-                {segment.title}
-              </h4>
-              {segment.length && (
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {segment.length}
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="flex-shrink-0 ml-2 flex flex-col gap-1 items-end">
-            {isNewSegment(segment.createdAt) &&
-              !isCompleted &&
-              !segment.isComingSoon && (
-                <div
-                  data-testid="new-segment-badge"
-                  className={cn(
-                    "flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium whitespace-nowrap",
-                    "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-                  )}
+        {isAdmin && (
+          <div className="ml-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 opacity-0 group-hover/segment:opacity-100 transition-all"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <Sparkles className="h-3 w-3 flex-shrink-0" />
-                  <span>New</span>
-                </div>
-              )}
-            {segment.isComingSoon && (
-              <div
-                data-testid="coming-soon-badge"
-                className={cn(
-                  "flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium whitespace-nowrap",
-                  "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
-                )}
-              >
-                Coming Soon
-              </div>
-            )}
-            {segment.isPremium && !isPremium && (
-              <div
-                className={cn(
-                  "flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium whitespace-nowrap",
-                  "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
-                )}
-              >
-                <Lock className="h-3 w-3 flex-shrink-0" />
-                <span>Pro Only</span>
-              </div>
-            )}
+                  <MoreVertical className="h-3.5 w-3.5" />
+                  <span className="sr-only">Open menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link
+                    to="/learn/$slug/edit"
+                    params={{ slug: segment.slug }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Edit2 className="mr-2 h-4 w-4" />
+                    Edit
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDeleteDialogOpen(true);
+                  }}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-        </button>
-      </div>
-    </div>
-  );
-
-  if (provided) {
-    return (
-      <div
-        ref={provided.innerRef}
-        {...provided.draggableProps}
-        className={cn(
-          "relative",
-          snapshot?.isDragging && "z-50 rotate-2 scale-105"
         )}
-        style={{
-          ...provided.draggableProps.style,
-          animationDelay: `${index * 50}ms`,
-        }}
-      >
-        {content}
       </div>
-    );
-  }
-
-  return (
-    <div
-      className="animate-slide-up"
-      style={{ animationDelay: `${index * 50}ms` }}
-    >
-      {content}
     </div>
   );
+
+  const componentContent = (
+    <>
+      {provided ? (
+        <div
+          ref={provided.innerRef}
+          {...provided.draggableProps}
+          className={cn(
+            "relative",
+            snapshot?.isDragging && "z-50 rotate-1 scale-[1.02]"
+          )}
+          style={{
+            ...provided.draggableProps.style,
+          }}
+        >
+          {content}
+        </div>
+      ) : (
+        content
+      )}
+
+      {isAdmin && (
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent
+            animation="slide-in-top-right"
+            className="bg-background border border-border shadow-elevation-3 rounded-xl max-w-md mx-auto"
+          >
+            <AlertDialogHeader className="space-y-4 p-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-destructive/10">
+                  <Trash2 className="h-5 w-5 text-destructive" />
+                </div>
+                <AlertDialogTitle className="text-xl font-semibold text-foreground leading-tight">
+                  Are you absolutely sure?
+                </AlertDialogTitle>
+              </div>
+              <AlertDialogDescription className="text-muted-foreground text-sm leading-relaxed">
+                This action cannot be undone. This will permanently delete this
+                segment and all its associated files and attachments.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex gap-3 p-6 pt-0">
+              <AlertDialogCancel
+                className={buttonVariants({ variant: "gray-outline" })}
+              >
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteSegment}
+                className={buttonVariants({ variant: "destructive" })}
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+    </>
+  );
+
+  return componentContent;
 }

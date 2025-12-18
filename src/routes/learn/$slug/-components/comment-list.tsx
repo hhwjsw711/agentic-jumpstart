@@ -34,7 +34,7 @@ import {
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDeleteComment } from "~/hooks/mutations/use-delete-comment";
 import { toast } from "sonner";
 import { useEditComment } from "~/hooks/mutations/use-edit-comment";
@@ -465,6 +465,12 @@ export function CommentList({
   const { segment } = useLoaderData({ from: "/learn/$slug/_layout/" });
   const { data: comments } = useSuspenseQuery(getCommentsQuery(segment.id));
   const user = useAuth();
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Ensure consistent rendering between server and client
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   if (comments.length === 0) {
     return (
@@ -474,8 +480,8 @@ export function CommentList({
           <div className="relative">
             <div className="flex justify-center mb-4">
               <div className="relative">
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-theme-100 to-theme-200 dark:from-theme-900 dark:to-theme-800 shadow-elevation-2">
-                  <MessageSquare className="h-8 w-8 text-theme-600 dark:text-theme-400" />
+                <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/30">
+                  <MessageSquare className="h-8 w-8 text-cyan-400" />
                 </div>
               </div>
             </div>
@@ -483,10 +489,10 @@ export function CommentList({
 
           {/* Content */}
           <div className="space-y-3">
-            <h3 className="text-xl font-semibold text-foreground">
+            <h3 className="text-xl font-semibold text-white">
               Start the Discussion
             </h3>
-            <div className="space-y-2 text-muted-foreground">
+            <div className="space-y-2 text-slate-400">
               <p className="leading-relaxed">
                 Be the first to share your thoughts on this lesson! Ask
                 questions, share insights, or help others learn.
@@ -495,11 +501,12 @@ export function CommentList({
           </div>
 
           {/* Call to action */}
-          {user ? (
+          {isMounted && user ? (
             <div className="pt-2">
               <Button
                 onClick={onStartDiscussion}
-                className="shadow-elevation-2 hover:shadow-elevation-3 transition-all duration-200"
+                variant="cyan"
+                className="rounded-xl px-8 py-3 text-sm font-bold"
                 size="lg"
               >
                 <MessageSquare className="mr-2 h-4 w-4" />
@@ -508,11 +515,11 @@ export function CommentList({
             </div>
           ) : (
             <div className="pt-2">
-              <div className="p-3 rounded-xl bg-gradient-to-r from-theme-50 to-theme-50 dark:from-theme-950 dark:to-theme-950 border border-theme-200 dark:border-theme-800">
-                <p className="text-sm font-medium text-foreground mb-1">
+              <div className="p-3 rounded-xl glass border border-white/10">
+                <p className="text-sm font-medium text-white mb-1">
                   Join the community
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-slate-400">
                   Sign in to share your thoughts and connect with other learners
                 </p>
               </div>

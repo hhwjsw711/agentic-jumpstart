@@ -149,10 +149,10 @@ export function DeleteSegmentButton({
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive">
-          <Trash2 className="h-4 w-4" />
+        <button className="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-red-50/50 dark:bg-white/[0.03] border border-red-500/30 px-4 py-2 text-xs font-bold text-red-600 dark:text-red-400 backdrop-blur-[24px] transition-all hover:bg-red-500/10 hover:text-red-700 dark:hover:text-red-300 whitespace-nowrap">
+          <Trash2 className="w-3.5 h-3.5" />
           Delete
-        </Button>
+        </button>
       </AlertDialogTrigger>
       <AlertDialogContent
         animation="slide-in-top-right"

@@ -4,6 +4,7 @@ import { z } from "zod";
 import {
   queueTranscriptJobUseCase,
   queueTranscodeJobUseCase,
+  queueThumbnailJobUseCase,
   queueAllJobsForSegmentUseCase,
   queueMissingJobsForAllSegmentsUseCase,
 } from "~/use-cases/video-processing";
@@ -14,6 +15,7 @@ import {
 import { getModulesWithSegmentsUseCase } from "~/use-cases/modules";
 import { getStorage } from "~/utils/storage";
 import { getVideoQualityKey } from "~/utils/storage/r2";
+import { getThumbnailKey } from "~/utils/video-transcoding";
 import { startVideoProcessingWorker } from "~/lib/video-processing-worker";
 
 /**
@@ -55,7 +57,26 @@ export const queueTranscodeJobFn = createServerFn({ method: "POST" })
   });
 
 /**
- * Queue both transcript and transcode jobs for a segment
+ * Queue a thumbnail job for a segment
+ */
+export const queueThumbnailJobFn = createServerFn({ method: "POST" })
+  .middleware([adminMiddleware])
+  .validator(
+    z.object({
+      segmentId: z.number(),
+    })
+  )
+  .handler(async ({ data }) => {
+    const job = await queueThumbnailJobUseCase(data.segmentId);
+    if (job) {
+      // Start worker if not already running
+      await startVideoProcessingWorker();
+    }
+    return { success: true, job };
+  });
+
+/**
+ * Queue transcript, transcode, and thumbnail jobs for a segment
  */
 export const queueAllJobsForSegmentFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
@@ -162,9 +183,15 @@ export const getSegmentsWithProcessingStatusFn = createServerFn({
             job.jobType === "transcode" &&
             (job.status === "pending" || job.status === "processing")
         );
+        const hasActiveThumbnailJob = jobs.some(
+          (job) =>
+            job.jobType === "thumbnail" &&
+            (job.status === "pending" || job.status === "processing")
+        );
 
         let has720p = false;
         let has480p = false;
+        let hasThumbnail = false;
 
         if (segment.videoKey && canTranscode) {
           has720p = await storage.exists(
@@ -173,6 +200,9 @@ export const getSegmentsWithProcessingStatusFn = createServerFn({
           has480p = await storage.exists(
             getVideoQualityKey(segment.videoKey, "480p")
           );
+          hasThumbnail =
+            !!segment.thumbnailKey ||
+            (await storage.exists(getThumbnailKey(segment.videoKey)));
         }
 
         return {
@@ -183,11 +213,14 @@ export const getSegmentsWithProcessingStatusFn = createServerFn({
           hasTranscript: !!segment.transcripts,
           has720p,
           has480p,
+          hasThumbnail,
           needsTranscript: !segment.transcripts && !!segment.videoKey,
           needsTranscode:
             canTranscode && !!segment.videoKey && (!has720p || !has480p),
+          needsThumbnail: canTranscode && !!segment.videoKey && !hasThumbnail,
           activeTranscriptJob: hasActiveTranscriptJob,
           activeTranscodeJob: hasActiveTranscodeJob,
+          activeThumbnailJob: hasActiveThumbnailJob,
           jobs,
         };
       })

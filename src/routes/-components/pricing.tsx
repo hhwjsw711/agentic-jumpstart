@@ -2,7 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { Button } from "~/components/ui/button";
 import { useEffect, useRef } from "react";
 import { ShoppingCart, Check } from "lucide-react";
-import { ScrollAnimation, ScrollScale } from "~/components/scroll-animation";
+import { GlassPanel } from "~/components/ui/glass-panel";
+import { CircuitBoardPattern } from "~/components/ui/background-patterns";
 
 export function PricingSection() {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -25,22 +26,10 @@ export function PricingSection() {
   }, []);
 
   return (
-    <section className="relative w-full py-24">
-      {/* Modern AI-themed gradient background - matching hero */}
-      <div className="absolute inset-0 hero-background-ai"></div>
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-theme-500/5 dark:via-theme-950/20 to-transparent"></div>
-
-      {/* AI circuit pattern overlay */}
-      <div className="absolute inset-0 opacity-5 dark:opacity-10">
-        <div className="circuit-pattern absolute inset-0"></div>
-      </div>
-
-      {/* AI-themed floating elements */}
-      <div className="floating-elements">
-        <div className="floating-element-1"></div>
-        <div className="floating-element-2"></div>
-        <div className="floating-element-3"></div>
-        <div className="floating-element-small top-10 right-10"></div>
+    <section className="relative w-full py-24 bg-gradient-to-b from-slate-50/0 via-slate-50/80 to-slate-50/0 dark:from-transparent dark:via-slate-900/40 dark:to-transparent overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 z-0 opacity-[0.4]">
+        <CircuitBoardPattern className="text-cyan-500/20 dark:text-cyan-500/30" />
       </div>
 
       {/* Content */}
@@ -49,95 +38,87 @@ export function PricingSection() {
           <div className="flex items-center justify-center h-full">
             <div className="text-center max-w-4xl">
               {/* Badge - matching hero style */}
-              <ScrollAnimation direction="down" delay={0}>
-                <div className="inline-flex items-center px-4 py-2 rounded-full bg-theme-50/50 dark:bg-background/20 backdrop-blur-sm border border-theme-200 dark:border-border/50 text-theme-600 dark:text-theme-400 text-sm font-medium mb-8">
-                  <span className="w-2 h-2 bg-theme-500 dark:bg-theme-400 rounded-full mr-2 animate-pulse"></span>
+              <GlassPanel variant="cyan" padding="sm" className="inline-block mb-8">
+                <div className="inline-flex items-center text-sm font-medium text-slate-700 dark:text-cyan-400">
+                  <span className="w-2 h-2 bg-cyan-600 dark:bg-cyan-400 rounded-full mr-2"></span>
                   Limited Time Offer
                 </div>
-              </ScrollAnimation>
+              </GlassPanel>
 
-              <ScrollAnimation direction="up" delay={0.1}>
-                <h2 className="text-3xl md:text-4xl lg:text-6xl leading-tight mb-6 md:mb-8">
-                  Master AI-First Development{" "}
-                  <span className="text-theme-400">With AI Agents</span>
-                </h2>
-              </ScrollAnimation>
+              <h2 className="text-3xl md:text-4xl lg:text-6xl leading-tight mb-6 md:mb-8 text-slate-900 dark:text-white">
+                Master AI-First Development{" "}
+                <span className="text-cyan-600 dark:text-cyan-400">With AI Agents</span>
+              </h2>
 
-              <ScrollAnimation direction="up" delay={0.2}>
-                <p className="text-sm md:text-base lg:text-lg text-description mb-8 md:mb-12 max-w-2xl mx-auto">
-                  Transform your coding workflow with advanced AI tools and
-                  techniques. Learn to build applications 10x faster using Cursor
-                  IDE, Claude Code CLI, and cutting-edge agentic programming
-                  methods.
-                </p>
-              </ScrollAnimation>
+              <p className="text-sm md:text-base lg:text-lg text-slate-600 dark:text-slate-400 mb-8 md:mb-12 max-w-2xl mx-auto">
+                Transform your coding workflow with advanced AI tools and
+                techniques. Learn to build applications 10x faster using Cursor
+                IDE, Claude Code CLI, and cutting-edge agentic programming
+                methods.
+              </p>
 
-              <ScrollScale delay={0.3}>
-                <div ref={cardRef} className="relative max-w-lg mx-auto">
-                  <div className="video-container">
-                  <div className="video-wrapper p-6 md:p-8 lg:p-10">
-                    <div className="relative z-10">
-                      <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 text-theme-600 dark:text-theme-400">
-                        Agentic Coding Mastery
-                      </h3>
-                      <div className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 md:mb-8 text-foreground">
-                        $199
-                        <span className="text-lg text-muted-foreground/70 font-normal">
-                          /lifetime access
-                        </span>
-                      </div>
-                      <ul className="text-left space-y-6 mb-10">
-                        <li className="flex items-center text-muted-foreground group">
-                          <Check className="w-6 h-6 mr-3 text-theme-500 dark:text-theme-400 group-hover:scale-110 transition-transform" />
-                          <span className="group-hover:text-theme-600 dark:group-hover:text-theme-400 transition-colors">
-                            Master Cursor IDE with AI pair programming and code
-                            generation
-                          </span>
-                        </li>
-                        <li className="flex items-center text-muted-foreground group">
-                          <Check className="w-6 h-6 mr-3 text-theme-500 dark:text-theme-400 group-hover:scale-110 transition-transform" />
-                          <span className="group-hover:text-theme-600 dark:group-hover:text-theme-400 transition-colors">
-                            Learn Claude Code CLI for seamless AI-assisted
-                            development
-                          </span>
-                        </li>
-                        <li className="flex items-center text-muted-foreground group">
-                          <Check className="w-6 h-6 mr-3 text-theme-500 dark:text-theme-400 group-hover:scale-110 transition-transform" />
-                          <span className="group-hover:text-theme-600 dark:group-hover:text-theme-400 transition-colors">
-                            Advanced prompting techniques for Claude Sonnet and
-                            Opus
-                          </span>
-                        </li>
-                        <li className="flex items-center text-muted-foreground group">
-                          <Check className="w-6 h-6 mr-3 text-theme-500 dark:text-theme-400 group-hover:scale-110 transition-transform" />
-                          <span className="group-hover:text-theme-600 dark:group-hover:text-theme-400 transition-colors">
-                            Build real-world projects using AI agents and
-                            automation
-                          </span>
-                        </li>
-                      </ul>
-                      <Link to="/purchase" className="block">
-                        <Button size="lg" className="w-full">
-                          <ShoppingCart className="mr-2 h-4 w-4" />
-                          Buy Now
-                        </Button>
-                      </Link>
+              <div ref={cardRef} className="relative max-w-lg mx-auto">
+                <GlassPanel variant="cyan" padding="lg" className="relative">
+                  <div className="relative z-10">
+                    <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 text-cyan-600 dark:text-cyan-400">
+                      Agentic Coding Mastery
+                    </h3>
+                    <div className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 md:mb-8 text-slate-900 dark:text-white">
+                      $199
+                      <span className="text-lg text-slate-600 dark:text-slate-400 font-normal">
+                        /lifetime access
+                      </span>
                     </div>
+                    <ul className="text-left space-y-6 mb-10">
+                      <li className="flex items-center text-slate-600 dark:text-slate-400 group">
+                        <Check className="w-6 h-6 mr-3 text-cyan-600 dark:text-cyan-400 group-hover:scale-110 transition-transform flex-shrink-0" />
+                        <span className="group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                          Master Cursor IDE with AI pair programming and code
+                          generation
+                        </span>
+                      </li>
+                      <li className="flex items-center text-slate-600 dark:text-slate-400 group">
+                        <Check className="w-6 h-6 mr-3 text-cyan-600 dark:text-cyan-400 group-hover:scale-110 transition-transform flex-shrink-0" />
+                        <span className="group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                          Learn Claude Code CLI for seamless AI-assisted
+                          development
+                        </span>
+                      </li>
+                      <li className="flex items-center text-slate-600 dark:text-slate-400 group">
+                        <Check className="w-6 h-6 mr-3 text-cyan-600 dark:text-cyan-400 group-hover:scale-110 transition-transform flex-shrink-0" />
+                        <span className="group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                          Advanced prompting techniques for Claude Sonnet and
+                          Opus
+                        </span>
+                      </li>
+                      <li className="flex items-center text-slate-600 dark:text-slate-400 group">
+                        <Check className="w-6 h-6 mr-3 text-cyan-600 dark:text-cyan-400 group-hover:scale-110 transition-transform flex-shrink-0" />
+                        <span className="group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                          Build real-world projects using AI agents and
+                          automation
+                        </span>
+                      </li>
+                    </ul>
+                    <Link to="/purchase" className="block">
+                      <Button variant="cyan" size="lg" className="w-full rounded-xl px-6 py-2.5 text-sm font-bold">
+                        <ShoppingCart className="mr-2 h-4 w-4" />
+                        Buy Now
+                      </Button>
+                    </Link>
                   </div>
 
                   {/* Decorative elements - matching hero */}
                   <div className="video-decorative-1"></div>
                   <div className="video-decorative-2"></div>
-                  </div>
-                </div>
-              </ScrollScale>
+                </GlassPanel>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Bottom gradient fade with theme accent - matching hero */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-50 via-slate-50/80 to-transparent dark:from-[#0b101a] dark:via-[#0b101a]/80"></div>
       <div className="section-divider-glow-bottom"></div>
     </section>
   );

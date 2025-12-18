@@ -21,6 +21,7 @@ import {
   BookOpen,
   MessageSquare,
   Link2,
+  ShieldCheck,
 } from "lucide-react";
 import {
   Sheet,
@@ -606,6 +607,19 @@ export function Header() {
 
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center gap-3">
+              {user?.isAdmin && (
+                <Link to="/admin/analytics">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="relative"
+                    title="Admin Panel"
+                  >
+                    <ShieldCheck className="h-[1.2rem] w-[1.2rem]" />
+                    <span className="sr-only">Admin Panel</span>
+                  </Button>
+                </Link>
+              )}
               {user ? (
                 <>
                   {user.isAdmin && (
@@ -807,6 +821,14 @@ export function Header() {
                   <div className="relative z-10 h-full flex flex-col">
                     {/* Top section with Buy Now */}
                     <div className="flex-shrink-0 px-6 pt-6">
+                      {user?.isAdmin && (
+                        <Link to="/admin/analytics" onClick={() => setIsOpen(false)}>
+                          <Button variant="outline" className="w-full mb-4 flex items-center justify-center gap-2">
+                            <ShieldCheck className="h-4 w-4" />
+                            Admin Panel
+                          </Button>
+                        </Link>
+                      )}
                       {!user?.isPremium && !user?.isAdmin && (
                         <Link to="/purchase" onClick={() => setIsOpen(false)}>
                           <Button className="w-full mb-4">Buy Now</Button>

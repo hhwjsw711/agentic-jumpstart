@@ -1,5 +1,5 @@
 export interface IStorage {
-  upload(key: string, data: Buffer): Promise<void>;
+  upload(key: string, data: Buffer, contentType?: string): Promise<void>;
   delete(key: string): Promise<void>;
   exists(key: string): Promise<boolean>;
   getStream(
