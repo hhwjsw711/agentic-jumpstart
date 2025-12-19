@@ -105,6 +105,7 @@ export function TargetingDialog({
     mutationFn: updateFeatureFlagTargetingFn,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["featureFlagTargeting", flagKey] });
+      queryClient.invalidateQueries({ queryKey: ["allFeatureFlags"] });
       toast.success("Targeting settings updated");
       onOpenChange(false);
     },

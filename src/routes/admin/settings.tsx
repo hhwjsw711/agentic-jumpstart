@@ -4,152 +4,103 @@ import { PageHeader } from "~/routes/admin/-components/page-header";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   toggleEarlyAccessModeFn,
-  getEarlyAccessModeFn,
   toggleAgentsFeatureFn,
-  getAgentsFeatureEnabledFn,
   toggleLaunchKitsFeatureFn,
-  getLaunchKitsFeatureEnabledFn,
   toggleAffiliatesFeatureFn,
-  getAffiliatesFeatureEnabledFn,
   toggleBlogFeatureFn,
-  getBlogFeatureEnabledFn,
-  getNewsFeatureEnabledFn,
   toggleNewsFeatureFn,
-  getFeatureFlagEnabledFn,
   toggleFeatureFlagFn,
 } from "~/fn/app-settings";
-import { getFeatureFlagTargetingFn } from "~/fn/feature-flags";
+import { getAllFeatureFlagsFn } from "~/fn/feature-flags";
 import { assertIsAdminFn } from "~/fn/auth";
 import { toast } from "sonner";
 import { Page } from "./-components/page";
 import { TargetingDialog } from "./settings/-components/targeting-dialog";
 import { FeatureFlagCard } from "./settings/-components/feature-flag-card";
-import { FEATURE_FLAGS_CONFIG } from "./settings/-components/feature-flags-config";
-import { FLAGS, type FlagKey } from "~/config";
+import { FLAGS, type FlagKey, DISPLAYED_FLAGS } from "~/config";
 
-interface FlagHookConfig {
-  queryKey: string;
-  getFn: () => Promise<boolean>;
-  toggleFn: (params: { data: { enabled: boolean } }) => Promise<unknown>;
-  successMessage: string;
-  errorMessage: string;
-}
-
-const FLAG_HOOKS: Record<FlagKey, FlagHookConfig> = {
-  [FLAGS.EARLY_ACCESS_MODE]: {
-    queryKey: "earlyAccessMode",
-    getFn: getEarlyAccessModeFn,
-    toggleFn: toggleEarlyAccessModeFn,
-    successMessage: "Early access mode updated successfully",
-    errorMessage: "Failed to update early access mode",
-  },
-  [FLAGS.AGENTS_FEATURE]: {
-    queryKey: "agentsFeature",
-    getFn: getAgentsFeatureEnabledFn,
-    toggleFn: toggleAgentsFeatureFn,
-    successMessage: "Agents feature updated successfully",
-    errorMessage: "Failed to update agents feature",
-  },
-  [FLAGS.ADVANCED_AGENTS_FEATURE]: {
-    queryKey: "advancedAgentsFeature",
-    getFn: () => getFeatureFlagEnabledFn({ data: { flagKey: FLAGS.ADVANCED_AGENTS_FEATURE } }),
-    toggleFn: (params: { data: { enabled: boolean } }) =>
-      toggleFeatureFlagFn({ data: { flagKey: FLAGS.ADVANCED_AGENTS_FEATURE, enabled: params.data.enabled } }),
-    successMessage: "Advanced agents feature updated successfully",
-    errorMessage: "Failed to update advanced agents feature",
-  },
-  [FLAGS.LAUNCH_KITS_FEATURE]: {
-    queryKey: "launchKitsFeature",
-    getFn: getLaunchKitsFeatureEnabledFn,
-    toggleFn: toggleLaunchKitsFeatureFn,
-    successMessage: "Launch kits feature updated successfully",
-    errorMessage: "Failed to update launch kits feature",
-  },
-  [FLAGS.AFFILIATES_FEATURE]: {
-    queryKey: "affiliatesFeature",
-    getFn: getAffiliatesFeatureEnabledFn,
-    toggleFn: toggleAffiliatesFeatureFn,
-    successMessage: "Affiliates feature updated successfully",
-    errorMessage: "Failed to update affiliates feature",
-  },
-  [FLAGS.BLOG_FEATURE]: {
-    queryKey: "blogFeature",
-    getFn: getBlogFeatureEnabledFn,
-    toggleFn: toggleBlogFeatureFn,
-    successMessage: "Blog feature updated successfully",
-    errorMessage: "Failed to update blog feature",
-  },
-  [FLAGS.NEWS_FEATURE]: {
-    queryKey: "newsFeature",
-    getFn: getNewsFeatureEnabledFn,
-    toggleFn: toggleNewsFeatureFn,
-    successMessage: "News feature updated successfully",
-    errorMessage: "Failed to update news feature",
-  },
-  [FLAGS.VIDEO_SEGMENT_CONTENT_TABS]: {
-    queryKey: "videoSegmentContentTabs",
-    getFn: () => Promise.resolve(false),
-    toggleFn: () => Promise.resolve(undefined),
-    successMessage: "",
-    errorMessage: "",
-  },
+/** Toggle functions for each flag */
+const FLAG_TOGGLE_FNS: Record<FlagKey, (params: { data: { enabled: boolean } }) => Promise<unknown>> = {
+  [FLAGS.EARLY_ACCESS_MODE]: toggleEarlyAccessModeFn,
+  [FLAGS.AGENTS_FEATURE]: toggleAgentsFeatureFn,
+  [FLAGS.ADVANCED_AGENTS_FEATURE]: (params) =>
+    toggleFeatureFlagFn({ data: { flagKey: FLAGS.ADVANCED_AGENTS_FEATURE, enabled: params.data.enabled } }),
+  [FLAGS.LAUNCH_KITS_FEATURE]: toggleLaunchKitsFeatureFn,
+  [FLAGS.AFFILIATES_FEATURE]: toggleAffiliatesFeatureFn,
+  [FLAGS.BLOG_FEATURE]: toggleBlogFeatureFn,
+  [FLAGS.NEWS_FEATURE]: toggleNewsFeatureFn,
+  [FLAGS.VIDEO_SEGMENT_CONTENT_TABS]: () => Promise.resolve(undefined),
 };
-
-// Filter out VIDEO_SEGMENT_CONTENT_TABS from the displayed flags
-const DISPLAYED_FLAGS = FEATURE_FLAGS_CONFIG.filter(
-  (f) => f.key !== FLAGS.VIDEO_SEGMENT_CONTENT_TABS
-);
 
 export const Route = createFileRoute("/admin/settings")({
   beforeLoad: () => assertIsAdminFn(),
   component: SettingsPage,
   loader: ({ context }) => {
-    DISPLAYED_FLAGS.forEach((flag) => {
-      const hookConfig = FLAG_HOOKS[flag.key];
-      context.queryClient.ensureQueryData({
-        queryKey: [hookConfig.queryKey],
-        queryFn: () => hookConfig.getFn(),
-      });
+    // Prefetch all feature flags in one request
+    context.queryClient.ensureQueryData({
+      queryKey: ["allFeatureFlags"],
+      queryFn: () => getAllFeatureFlagsFn(),
     });
   },
 });
 
-function useFeatureFlagState(flagKey: FlagKey) {
+function useToggleFlag(flagKey: FlagKey) {
   const queryClient = useQueryClient();
-  const hookConfig = FLAG_HOOKS[flagKey];
-
-  const { data: enabled } = useQuery({
-    queryKey: [hookConfig.queryKey],
-    queryFn: () => hookConfig.getFn(),
-  });
-
-  const { data: targeting } = useQuery({
-    queryKey: ["featureFlagTargeting", flagKey],
-    queryFn: () => getFeatureFlagTargetingFn({ data: { flagKey } }),
-  });
+  const flagConfig = DISPLAYED_FLAGS.find((f) => f.key === flagKey);
 
   const toggleMutation = useMutation({
-    mutationFn: hookConfig.toggleFn,
+    mutationFn: FLAG_TOGGLE_FNS[flagKey],
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [hookConfig.queryKey] });
-      toast.success(hookConfig.successMessage);
+      queryClient.invalidateQueries({ queryKey: ["allFeatureFlags"] });
+      toast.success(`${flagConfig?.title ?? "Feature"} updated successfully`);
     },
     onError: (error) => {
-      toast.error(hookConfig.errorMessage);
-      console.error(`${hookConfig.errorMessage}:`, error);
+      toast.error(`Failed to update ${flagConfig?.title ?? "feature"}`);
+      console.error(`Failed to update ${flagKey}:`, error);
     },
   });
 
-  const handleToggle = (checked: boolean) => {
-    toggleMutation.mutate({ data: { enabled: checked } });
-  };
-
   return {
-    enabled,
-    targeting,
+    toggle: (checked: boolean) => toggleMutation.mutate({ data: { enabled: checked } }),
     isPending: toggleMutation.isPending,
-    handleToggle,
   };
+}
+
+/** Wrapper component that handles toggle mutation for each flag */
+function FeatureFlagCardWrapper({
+  flag,
+  state,
+  animationDelay,
+  onConfigureTargeting,
+  featureStates,
+  flagConfigs,
+}: {
+  flag: (typeof DISPLAYED_FLAGS)[number];
+  state: { enabled: boolean; targeting: unknown } | undefined;
+  animationDelay: string;
+  onConfigureTargeting: () => void;
+  featureStates: Record<string, boolean | undefined>;
+  flagConfigs: Record<string, { title: string }>;
+}) {
+  const { toggle, isPending } = useToggleFlag(flag.key);
+
+  return (
+    <FeatureFlagCard
+      icon={flag.icon}
+      title={flag.title}
+      description={flag.description}
+      switchId={flag.key.toLowerCase().replace(/_/g, "-")}
+      checked={state?.enabled}
+      onCheckedChange={toggle}
+      isPending={isPending}
+      targeting={state?.targeting}
+      onConfigureTargeting={onConfigureTargeting}
+      animationDelay={animationDelay}
+      dependsOn={flag.dependsOn}
+      featureStates={featureStates}
+      flagConfigs={flagConfigs}
+    />
+  );
 }
 
 function SettingsPage() {
@@ -159,14 +110,15 @@ function SettingsPage() {
     flagName: string;
   }>({ open: false, flagKey: null, flagName: "" });
 
-  // Create state for all displayed flags
-  const flagStates = Object.fromEntries(
-    DISPLAYED_FLAGS.map((flag) => [flag.key, useFeatureFlagState(flag.key)])
-  );
+  // Single query for all feature flags - no hooks violation!
+  const { data: flagStates } = useQuery({
+    queryKey: ["allFeatureFlags"],
+    queryFn: () => getAllFeatureFlagsFn(),
+  });
 
   // Create featureStates record for dependency checking
   const featureStatesRecord: Record<string, boolean | undefined> = Object.fromEntries(
-    DISPLAYED_FLAGS.map((flag) => [flag.key, flagStates[flag.key]?.enabled])
+    DISPLAYED_FLAGS.map((flag) => [flag.key, flagStates?.[flag.key]?.enabled])
   );
 
   // Create flagConfigs record for dependency titles
@@ -185,33 +137,23 @@ function SettingsPage() {
         description="Manage application settings and feature flags"
         highlightedWord="Settings"
       />
+
+      {/* Feature Flags Section */}
       <div
         className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 animate-in fade-in slide-in-from-bottom-2 duration-500"
         style={{ animationDelay: "0.1s", animationFillMode: "both" }}
       >
-        {DISPLAYED_FLAGS.map((flag, index) => {
-          const state = flagStates[flag.key];
-          const animationDelay = `${0.2 + index * 0.1}s`;
-
-          return (
-            <FeatureFlagCard
-              key={flag.key}
-              icon={flag.icon}
-              title={flag.title}
-              description={flag.description}
-              switchId={flag.key.toLowerCase().replace(/_/g, "-")}
-              checked={state.enabled}
-              onCheckedChange={state.handleToggle}
-              isPending={state.isPending}
-              targeting={state.targeting}
-              onConfigureTargeting={() => openTargetingDialog(flag.key, flag.title)}
-              animationDelay={animationDelay}
-              dependsOn={flag.dependsOn}
-              featureStates={featureStatesRecord}
-              flagConfigs={flagConfigsRecord}
-            />
-          );
-        })}
+        {DISPLAYED_FLAGS.map((flag, index) => (
+          <FeatureFlagCardWrapper
+            key={flag.key}
+            flag={flag}
+            state={flagStates?.[flag.key]}
+            animationDelay={`${0.2 + index * 0.1}s`}
+            onConfigureTargeting={() => openTargetingDialog(flag.key, flag.title)}
+            featureStates={featureStatesRecord}
+            flagConfigs={flagConfigsRecord}
+          />
+        ))}
       </div>
 
       {targetingDialog.flagKey && (
