@@ -82,7 +82,7 @@ export const Route = createFileRoute("/learn/$slug/_layout/")({
 
 export const getSegmentInfoFn = createServerFn()
   .middleware([unauthenticatedMiddleware])
-  .validator(z.object({ slug: z.string() }))
+  .inputValidator(z.object({ slug: z.string() }))
   .handler(async ({ data, context }) => {
     const segment = await getSegmentBySlugUseCase(data.slug);
     const [segments, progress] = await Promise.all([

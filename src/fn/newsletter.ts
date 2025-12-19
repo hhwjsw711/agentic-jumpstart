@@ -18,7 +18,7 @@ const newsletterSubscribeSchema = z.object({
 });
 
 export const subscribeToNewsletterFn = createServerFn()
-  .validator(newsletterSubscribeSchema)
+  .inputValidator(newsletterSubscribeSchema)
   .handler(async ({ data }) => {
     // Verify reCAPTCHA
     const response = await fetch(

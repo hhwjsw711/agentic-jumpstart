@@ -23,7 +23,7 @@ import { startVideoProcessingWorker } from "~/lib/video-processing-worker";
  */
 export const queueTranscriptJobFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       segmentId: z.number(),
     })
@@ -42,7 +42,7 @@ export const queueTranscriptJobFn = createServerFn({ method: "POST" })
  */
 export const queueTranscodeJobFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       segmentId: z.number(),
     })
@@ -61,7 +61,7 @@ export const queueTranscodeJobFn = createServerFn({ method: "POST" })
  */
 export const queueThumbnailJobFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       segmentId: z.number(),
     })
@@ -80,7 +80,7 @@ export const queueThumbnailJobFn = createServerFn({ method: "POST" })
  */
 export const queueAllJobsForSegmentFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       segmentId: z.number(),
     })
@@ -115,7 +115,7 @@ export const queueMissingJobsForAllSegmentsFn = createServerFn({
  */
 export const getJobsForSegmentFn = createServerFn({ method: "GET" })
   .middleware([adminMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       segmentId: z.number(),
     })

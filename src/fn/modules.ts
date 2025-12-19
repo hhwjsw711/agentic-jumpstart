@@ -8,7 +8,7 @@ import {
 
 export const reorderModulesFn = createServerFn()
   .middleware([adminMiddleware])
-  .validator(z.array(z.object({ id: z.number(), order: z.number() })))
+  .inputValidator(z.array(z.object({ id: z.number(), order: z.number() })))
   .handler(async ({ data }) => {
     return reorderModulesUseCase(data);
   });

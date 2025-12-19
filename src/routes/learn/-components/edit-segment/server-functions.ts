@@ -15,7 +15,7 @@ import { startVideoProcessingWorker } from "~/lib/video-processing-worker";
 
 export const updateSegmentFn = createServerFn()
   .middleware([adminMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       segmentId: z.number(),
       updates: z.object({
@@ -54,7 +54,10 @@ export const updateSegmentFn = createServerFn()
       ? { ...updates, thumbnailKey: null }
       : updates;
 
-    const updatedSegment = await updateSegmentUseCase(segmentId, updatesWithThumbnailClear);
+    const updatedSegment = await updateSegmentUseCase(
+      segmentId,
+      updatesWithThumbnailClear
+    );
 
     // Queue video processing jobs if a new video was uploaded
     if (isNewVideoUpload && updates.videoKey) {
@@ -88,7 +91,7 @@ export const updateSegmentFn = createServerFn()
 
 export const getSegmentFn = createServerFn()
   .middleware([authenticatedMiddleware])
-  .validator(z.object({ slug: z.string() }))
+  .inputValidator(z.object({ slug: z.string() }))
   .handler(async ({ data }) => {
     const segment = await getSegmentBySlugUseCase(data.slug);
     if (!segment) throw new Error("Segment not found");

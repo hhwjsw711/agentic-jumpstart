@@ -8,14 +8,14 @@ import {
 
 export const markedAsWatchedFn = createServerFn()
   .middleware([authenticatedMiddleware])
-  .validator(z.object({ segmentId: z.coerce.number() }))
+  .inputValidator(z.object({ segmentId: z.coerce.number() }))
   .handler(async ({ data, context }) => {
     await markAsWatchedUseCase(context.userId, data.segmentId);
   });
 
 export const markAsCompletedFn = createServerFn()
   .middleware([authenticatedMiddleware])
-  .validator(z.object({ segmentId: z.coerce.number() }))
+  .inputValidator(z.object({ segmentId: z.coerce.number() }))
   .handler(async ({ data, context }) => {
     await markAsWatchedUseCase(context.userId, data.segmentId);
   });

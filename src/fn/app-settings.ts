@@ -28,14 +28,14 @@ const flagKeySchema = z.enum(FLAG_KEYS);
 
 export const getAppSettingsFn = createServerFn({ method: "GET" })
   .middleware([adminMiddleware])
-  .validator(z.void())
+  .inputValidator(z.void())
   .handler(async () => {
     return getAppSettingsUseCase();
   });
 
 export const toggleEarlyAccessModeFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
-  .validator(z.object({ enabled: z.boolean() }))
+  .inputValidator(z.object({ enabled: z.boolean() }))
   .handler(async ({ data }) => {
     await toggleEarlyAccessModeUseCase(data.enabled);
     return { success: true };
@@ -43,21 +43,21 @@ export const toggleEarlyAccessModeFn = createServerFn({ method: "POST" })
 
 export const getEarlyAccessModeFn = createServerFn({ method: "GET" })
   .middleware([unauthenticatedMiddleware])
-  .validator(z.void())
+  .inputValidator(z.void())
   .handler(async () => {
     return getEarlyAccessModeUseCase();
   });
 
 export const getAgentsFeatureEnabledFn = createServerFn({ method: "GET" })
   .middleware([unauthenticatedMiddleware])
-  .validator(z.void())
+  .inputValidator(z.void())
   .handler(async () => {
     return getAgentsFeatureEnabledUseCase();
   });
 
 export const toggleAgentsFeatureFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
-  .validator(z.object({ enabled: z.boolean() }))
+  .inputValidator(z.object({ enabled: z.boolean() }))
   .handler(async ({ data }) => {
     await toggleAgentsFeatureUseCase(data.enabled);
     return { success: true };
@@ -65,14 +65,14 @@ export const toggleAgentsFeatureFn = createServerFn({ method: "POST" })
 
 export const getLaunchKitsFeatureEnabledFn = createServerFn({ method: "GET" })
   .middleware([unauthenticatedMiddleware])
-  .validator(z.void())
+  .inputValidator(z.void())
   .handler(async () => {
     return getLaunchKitsFeatureEnabledUseCase();
   });
 
 export const toggleLaunchKitsFeatureFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
-  .validator(z.object({ enabled: z.boolean() }))
+  .inputValidator(z.object({ enabled: z.boolean() }))
   .handler(async ({ data }) => {
     await toggleLaunchKitsFeatureUseCase(data.enabled);
     return { success: true };
@@ -80,14 +80,14 @@ export const toggleLaunchKitsFeatureFn = createServerFn({ method: "POST" })
 
 export const getAffiliatesFeatureEnabledFn = createServerFn({ method: "GET" })
   .middleware([unauthenticatedMiddleware])
-  .validator(z.void())
+  .inputValidator(z.void())
   .handler(async () => {
     return getAffiliatesFeatureEnabledUseCase();
   });
 
 export const toggleAffiliatesFeatureFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
-  .validator(z.object({ enabled: z.boolean() }))
+  .inputValidator(z.object({ enabled: z.boolean() }))
   .handler(async ({ data }) => {
     await toggleAffiliatesFeatureUseCase(data.enabled);
     return { success: true };
@@ -95,21 +95,21 @@ export const toggleAffiliatesFeatureFn = createServerFn({ method: "POST" })
 
 export const getBlogFeatureEnabledFn = createServerFn({ method: "GET" })
   .middleware([unauthenticatedMiddleware])
-  .validator(z.void())
+  .inputValidator(z.void())
   .handler(async () => {
     return getBlogFeatureEnabledUseCase();
   });
 
 export const getNewsFeatureEnabledFn = createServerFn({ method: "GET" })
   .middleware([unauthenticatedMiddleware])
-  .validator(z.void())
+  .inputValidator(z.void())
   .handler(async () => {
     return getNewsFeatureEnabledUseCase();
   });
 
 export const toggleBlogFeatureFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
-  .validator(z.object({ enabled: z.boolean() }))
+  .inputValidator(z.object({ enabled: z.boolean() }))
   .handler(async ({ data }) => {
     await toggleBlogFeatureUseCase(data.enabled);
     return { success: true };
@@ -117,7 +117,7 @@ export const toggleBlogFeatureFn = createServerFn({ method: "POST" })
 
 export const toggleNewsFeatureFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
-  .validator(z.object({ enabled: z.boolean() }))
+  .inputValidator(z.object({ enabled: z.boolean() }))
   .handler(async ({ data }) => {
     await toggleNewsFeatureUseCase(data.enabled);
     return { success: true };
@@ -127,7 +127,7 @@ export const getVideoSegmentContentTabsEnabledFn = createServerFn({
   method: "GET",
 })
   .middleware([unauthenticatedMiddleware])
-  .validator(z.void())
+  .inputValidator(z.void())
   .handler(async () => {
     return getVideoSegmentContentTabsEnabledUseCase();
   });
@@ -136,7 +136,7 @@ export const toggleVideoSegmentContentTabsFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator(z.object({ enabled: z.boolean() }))
+  .inputValidator(z.object({ enabled: z.boolean() }))
   .handler(async ({ data }) => {
     await toggleVideoSegmentContentTabsUseCase(data.enabled);
     return { success: true };
@@ -144,7 +144,7 @@ export const toggleVideoSegmentContentTabsFn = createServerFn({
 
 export const isFeatureEnabledForUserFn = createServerFn({ method: "GET" })
   .middleware([unauthenticatedMiddleware])
-  .validator(z.object({ flagKey: flagKeySchema }))
+  .inputValidator(z.object({ flagKey: flagKeySchema }))
   .handler(async ({ data, context }) => {
     return isFeatureEnabledForUser(data.flagKey, context.user?.id ?? null);
   });
@@ -155,7 +155,7 @@ export const isFeatureEnabledForUserFn = createServerFn({ method: "GET" })
  */
 export const getFeatureFlagEnabledFn = createServerFn({ method: "GET" })
   .middleware([unauthenticatedMiddleware])
-  .validator(z.object({ flagKey: flagKeySchema }))
+  .inputValidator(z.object({ flagKey: flagKeySchema }))
   .handler(async ({ data }) => {
     return getFeatureFlagEnabledUseCase(data.flagKey);
   });
@@ -166,7 +166,7 @@ export const getFeatureFlagEnabledFn = createServerFn({ method: "GET" })
  */
 export const toggleFeatureFlagFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
-  .validator(z.object({ flagKey: flagKeySchema, enabled: z.boolean() }))
+  .inputValidator(z.object({ flagKey: flagKeySchema, enabled: z.boolean() }))
   .handler(async ({ data }) => {
     await toggleFeatureFlagUseCase(data.flagKey, data.enabled);
     return { success: true };

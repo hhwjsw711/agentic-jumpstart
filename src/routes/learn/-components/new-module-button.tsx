@@ -18,7 +18,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 const createModuleFn = createServerFn()
   .middleware([adminMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       title: z
         .string()
@@ -69,9 +69,14 @@ export function NewModuleButton() {
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent animation="slide-in-bottom-left" className="sm:max-w-md glass border-slate-200/60 dark:border-white/10">
+        <DialogContent
+          animation="slide-in-bottom-left"
+          className="sm:max-w-md glass border-slate-200/60 dark:border-white/10"
+        >
           <DialogHeader>
-            <DialogTitle className="text-slate-900 dark:text-white">Create New Module</DialogTitle>
+            <DialogTitle className="text-slate-900 dark:text-white">
+              Create New Module
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

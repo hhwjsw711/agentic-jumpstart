@@ -17,7 +17,7 @@ import { reorderSegmentsUseCase } from "~/use-cases/segments";
 
 export const reorderSegmentsFn = createServerFn()
   .middleware([adminMiddleware])
-  .validator(
+  .inputValidator(
     z.array(z.object({
       id: z.number(),
       order: z.number()

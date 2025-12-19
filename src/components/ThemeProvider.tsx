@@ -29,7 +29,7 @@ export const getThemeFn = createServerFn().handler(async () => {
 });
 
 export const setThemeFn = createServerFn({ method: "POST" })
-  .validator(z.object({ theme: z.enum(["dark", "light", "system"]) }))
+  .inputValidator(z.object({ theme: z.enum(["dark", "light", "system"]) }))
   .handler(async ({ data }) => {
     setCookie(THEME_COOKIE_NAME, data.theme);
     return data.theme;

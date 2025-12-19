@@ -16,9 +16,9 @@ export const getWaitlistEmailTemplateFn = createServerFn({
     try {
       // Initialize default templates if needed
       await initializeDefaultEmailTemplates(context.userId!);
-      
+
       const template = await getEmailTemplateByKey("waitlist_welcome");
-      
+
       if (!template) {
         // Return default template if not found
         return {
@@ -44,7 +44,7 @@ The Team`,
           isActive: true,
         };
       }
-      
+
       return template;
     } catch (error) {
       console.error("Failed to get waitlist email template:", error);
@@ -54,7 +54,10 @@ The Team`,
 
 // Update waitlist email template
 const updateWaitlistEmailSchema = z.object({
-  subject: z.string().min(1, "Subject is required").max(200, "Subject too long"),
+  subject: z
+    .string()
+    .min(1, "Subject is required")
+    .max(200, "Subject too long"),
   content: z.string().min(1, "Content is required"),
 });
 
@@ -62,7 +65,7 @@ export const updateWaitlistEmailTemplateFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator(updateWaitlistEmailSchema)
+  .inputValidator(updateWaitlistEmailSchema)
   .handler(async ({ data, context }) => {
     try {
       const updated = await updateEmailTemplate("waitlist_welcome", {
@@ -74,17 +77,17 @@ export const updateWaitlistEmailTemplateFn = createServerFn({
       if (!updated) {
         // Create if it doesn't exist
         await initializeDefaultEmailTemplates(context.userId!);
-        
+
         const retryUpdate = await updateEmailTemplate("waitlist_welcome", {
           subject: data.subject,
           content: data.content,
           updatedBy: context.userId!,
         });
-        
+
         if (!retryUpdate) {
           throw new Error("Failed to update waitlist email template");
         }
-        
+
         return retryUpdate;
       }
 

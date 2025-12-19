@@ -54,7 +54,7 @@ export const Route = createFileRoute("/create-testimonial")({
 
 export const createTestimonialFn = createServerFn()
   .middleware([authenticatedMiddleware])
-  .validator(testimonialSchema)
+  .inputValidator(testimonialSchema)
   .handler(async ({ data, context }) => {
     await createTestimonialUseCase({
       ...data,

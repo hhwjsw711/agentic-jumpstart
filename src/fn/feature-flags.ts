@@ -1,9 +1,21 @@
-import {createServerFn} from "@tanstack/react-start";
-import {adminMiddleware} from "~/lib/auth";
-import {z} from "zod";
-import {getFeatureFlagTargetingUseCase, updateFeatureFlagTargetingUseCase,} from "~/use-cases/feature-flags";
-import {searchUsersWithProfile, getUsersByIds, getUsersByEmails} from "~/data-access/feature-flags";
-import {FLAG_KEYS, TARGET_MODES, DISPLAYED_FLAGS, type FlagKey} from "~/config";
+import { createServerFn } from "@tanstack/react-start";
+import { adminMiddleware } from "~/lib/auth";
+import { z } from "zod";
+import {
+  getFeatureFlagTargetingUseCase,
+  updateFeatureFlagTargetingUseCase,
+} from "~/use-cases/feature-flags";
+import {
+  searchUsersWithProfile,
+  getUsersByIds,
+  getUsersByEmails,
+} from "~/data-access/feature-flags";
+import {
+  FLAG_KEYS,
+  TARGET_MODES,
+  DISPLAYED_FLAGS,
+  type FlagKey,
+} from "~/config";
 import { isFeatureFlagEnabled } from "~/data-access/app-settings";
 
 const flagKeySchema = z.enum(FLAG_KEYS);
@@ -17,14 +29,14 @@ const targetModeSchema = z.enum([
 
 export const getFeatureFlagTargetingFn = createServerFn({ method: "GET" })
   .middleware([adminMiddleware])
-  .validator(z.object({ flagKey: flagKeySchema }))
+  .inputValidator(z.object({ flagKey: flagKeySchema }))
   .handler(async ({ data }) => {
     return getFeatureFlagTargetingUseCase(data.flagKey);
   });
 
 export const updateFeatureFlagTargetingFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       flagKey: flagKeySchema,
       targetMode: targetModeSchema,
@@ -42,21 +54,21 @@ export const updateFeatureFlagTargetingFn = createServerFn({ method: "POST" })
 
 export const searchUsersForFlagFn = createServerFn({ method: "GET" })
   .middleware([adminMiddleware])
-  .validator(z.object({ query: z.string().min(1) }))
+  .inputValidator(z.object({ query: z.string().min(1) }))
   .handler(async ({ data }) => {
     return searchUsersWithProfile(data.query);
   });
 
 export const getUsersByIdsFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
-  .validator(z.object({ userIds: z.array(z.number()).max(1000) }))
+  .inputValidator(z.object({ userIds: z.array(z.number()).max(1000) }))
   .handler(async ({ data }) => {
     return getUsersByIds(data.userIds);
   });
 
 export const getUsersByEmailsFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
-  .validator(z.object({ emails: z.array(z.email()).max(1000) }))
+  .inputValidator(z.object({ emails: z.array(z.email()).max(1000) }))
   .handler(async ({ data }) => {
     return getUsersByEmails(data.emails);
   });
@@ -80,6 +92,12 @@ export const getAllFeatureFlagsFn = createServerFn({ method: "GET" })
         acc[key] = { enabled, targeting };
         return acc;
       },
-      {} as Record<FlagKey, { enabled: boolean; targeting: Awaited<ReturnType<typeof getFeatureFlagTargetingUseCase>> }>
+      {} as Record<
+        FlagKey,
+        {
+          enabled: boolean;
+          targeting: Awaited<ReturnType<typeof getFeatureFlagTargetingUseCase>>;
+        }
+      >
     );
   });

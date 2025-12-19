@@ -8,9 +8,6 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createFileRoute } from '@tanstack/react-router'
-import { createServerRootRoute } from '@tanstack/react-start/server'
-
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
@@ -78,16 +75,6 @@ import { Route as AdminLaunchKitsCreateIndexRouteImport } from './routes/admin/l
 import { Route as AdminNewsIdEditRouteImport } from './routes/admin/news/$id/edit'
 import { Route as AdminLaunchKitsEditIdRouteImport } from './routes/admin/launch-kits/edit/$id'
 import { Route as AdminBlogIdEditRouteImport } from './routes/admin/blog/$id/edit'
-import { ServerRoute as HealthServerRouteImport } from './routes/health'
-import { ServerRoute as ApiLogoutServerRouteImport } from './routes/api/logout'
-import { ServerRoute as ApiHealthServerRouteImport } from './routes/api/health'
-import { ServerRoute as ApiStripeWebhookServerRouteImport } from './routes/api/stripe/webhook'
-import { ServerRoute as ApiLoginGoogleIndexServerRouteImport } from './routes/api/login/google/index'
-import { ServerRoute as ApiSegmentsSegmentIdVideoServerRouteImport } from './routes/api/segments/$segmentId/video'
-import { ServerRoute as ApiLoginGoogleCallbackIndexServerRouteImport } from './routes/api/login/google/callback/index'
-
-const LearnSlugRouteImport = createFileRoute('/learn/$slug')()
-const rootServerRouteImport = createServerRootRoute()
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
   id: '/unsubscribe',
@@ -187,11 +174,6 @@ const AdminRouteRoute = AdminRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LearnSlugRoute = LearnSlugRouteImport.update({
-  id: '/learn/$slug',
-  path: '/learn/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LearnIndexRoute = LearnIndexRouteImport.update({
@@ -335,13 +317,14 @@ const AdminBlogIndexRoute = AdminBlogIndexRouteImport.update({
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const LearnSlugEditRoute = LearnSlugEditRouteImport.update({
-  id: '/edit',
-  path: '/edit',
-  getParentRoute: () => LearnSlugRoute,
+  id: '/learn/$slug/edit',
+  path: '/learn/$slug/edit',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const LearnSlugLayoutRoute = LearnSlugLayoutRouteImport.update({
-  id: '/_layout',
-  getParentRoute: () => LearnSlugRoute,
+  id: '/learn/$slug/_layout',
+  path: '/learn/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AdminNewsNewRoute = AdminNewsNewRouteImport.update({
   id: '/news/new',
@@ -425,44 +408,6 @@ const AdminBlogIdEditRoute = AdminBlogIdEditRouteImport.update({
   path: '/blog/$id/edit',
   getParentRoute: () => AdminRouteRoute,
 } as any)
-const HealthServerRoute = HealthServerRouteImport.update({
-  id: '/health',
-  path: '/health',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
-const ApiLogoutServerRoute = ApiLogoutServerRouteImport.update({
-  id: '/api/logout',
-  path: '/api/logout',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
-const ApiHealthServerRoute = ApiHealthServerRouteImport.update({
-  id: '/api/health',
-  path: '/api/health',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
-const ApiStripeWebhookServerRoute = ApiStripeWebhookServerRouteImport.update({
-  id: '/api/stripe/webhook',
-  path: '/api/stripe/webhook',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
-const ApiLoginGoogleIndexServerRoute =
-  ApiLoginGoogleIndexServerRouteImport.update({
-    id: '/api/login/google/',
-    path: '/api/login/google/',
-    getParentRoute: () => rootServerRouteImport,
-  } as any)
-const ApiSegmentsSegmentIdVideoServerRoute =
-  ApiSegmentsSegmentIdVideoServerRouteImport.update({
-    id: '/api/segments/$segmentId/video',
-    path: '/api/segments/$segmentId/video',
-    getParentRoute: () => rootServerRouteImport,
-  } as any)
-const ApiLoginGoogleCallbackIndexServerRoute =
-  ApiLoginGoogleCallbackIndexServerRouteImport.update({
-    id: '/api/login/google/callback/',
-    path: '/api/login/google/callback/',
-    getParentRoute: () => rootServerRouteImport,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -585,7 +530,6 @@ export interface FileRoutesByTo {
   '/admin/emails/waitlist': typeof AdminEmailsWaitlistRoute
   '/admin/launch-kits/tags': typeof AdminLaunchKitsTagsRoute
   '/admin/news/new': typeof AdminNewsNewRoute
-  '/learn/$slug': typeof LearnSlugLayoutIndexRoute
   '/learn/$slug/edit': typeof LearnSlugEditRoute
   '/admin/blog': typeof AdminBlogIndexRoute
   '/admin/conversions': typeof AdminConversionsIndexRoute
@@ -596,6 +540,7 @@ export interface FileRoutesByTo {
   '/admin/launch-kits/edit/$id': typeof AdminLaunchKitsEditIdRoute
   '/admin/news/$id/edit': typeof AdminNewsIdEditRoute
   '/admin/launch-kits/create': typeof AdminLaunchKitsCreateIndexRoute
+  '/learn/$slug': typeof LearnSlugLayoutIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -653,7 +598,6 @@ export interface FileRoutesById {
   '/admin/emails/waitlist': typeof AdminEmailsWaitlistRoute
   '/admin/launch-kits/tags': typeof AdminLaunchKitsTagsRoute
   '/admin/news/new': typeof AdminNewsNewRoute
-  '/learn/$slug': typeof LearnSlugRouteWithChildren
   '/learn/$slug/_layout': typeof LearnSlugLayoutRouteWithChildren
   '/learn/$slug/edit': typeof LearnSlugEditRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
@@ -790,7 +734,6 @@ export interface FileRouteTypes {
     | '/admin/emails/waitlist'
     | '/admin/launch-kits/tags'
     | '/admin/news/new'
-    | '/learn/$slug'
     | '/learn/$slug/edit'
     | '/admin/blog'
     | '/admin/conversions'
@@ -801,6 +744,7 @@ export interface FileRouteTypes {
     | '/admin/launch-kits/edit/$id'
     | '/admin/news/$id/edit'
     | '/admin/launch-kits/create'
+    | '/learn/$slug'
   id:
     | '__root__'
     | '/'
@@ -857,7 +801,6 @@ export interface FileRouteTypes {
     | '/admin/emails/waitlist'
     | '/admin/launch-kits/tags'
     | '/admin/news/new'
-    | '/learn/$slug'
     | '/learn/$slug/_layout'
     | '/learn/$slug/edit'
     | '/admin/blog/'
@@ -907,74 +850,8 @@ export interface RootRouteChildren {
   BlogIndexRoute: typeof BlogIndexRoute
   LaunchKitsIndexRoute: typeof LaunchKitsIndexRoute
   LearnIndexRoute: typeof LearnIndexRoute
-  LearnSlugRoute: typeof LearnSlugRouteWithChildren
-}
-export interface FileServerRoutesByFullPath {
-  '/health': typeof HealthServerRoute
-  '/api/health': typeof ApiHealthServerRoute
-  '/api/logout': typeof ApiLogoutServerRoute
-  '/api/stripe/webhook': typeof ApiStripeWebhookServerRoute
-  '/api/segments/$segmentId/video': typeof ApiSegmentsSegmentIdVideoServerRoute
-  '/api/login/google': typeof ApiLoginGoogleIndexServerRoute
-  '/api/login/google/callback': typeof ApiLoginGoogleCallbackIndexServerRoute
-}
-export interface FileServerRoutesByTo {
-  '/health': typeof HealthServerRoute
-  '/api/health': typeof ApiHealthServerRoute
-  '/api/logout': typeof ApiLogoutServerRoute
-  '/api/stripe/webhook': typeof ApiStripeWebhookServerRoute
-  '/api/segments/$segmentId/video': typeof ApiSegmentsSegmentIdVideoServerRoute
-  '/api/login/google': typeof ApiLoginGoogleIndexServerRoute
-  '/api/login/google/callback': typeof ApiLoginGoogleCallbackIndexServerRoute
-}
-export interface FileServerRoutesById {
-  __root__: typeof rootServerRouteImport
-  '/health': typeof HealthServerRoute
-  '/api/health': typeof ApiHealthServerRoute
-  '/api/logout': typeof ApiLogoutServerRoute
-  '/api/stripe/webhook': typeof ApiStripeWebhookServerRoute
-  '/api/segments/$segmentId/video': typeof ApiSegmentsSegmentIdVideoServerRoute
-  '/api/login/google/': typeof ApiLoginGoogleIndexServerRoute
-  '/api/login/google/callback/': typeof ApiLoginGoogleCallbackIndexServerRoute
-}
-export interface FileServerRouteTypes {
-  fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths:
-    | '/health'
-    | '/api/health'
-    | '/api/logout'
-    | '/api/stripe/webhook'
-    | '/api/segments/$segmentId/video'
-    | '/api/login/google'
-    | '/api/login/google/callback'
-  fileServerRoutesByTo: FileServerRoutesByTo
-  to:
-    | '/health'
-    | '/api/health'
-    | '/api/logout'
-    | '/api/stripe/webhook'
-    | '/api/segments/$segmentId/video'
-    | '/api/login/google'
-    | '/api/login/google/callback'
-  id:
-    | '__root__'
-    | '/health'
-    | '/api/health'
-    | '/api/logout'
-    | '/api/stripe/webhook'
-    | '/api/segments/$segmentId/video'
-    | '/api/login/google/'
-    | '/api/login/google/callback/'
-  fileServerRoutesById: FileServerRoutesById
-}
-export interface RootServerRouteChildren {
-  HealthServerRoute: typeof HealthServerRoute
-  ApiHealthServerRoute: typeof ApiHealthServerRoute
-  ApiLogoutServerRoute: typeof ApiLogoutServerRoute
-  ApiStripeWebhookServerRoute: typeof ApiStripeWebhookServerRoute
-  ApiSegmentsSegmentIdVideoServerRoute: typeof ApiSegmentsSegmentIdVideoServerRoute
-  ApiLoginGoogleIndexServerRoute: typeof ApiLoginGoogleIndexServerRoute
-  ApiLoginGoogleCallbackIndexServerRoute: typeof ApiLoginGoogleCallbackIndexServerRoute
+  LearnSlugLayoutRoute: typeof LearnSlugLayoutRouteWithChildren
+  LearnSlugEditRoute: typeof LearnSlugEditRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1117,13 +994,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/learn/$slug': {
-      id: '/learn/$slug'
-      path: '/learn/$slug'
-      fullPath: '/learn/$slug'
-      preLoaderRoute: typeof LearnSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/learn/': {
@@ -1324,17 +1194,17 @@ declare module '@tanstack/react-router' {
     }
     '/learn/$slug/edit': {
       id: '/learn/$slug/edit'
-      path: '/edit'
+      path: '/learn/$slug/edit'
       fullPath: '/learn/$slug/edit'
       preLoaderRoute: typeof LearnSlugEditRouteImport
-      parentRoute: typeof LearnSlugRoute
+      parentRoute: typeof rootRouteImport
     }
     '/learn/$slug/_layout': {
       id: '/learn/$slug/_layout'
       path: '/learn/$slug'
       fullPath: '/learn/$slug'
       preLoaderRoute: typeof LearnSlugLayoutRouteImport
-      parentRoute: typeof LearnSlugRoute
+      parentRoute: typeof rootRouteImport
     }
     '/admin/news/new': {
       id: '/admin/news/new'
@@ -1450,59 +1320,6 @@ declare module '@tanstack/react-router' {
     }
   }
 }
-declare module '@tanstack/react-start/server' {
-  interface ServerFileRoutesByPath {
-    '/health': {
-      id: '/health'
-      path: '/health'
-      fullPath: '/health'
-      preLoaderRoute: typeof HealthServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/api/logout': {
-      id: '/api/logout'
-      path: '/api/logout'
-      fullPath: '/api/logout'
-      preLoaderRoute: typeof ApiLogoutServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/api/health': {
-      id: '/api/health'
-      path: '/api/health'
-      fullPath: '/api/health'
-      preLoaderRoute: typeof ApiHealthServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/api/stripe/webhook': {
-      id: '/api/stripe/webhook'
-      path: '/api/stripe/webhook'
-      fullPath: '/api/stripe/webhook'
-      preLoaderRoute: typeof ApiStripeWebhookServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/api/login/google/': {
-      id: '/api/login/google/'
-      path: '/api/login/google'
-      fullPath: '/api/login/google'
-      preLoaderRoute: typeof ApiLoginGoogleIndexServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/api/segments/$segmentId/video': {
-      id: '/api/segments/$segmentId/video'
-      path: '/api/segments/$segmentId/video'
-      fullPath: '/api/segments/$segmentId/video'
-      preLoaderRoute: typeof ApiSegmentsSegmentIdVideoServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/api/login/google/callback/': {
-      id: '/api/login/google/callback/'
-      path: '/api/login/google/callback'
-      fullPath: '/api/login/google/callback'
-      preLoaderRoute: typeof ApiLoginGoogleCallbackIndexServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
-  }
-}
 
 interface AdminConversionsRouteRouteChildren {
   AdminConversionsEventsRoute: typeof AdminConversionsEventsRoute
@@ -1604,20 +1421,6 @@ const LearnSlugLayoutRouteWithChildren = LearnSlugLayoutRoute._addFileChildren(
   LearnSlugLayoutRouteChildren,
 )
 
-interface LearnSlugRouteChildren {
-  LearnSlugLayoutRoute: typeof LearnSlugLayoutRouteWithChildren
-  LearnSlugEditRoute: typeof LearnSlugEditRoute
-}
-
-const LearnSlugRouteChildren: LearnSlugRouteChildren = {
-  LearnSlugLayoutRoute: LearnSlugLayoutRouteWithChildren,
-  LearnSlugEditRoute: LearnSlugEditRoute,
-}
-
-const LearnSlugRouteWithChildren = LearnSlugRoute._addFileChildren(
-  LearnSlugRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRouteRoute: AdminRouteRouteWithChildren,
@@ -1653,21 +1456,18 @@ const rootRouteChildren: RootRouteChildren = {
   BlogIndexRoute: BlogIndexRoute,
   LaunchKitsIndexRoute: LaunchKitsIndexRoute,
   LearnIndexRoute: LearnIndexRoute,
-  LearnSlugRoute: LearnSlugRouteWithChildren,
+  LearnSlugLayoutRoute: LearnSlugLayoutRouteWithChildren,
+  LearnSlugEditRoute: LearnSlugEditRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-const rootServerRouteChildren: RootServerRouteChildren = {
-  HealthServerRoute: HealthServerRoute,
-  ApiHealthServerRoute: ApiHealthServerRoute,
-  ApiLogoutServerRoute: ApiLogoutServerRoute,
-  ApiStripeWebhookServerRoute: ApiStripeWebhookServerRoute,
-  ApiSegmentsSegmentIdVideoServerRoute: ApiSegmentsSegmentIdVideoServerRoute,
-  ApiLoginGoogleIndexServerRoute: ApiLoginGoogleIndexServerRoute,
-  ApiLoginGoogleCallbackIndexServerRoute:
-    ApiLoginGoogleCallbackIndexServerRoute,
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
 }
-export const serverRouteTree = rootServerRouteImport
-  ._addFileChildren(rootServerRouteChildren)
-  ._addFileTypes<FileServerRouteTypes>()

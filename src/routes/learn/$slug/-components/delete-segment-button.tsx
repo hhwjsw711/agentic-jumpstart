@@ -25,7 +25,7 @@ import { modulesQueryOptions } from "../_layout";
 // TODO: there is a bug when trying to delet a segment
 export const deleteSegmentFn = createServerFn()
   .middleware([adminMiddleware])
-  .validator(z.object({ segmentId: z.coerce.number() }))
+  .inputValidator(z.object({ segmentId: z.coerce.number() }))
   .handler(async ({ data }) => {
     await deleteSegmentUseCase(data.segmentId);
   });

@@ -18,7 +18,7 @@ const MAX_COMMENTS_PER_PAGE = 100;
 
 export const getCommentsFn = createServerFn()
   .middleware([unauthenticatedMiddleware])
-  .validator(z.object({ segmentId: z.number() }))
+  .inputValidator(z.object({ segmentId: z.number() }))
   .handler(async ({ data }) => {
     return getComments(data.segmentId);
   });
@@ -34,7 +34,7 @@ export type CreateCommentSchema = z.infer<typeof createCommentSchema>;
 
 export const createCommentFn = createServerFn({ method: "POST" })
   .middleware([authenticatedMiddleware])
-  .validator(createCommentSchema)
+  .inputValidator(createCommentSchema)
   .handler(async ({ data, context }) => {
     return createComment({
       userId: context.userId,
@@ -47,7 +47,7 @@ export const createCommentFn = createServerFn({ method: "POST" })
 
 export const deleteCommentFn = createServerFn({ method: "POST" })
   .middleware([authenticatedMiddleware])
-  .validator(z.object({ commentId: z.number() }))
+  .inputValidator(z.object({ commentId: z.number() }))
   .handler(async ({ data, context }) => {
     return deleteComment(data.commentId, context.userId);
   });
@@ -61,14 +61,14 @@ export type UpdateCommentSchema = z.infer<typeof updateCommentSchema>;
 
 export const updateCommentFn = createServerFn({ method: "POST" })
   .middleware([authenticatedMiddleware])
-  .validator(updateCommentSchema)
+  .inputValidator(updateCommentSchema)
   .handler(async ({ data, context }) => {
     return updateComment(data.commentId, data.content, context.userId);
   });
 
 export const getAllRecentCommentsFn = createServerFn()
   .middleware([adminMiddleware])
-  .validator(z.object({ filterAdminReplied: z.boolean().optional() }))
+  .inputValidator(z.object({ filterAdminReplied: z.boolean().optional() }))
   .handler(async ({ data }) => {
     return getAllRecentComments(
       MAX_COMMENTS_PER_PAGE,
@@ -78,7 +78,7 @@ export const getAllRecentCommentsFn = createServerFn()
 
 export const deleteCommentAsAdminFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
-  .validator(z.object({ commentId: z.number() }))
+  .inputValidator(z.object({ commentId: z.number() }))
   .handler(async ({ data }) => {
     return deleteCommentAsAdmin(data.commentId);
   });

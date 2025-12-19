@@ -37,7 +37,7 @@ type EditModuleFormData = z.infer<typeof editModuleSchema>;
 
 export const updateModuleFn = createServerFn()
   .middleware([adminMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       moduleId: z.coerce.number(),
       title: z.string().min(1).max(255),
@@ -45,7 +45,10 @@ export const updateModuleFn = createServerFn()
     })
   )
   .handler(async ({ data }) => {
-    await updateModuleUseCase(data.moduleId, { title: data.title, icon: data.icon });
+    await updateModuleUseCase(data.moduleId, {
+      title: data.title,
+      icon: data.icon,
+    });
   });
 
 interface EditModuleDialogProps {
@@ -87,7 +90,9 @@ export function EditModuleDialog({
   const onSubmit = async (data: EditModuleFormData) => {
     try {
       setIsSubmitting(true);
-      await updateModuleFn({ data: { moduleId, title: data.title, icon: data.icon } });
+      await updateModuleFn({
+        data: { moduleId, title: data.title, icon: data.icon },
+      });
 
       toast.success("Module updated successfully!", {
         description: `Module title has been updated to "${data.title}".`,
@@ -145,10 +150,7 @@ export function EditModuleDialog({
                 <FormItem>
                   <FormLabel>Module Icon</FormLabel>
                   <FormControl>
-                    <IconPicker
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
+                    <IconPicker value={field.value} onChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -13,7 +13,7 @@ export const getFirstSegmentFn = createServerFn()
 
 export const reorderSegmentsFn = createServerFn()
   .middleware([adminMiddleware])
-  .validator(z.array(z.object({ id: z.number(), order: z.number() })))
+  .inputValidator(z.array(z.object({ id: z.number(), order: z.number() })))
   .handler(async ({ data }) => {
     return reorderSegmentsUseCase(data);
   });

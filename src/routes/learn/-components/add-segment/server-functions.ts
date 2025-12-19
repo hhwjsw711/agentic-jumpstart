@@ -10,7 +10,7 @@ import { startVideoProcessingWorker } from "~/lib/video-processing-worker";
 
 export const createSegmentFn = createServerFn()
   .middleware([adminMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       title: z.string(),
       content: z.string().optional(),

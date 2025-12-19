@@ -54,7 +54,7 @@ export const getNewsEntryByIdFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator((data: { id: number }) => data)
+  .inputValidator((data: { id: number }) => data)
   .handler(async ({ data }) => {
     return getNewsEntryByIdUseCase(data.id);
   });
@@ -63,7 +63,7 @@ export const createNewsEntryFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator((data: CreateNewsEntryInput) => data)
+  .inputValidator((data: CreateNewsEntryInput) => data)
   .handler(async ({ data, context }) => {
     return createNewsEntryUseCase(context.userId, data);
   });
@@ -72,7 +72,7 @@ export const updateNewsEntryFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator((data: { id: number; updates: UpdateNewsEntryInput }) => data)
+  .inputValidator((data: { id: number; updates: UpdateNewsEntryInput }) => data)
   .handler(async ({ data, context }) => {
     return updateNewsEntryUseCase(context.userId, data.id, data.updates);
   });
@@ -81,7 +81,7 @@ export const deleteNewsEntryFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator((data: { id: number }) => data)
+  .inputValidator((data: { id: number }) => data)
   .handler(async ({ data, context }) => {
     return deleteNewsEntryUseCase(context.userId, data.id);
   });
@@ -91,7 +91,7 @@ export const createNewsTagFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator((data: CreateNewsTagInput) => data)
+  .inputValidator((data: CreateNewsTagInput) => data)
   .handler(async ({ data, context }) => {
     return createNewsTagUseCase(context.userId, data);
   });
@@ -100,7 +100,7 @@ export const updateNewsTagFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator((data: { id: number; updates: UpdateNewsTagInput }) => data)
+  .inputValidator((data: { id: number; updates: UpdateNewsTagInput }) => data)
   .handler(async ({ data, context }) => {
     return updateNewsTagUseCase(context.userId, data.id, data.updates);
   });
@@ -109,7 +109,7 @@ export const deleteNewsTagFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator((data: { id: number }) => data)
+  .inputValidator((data: { id: number }) => data)
   .handler(async ({ data, context }) => {
     return deleteNewsTagUseCase(context.userId, data.id);
   });

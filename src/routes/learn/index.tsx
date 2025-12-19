@@ -234,6 +234,17 @@ function RouteComponent() {
                     </p>
                   </div>
                 </div>
+
+                <div className="mt-10">
+                  <Link
+                    to={`/learn/$slug`}
+                    params={{ slug: segments[0].slug }}
+                    className="inline-flex items-center gap-2 rounded-xl bg-cyan-600 dark:bg-[#22d3ee] px-8 py-3 text-sm font-black text-white dark:text-[#0b101a] shadow-lg shadow-cyan-500/20 transition-all duration-200 hover:brightness-110 hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] hover:scale-105"
+                  >
+                    <Play className="w-4 h-4 fill-current" />
+                    Start Learning
+                  </Link>
+                </div>
               </ScrollAnimation>
             </div>
           </div>

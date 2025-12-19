@@ -52,7 +52,7 @@ const checkoutSchema = z.object({
 
 const checkoutFn = createServerFn()
   .middleware([authenticatedMiddleware])
-  .validator(checkoutSchema)
+  .inputValidator(checkoutSchema)
   .handler(async ({ context, data }) => {
     if (!context.email) {
       throw new Error("Email is required");

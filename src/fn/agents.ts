@@ -26,7 +26,7 @@ export const getAgentBySlugFn = createServerFn({
   method: "POST",
 })
   .middleware([unauthenticatedMiddleware, agentsFeatureMiddleware])
-  .validator((data: { slug: string }) => data)
+  .inputValidator((data: { slug: string }) => data)
   .handler(async ({ data }: { data: { slug: string } }) => {
     return getAgentBySlugUseCase(data.slug);
   });
@@ -35,7 +35,7 @@ export const getUserAgentsFn = createServerFn({
   method: "GET",
 })
   .middleware([authenticatedMiddleware, agentsFeatureMiddleware])
-  .validator((data: { userId: number }) => data)
+  .inputValidator((data: { userId: number }) => data)
   .handler(async ({ context }) => {
     return getUserAgentsUseCase(context.userId);
   });
@@ -44,7 +44,7 @@ export const createAgentFn = createServerFn({
   method: "POST",
 })
   .middleware([authenticatedMiddleware, agentsFeatureMiddleware])
-  .validator((data: CreateAgentInput) => data)
+  .inputValidator((data: CreateAgentInput) => data)
   .handler(async ({ data, context }) => {
     return createAgentUseCase(context.userId, data);
   });
@@ -53,7 +53,7 @@ export const updateAgentFn = createServerFn({
   method: "POST",
 })
   .middleware([authenticatedMiddleware, agentsFeatureMiddleware])
-  .validator((data: { id: number; updates: UpdateAgentInput }) => data)
+  .inputValidator((data: { id: number; updates: UpdateAgentInput }) => data)
   .handler(
     async ({
       data,
@@ -70,7 +70,7 @@ export const deleteAgentFn = createServerFn({
   method: "POST",
 })
   .middleware([authenticatedMiddleware, agentsFeatureMiddleware])
-  .validator((data: { id: number }) => data)
+  .inputValidator((data: { id: number }) => data)
   .handler(async ({ data, context }) => {
     return deleteAgentUseCase(context.userId, data.id);
   });

@@ -28,7 +28,7 @@ const registerAffiliateSchema = z.object({
 
 export const registerAffiliateFn = createServerFn()
   .middleware([authenticatedMiddleware, affiliatesFeatureMiddleware])
-  .validator(registerAffiliateSchema)
+  .inputValidator(registerAffiliateSchema)
   .handler(async ({ data, context }) => {
     const affiliate = await registerAffiliateUseCase({
       userId: context.userId,
@@ -60,7 +60,7 @@ const updatePaymentLinkSchema = z.object({
 
 export const updateAffiliatePaymentLinkFn = createServerFn()
   .middleware([authenticatedMiddleware, affiliatesFeatureMiddleware])
-  .validator(updatePaymentLinkSchema)
+  .inputValidator(updatePaymentLinkSchema)
   .handler(async ({ data, context }) => {
     const updated = await updateAffiliatePaymentLinkUseCase({
       userId: context.userId,
@@ -83,7 +83,7 @@ const toggleAffiliateStatusSchema = z.object({
 
 export const adminToggleAffiliateStatusFn = createServerFn()
   .middleware([adminMiddleware])
-  .validator(toggleAffiliateStatusSchema)
+  .inputValidator(toggleAffiliateStatusSchema)
   .handler(async ({ data }) => {
     const updated = await adminToggleAffiliateStatusUseCase({
       affiliateId: data.affiliateId,
@@ -102,7 +102,7 @@ const recordPayoutSchema = z.object({
 
 export const adminRecordPayoutFn = createServerFn()
   .middleware([adminMiddleware])
-  .validator(recordPayoutSchema)
+  .inputValidator(recordPayoutSchema)
   .handler(async ({ data, context }) => {
     const payout = await recordAffiliatePayoutUseCase({
       affiliateId: data.affiliateId,
@@ -121,7 +121,7 @@ const validateAffiliateCodeSchema = z.object({
 
 export const validateAffiliateCodeFn = createServerFn()
   .middleware([unauthenticatedMiddleware])
-  .validator(validateAffiliateCodeSchema)
+  .inputValidator(validateAffiliateCodeSchema)
   .handler(async ({ data }) => {
     const affiliate = await validateAffiliateCodeUseCase(data.code);
     return { valid: !!affiliate };

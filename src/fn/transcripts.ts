@@ -2,12 +2,15 @@ import { createServerFn } from "@tanstack/react-start";
 import { adminMiddleware } from "~/lib/auth";
 import { z } from "zod";
 import { getStorage } from "~/utils/storage";
-import { getSegmentByIdUseCase, editSegmentUseCase } from "~/use-cases/segments";
+import {
+  getSegmentByIdUseCase,
+  editSegmentUseCase,
+} from "~/use-cases/segments";
 import { generateTranscriptFromVideo } from "~/utils/openai";
 
 export const generateTranscriptFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       segmentId: z.number(),
     })
@@ -27,7 +30,9 @@ export const generateTranscriptFn = createServerFn({ method: "POST" })
 
     // Download the video from storage
     const { storage } = getStorage();
-    console.log(`Downloading video for segment ${segmentId}: ${segment.videoKey}`);
+    console.log(
+      `Downloading video for segment ${segmentId}: ${segment.videoKey}`
+    );
     const videoBuffer = await storage.getBuffer(segment.videoKey);
     console.log(`Downloaded video: ${videoBuffer.length} bytes`);
 

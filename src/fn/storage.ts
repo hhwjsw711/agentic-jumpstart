@@ -5,7 +5,7 @@ import { getStorage } from "~/utils/storage";
 
 export const getPresignedUploadUrlFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       videoKey: z.string(),
     })
@@ -19,7 +19,7 @@ export const getPresignedUploadUrlFn = createServerFn({ method: "POST" })
 
 export const getPresignedImageUploadUrlFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       imageKey: z.string(),
     })
@@ -33,7 +33,7 @@ export const getPresignedImageUploadUrlFn = createServerFn({ method: "POST" })
 
 export const getImageUrlFn = createServerFn({ method: "POST" })
   .middleware([unauthenticatedMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       imageKey: z.string(),
     })

@@ -42,7 +42,7 @@ export const getPublicProfileFn = createServerFn({
   method: "GET",
 })
   .middleware([unauthenticatedMiddleware])
-  .validator(z.object({ userId: z.number() }))
+  .inputValidator(z.object({ userId: z.number() }))
   .handler(async ({ data }) => {
     return await getPublicProfile(data.userId);
   });
@@ -60,7 +60,7 @@ export const updateProfileFn = createServerFn({
   method: "POST",
 })
   .middleware([authenticatedMiddleware])
-  .validator(profileUpdateSchema)
+  .inputValidator(profileUpdateSchema)
   .handler(async ({ data, context }) => {
     await updateProfile(context.userId, {
       ...data,
@@ -74,7 +74,7 @@ export const getProfileImageUploadUrlFn = createServerFn({
   method: "POST",
 })
   .middleware([authenticatedMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       fileName: z.string(),
       contentType: z.string(),
@@ -111,7 +111,7 @@ export const createProjectFn = createServerFn({
   method: "POST",
 })
   .middleware([authenticatedMiddleware])
-  .validator(projectSchema)
+  .inputValidator(projectSchema)
   .handler(async ({ data, context }) => {
     const project = await createProject(context.userId, data);
     return project;
@@ -121,7 +121,7 @@ export const updateProjectFn = createServerFn({
   method: "POST",
 })
   .middleware([authenticatedMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       id: z.number(),
       ...projectSchema.shape,
@@ -137,7 +137,7 @@ export const deleteProjectFn = createServerFn({
   method: "POST",
 })
   .middleware([authenticatedMiddleware])
-  .validator(z.object({ id: z.number() }))
+  .inputValidator(z.object({ id: z.number() }))
   .handler(async ({ data, context }) => {
     await deleteProject(data.id, context.userId);
     return { success: true };

@@ -37,14 +37,16 @@ import {
   type CreateCommentInput,
 } from "~/use-cases/launch-kits";
 
-const launchKitsFeatureMiddleware = createFeatureFlagMiddleware("LAUNCH_KITS_FEATURE");
+const launchKitsFeatureMiddleware = createFeatureFlagMiddleware(
+  "LAUNCH_KITS_FEATURE"
+);
 
 // Public functions
 export const getAllLaunchKitsFn = createServerFn({
   method: "POST",
 })
   .middleware([unauthenticatedMiddleware, launchKitsFeatureMiddleware])
-  .validator((data: { tags?: string[]; search?: string }) => data)
+  .inputValidator((data: { tags?: string[]; search?: string }) => data)
   .handler(async ({ data }) => {
     return getAllLaunchKitsUseCase(data);
   });
@@ -53,7 +55,7 @@ export const getLaunchKitBySlugFn = createServerFn({
   method: "POST",
 })
   .middleware([unauthenticatedMiddleware, launchKitsFeatureMiddleware])
-  .validator((data: { slug: string }) => data)
+  .inputValidator((data: { slug: string }) => data)
   .handler(async ({ data }) => {
     return getLaunchKitBySlugUseCase(data.slug);
   });
@@ -62,7 +64,7 @@ export const getLaunchKitByIdFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator((data: { id: number }) => data)
+  .inputValidator((data: { id: number }) => data)
   .handler(async ({ data }) => {
     return getLaunchKitByIdUseCase(data.id);
   });
@@ -71,7 +73,7 @@ export const trackLaunchKitViewFn = createServerFn({
   method: "POST",
 })
   .middleware([unauthenticatedMiddleware, launchKitsFeatureMiddleware])
-  .validator((data: { slug: string }) => data)
+  .inputValidator((data: { slug: string }) => data)
   .handler(async ({ data, context }) => {
     return trackLaunchKitViewUseCase(data.slug, context.userId);
   });
@@ -80,7 +82,7 @@ export const cloneLaunchKitFn = createServerFn({
   method: "POST",
 })
   .middleware([unauthenticatedMiddleware, launchKitsFeatureMiddleware])
-  .validator((data: { slug: string }) => data)
+  .inputValidator((data: { slug: string }) => data)
   .handler(async ({ data, context }) => {
     return cloneLaunchKitUseCase(data.slug, context.userId);
   });
@@ -90,7 +92,7 @@ export const createLaunchKitFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator((data: CreateLaunchKitInput) => data)
+  .inputValidator((data: CreateLaunchKitInput) => data)
   .handler(async ({ data, context }) => {
     return createLaunchKitUseCase(context.userId, data);
   });
@@ -99,7 +101,7 @@ export const updateLaunchKitFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator((data: { id: number; updates: UpdateLaunchKitInput }) => data)
+  .inputValidator((data: { id: number; updates: UpdateLaunchKitInput }) => data)
   .handler(async ({ data, context }) => {
     return updateLaunchKitUseCase(context.userId, data.id, data.updates);
   });
@@ -108,7 +110,7 @@ export const deleteLaunchKitFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator((data: { id: number }) => data)
+  .inputValidator((data: { id: number }) => data)
   .handler(async ({ data, context }) => {
     return deleteLaunchKitUseCase(context.userId, data.id);
   });
@@ -126,7 +128,7 @@ export const createCategoryFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator((data: CreateCategoryInput) => data)
+  .inputValidator((data: CreateCategoryInput) => data)
   .handler(async ({ data, context }) => {
     return createCategoryUseCase(context.userId, data);
   });
@@ -135,7 +137,7 @@ export const updateCategoryFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator((data: { id: number; updates: UpdateCategoryInput }) => data)
+  .inputValidator((data: { id: number; updates: UpdateCategoryInput }) => data)
   .handler(async ({ data, context }) => {
     return updateCategoryUseCase(context.userId, data.id, data.updates);
   });
@@ -144,7 +146,7 @@ export const deleteCategoryFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator((data: { id: number }) => data)
+  .inputValidator((data: { id: number }) => data)
   .handler(async ({ data, context }) => {
     return deleteCategoryUseCase(context.userId, data.id);
   });
@@ -162,7 +164,7 @@ export const createTagFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator((data: CreateTagInput) => data)
+  .inputValidator((data: CreateTagInput) => data)
   .handler(async ({ data, context }) => {
     return createTagUseCase(context.userId, data);
   });
@@ -171,7 +173,7 @@ export const updateTagFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator((data: { id: number; updates: UpdateTagInput }) => data)
+  .inputValidator((data: { id: number; updates: UpdateTagInput }) => data)
   .handler(async ({ data, context }) => {
     return updateTagUseCase(context.userId, data.id, data.updates);
   });
@@ -196,7 +198,7 @@ export const deleteTagFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator((data: { id: number }) => data)
+  .inputValidator((data: { id: number }) => data)
   .handler(async ({ data, context }) => {
     return deleteTagUseCase(context.userId, data.id);
   });
@@ -206,7 +208,7 @@ export const getLaunchKitCommentsFn = createServerFn({
   method: "POST",
 })
   .middleware([unauthenticatedMiddleware, launchKitsFeatureMiddleware])
-  .validator((data: { launchKitId: number }) => data)
+  .inputValidator((data: { launchKitId: number }) => data)
   .handler(async ({ data }) => {
     return getLaunchKitCommentsUseCase(data.launchKitId);
   });
@@ -215,7 +217,7 @@ export const createLaunchKitCommentFn = createServerFn({
   method: "POST",
 })
   .middleware([authenticatedMiddleware])
-  .validator((data: { launchKitId: number } & CreateCommentInput) => data)
+  .inputValidator((data: { launchKitId: number } & CreateCommentInput) => data)
   .handler(async ({ data, context }) => {
     return createLaunchKitCommentUseCase(context.userId, data.launchKitId, {
       content: data.content,
@@ -227,7 +229,7 @@ export const updateLaunchKitCommentFn = createServerFn({
   method: "POST",
 })
   .middleware([authenticatedMiddleware])
-  .validator((data: { commentId: number; content: string }) => data)
+  .inputValidator((data: { commentId: number; content: string }) => data)
   .handler(async ({ data, context }) => {
     return updateLaunchKitCommentUseCase(
       context.userId,
@@ -240,7 +242,7 @@ export const deleteLaunchKitCommentFn = createServerFn({
   method: "POST",
 })
   .middleware([authenticatedMiddleware])
-  .validator((data: { commentId: number }) => data)
+  .inputValidator((data: { commentId: number }) => data)
   .handler(async ({ data, context }) => {
     return deleteLaunchKitCommentUseCase(context.userId, data.commentId);
   });

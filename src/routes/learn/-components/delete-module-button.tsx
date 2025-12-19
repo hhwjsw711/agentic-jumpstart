@@ -20,7 +20,7 @@ import { useRouter } from "@tanstack/react-router";
 
 export const deleteModuleFn = createServerFn()
   .middleware([adminMiddleware])
-  .validator(z.object({ moduleId: z.coerce.number() }))
+  .inputValidator(z.object({ moduleId: z.coerce.number() }))
   .handler(async ({ data }) => {
     await deleteModuleUseCase(data.moduleId);
   });

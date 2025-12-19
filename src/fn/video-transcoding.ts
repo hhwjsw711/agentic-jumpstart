@@ -20,7 +20,7 @@ import { readFile } from "node:fs/promises";
  */
 export const transcodeVideoFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       segmentId: z.number(),
     })
@@ -109,7 +109,7 @@ export const transcodeVideoFn = createServerFn({ method: "POST" })
  */
 export const getAvailableQualitiesFn = createServerFn({ method: "GET" })
   .middleware([unauthenticatedMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       segmentId: z.number(),
     })
@@ -189,7 +189,7 @@ export const getAvailableQualitiesFn = createServerFn({ method: "GET" })
  */
 export const getThumbnailUrlFn = createServerFn({ method: "GET" })
   .middleware([unauthenticatedMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       segmentId: z.number(),
     })
@@ -214,7 +214,8 @@ export const getThumbnailUrlFn = createServerFn({ method: "GET" })
     }
 
     // Check if thumbnail key is stored in segment or derive from video key
-    const thumbnailKey = segment.thumbnailKey || getThumbnailKey(segment.videoKey);
+    const thumbnailKey =
+      segment.thumbnailKey || getThumbnailKey(segment.videoKey);
 
     // Check if thumbnail exists
     const exists = await storage.exists(thumbnailKey);

@@ -23,7 +23,7 @@ import {
   getDailyUtmPageViews,
   getUtmStats,
 } from "~/data-access/analytics";
-import { getHeaders } from "@tanstack/react-start/server";
+import { getRequest } from "@tanstack/react-start/server";
 import { adminMiddleware } from "~/lib/auth";
 
 export const getAnalyticsDashboardDataFn = createServerFn({
@@ -90,9 +90,14 @@ const trackPurchaseIntentSchema = z.object({
 });
 
 export const trackPurchaseIntentFn = createServerFn()
-  .validator(trackPurchaseIntentSchema)
+  .inputValidator(trackPurchaseIntentSchema)
   .handler(async ({ data }) => {
-    const headers = getHeaders();
+    const request = getRequest();
+    const headers = {
+      "User-Agent": request.headers.get("User-Agent") ?? undefined,
+      "X-Forwarded-For": request.headers.get("X-Forwarded-For") ?? undefined,
+      "X-Real-IP": request.headers.get("X-Real-IP") ?? undefined,
+    };
     try {
       await trackPurchaseIntent({
         headers,
@@ -108,10 +113,12 @@ export const trackPurchaseIntentFn = createServerFn()
 
 // Generate session ID for client use
 export const generateSessionIdFn = createServerFn().handler(async () => {
-  const headers = getHeaders();
-  const userAgent = headers["User-Agent"] || undefined;
+  const request = getRequest();
+  const userAgent = request.headers.get("User-Agent") ?? undefined;
   const ipAddress =
-    headers["X-Forwarded-For"] || headers["X-Real-IP"] || undefined;
+    request.headers.get("X-Forwarded-For") ??
+    request.headers.get("X-Real-IP") ??
+    undefined;
 
   const sessionId = generateSessionId(userAgent, ipAddress);
   return { sessionId };
@@ -131,9 +138,15 @@ const pageViewSchema = z.object({
 });
 
 export const trackPageViewFn = createServerFn()
-  .validator(pageViewSchema)
+  .inputValidator(pageViewSchema)
   .handler(async ({ data }) => {
-    const headers = getHeaders();
+    const request = getRequest();
+    const headers = {
+      "User-Agent": request.headers.get("User-Agent") ?? undefined,
+      Referer: request.headers.get("Referer") ?? undefined,
+      "X-Forwarded-For": request.headers.get("X-Forwarded-For") ?? undefined,
+      "X-Real-IP": request.headers.get("X-Real-IP") ?? undefined,
+    };
     try {
       await trackPageView({
         headers,
@@ -157,7 +170,7 @@ const limitSchema = z.object({
 });
 
 export const getEventTypeCountsFn = createServerFn()
-  .validator(dateRangeSchema)
+  .inputValidator(dateRangeSchema)
   .middleware([adminMiddleware])
   .handler(async ({ data }) => {
     const dateRange =
@@ -172,7 +185,7 @@ export const getEventTypeCountsFn = createServerFn()
   });
 
 export const getPopularPagesFn = createServerFn()
-  .validator(limitSchema)
+  .inputValidator(limitSchema)
   .middleware([adminMiddleware])
   .handler(async ({ data }) => {
     const dateRange =
@@ -187,7 +200,7 @@ export const getPopularPagesFn = createServerFn()
   });
 
 export const getOverallAnalyticsStatsFn = createServerFn()
-  .validator(dateRangeSchema)
+  .inputValidator(dateRangeSchema)
   .middleware([adminMiddleware])
   .handler(async ({ data }) => {
     const dateRange =
@@ -202,7 +215,7 @@ export const getOverallAnalyticsStatsFn = createServerFn()
   });
 
 export const getDailyConversionsFn = createServerFn()
-  .validator(dateRangeSchema)
+  .inputValidator(dateRangeSchema)
   .middleware([adminMiddleware])
   .handler(async ({ data }) => {
     const dateRange =
@@ -219,7 +232,7 @@ export const getDailyConversionsFn = createServerFn()
 // UTM Analytics functions
 
 export const getUniqueUtmCampaignsFn = createServerFn()
-  .validator(dateRangeSchema)
+  .inputValidator(dateRangeSchema)
   .middleware([adminMiddleware])
   .handler(async ({ data }) => {
     const dateRange =
@@ -234,7 +247,7 @@ export const getUniqueUtmCampaignsFn = createServerFn()
   });
 
 export const getDailyUtmPageViewsFn = createServerFn()
-  .validator(dateRangeSchema)
+  .inputValidator(dateRangeSchema)
   .middleware([adminMiddleware])
   .handler(async ({ data }) => {
     const dateRange =
@@ -249,7 +262,7 @@ export const getDailyUtmPageViewsFn = createServerFn()
   });
 
 export const getUtmStatsFn = createServerFn()
-  .validator(dateRangeSchema)
+  .inputValidator(dateRangeSchema)
   .middleware([adminMiddleware])
   .handler(async ({ data }) => {
     const dateRange =

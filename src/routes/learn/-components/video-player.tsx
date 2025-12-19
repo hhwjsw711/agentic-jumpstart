@@ -344,7 +344,7 @@ export function VideoPlayer({
 
 export const getVideoUrlFn = createServerFn({ method: "GET" })
   .middleware([unauthenticatedMiddleware])
-  .validator(z.object({ segmentId: z.number() }))
+  .inputValidator(z.object({ segmentId: z.number() }))
   .handler(async ({ data, context }) => {
     const { storage, type } = getStorage();
 

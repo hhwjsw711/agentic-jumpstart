@@ -58,7 +58,7 @@ export const createEmailBatchFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator(emailFormSchema)
+  .inputValidator(emailFormSchema)
   .handler(async ({ data, context }) => {
     try {
       // Ensure all users have email preferences set
@@ -151,7 +151,7 @@ export const sendTestEmailFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator(testEmailSchema)
+  .inputValidator(testEmailSchema)
   .handler(async ({ data }) => {
     try {
       // Lookup the user by email in the database
@@ -214,7 +214,7 @@ export const getEmailBatchStatusFn = createServerFn({
   method: "GET",
 })
   .middleware([adminMiddleware])
-  .validator(z.object({ batchId: z.number() }))
+  .inputValidator(z.object({ batchId: z.number() }))
   .handler(async ({ data }) => {
     try {
       return await getEmailBatchById(data.batchId);
@@ -324,7 +324,7 @@ export const getEmailAnalyticsFn = createServerFn({
   method: "GET",
 })
   .middleware([adminMiddleware])
-  .validator(
+  .inputValidator(
     z.object({
       year: z.number(),
       month: z.number(),
@@ -365,7 +365,10 @@ export const getSegmentNotificationRecipientsCountFn = createServerFn({
       const recipients = await getAllVideoNotificationRecipients();
       return { success: true, count: recipients.length };
     } catch (error) {
-      console.error("Failed to get segment notification recipients count:", error);
+      console.error(
+        "Failed to get segment notification recipients count:",
+        error
+      );
       throw new Error("Failed to get segment notification recipients count");
     }
   });
@@ -386,14 +389,19 @@ export const getSegmentNotificationRecipientsListFn = createServerFn({
         })),
       };
     } catch (error) {
-      console.error("Failed to get segment notification recipients list:", error);
+      console.error(
+        "Failed to get segment notification recipients list:",
+        error
+      );
       throw new Error("Failed to get segment notification recipients list");
     }
   });
 
 // Validation schema for segment notification batch
 const segmentNotificationSchema = z.object({
-  segmentIds: z.array(z.number()).min(1, "At least one segment must be selected"),
+  segmentIds: z
+    .array(z.number())
+    .min(1, "At least one segment must be selected"),
   notificationType: z.enum(["new", "updated"]),
 });
 
@@ -402,7 +410,7 @@ export const sendSegmentNotificationBatchFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator(segmentNotificationSchema)
+  .inputValidator(segmentNotificationSchema)
   .handler(async ({ data, context }) => {
     try {
       // Fetch all selected segments
@@ -411,7 +419,9 @@ export const sendSegmentNotificationBatchFn = createServerFn({
       );
 
       // Filter out any null segments (shouldn't happen but be safe)
-      const validSegments = segments.filter((s): s is Segment => s !== null && s !== undefined);
+      const validSegments = segments.filter(
+        (s): s is Segment => s !== null && s !== undefined
+      );
 
       if (validSegments.length === 0) {
         throw new Error("No valid segments found");
@@ -421,7 +431,8 @@ export const sendSegmentNotificationBatchFn = createServerFn({
       const recipients = await getAllVideoNotificationRecipients();
 
       // Generate subject line
-      const subjectPrefix = data.notificationType === "new" ? "New Videos" : "Updated Videos";
+      const subjectPrefix =
+        data.notificationType === "new" ? "New Videos" : "Updated Videos";
       const subject =
         validSegments.length === 1
           ? `${subjectPrefix}: ${validSegments[0].title}`
@@ -489,7 +500,9 @@ export const sendSegmentNotificationBatchFn = createServerFn({
 // Test segment notification email schema
 const testSegmentNotificationSchema = z.object({
   email: z.email("Please enter a valid email address"),
-  segmentIds: z.array(z.number()).min(1, "At least one segment must be selected"),
+  segmentIds: z
+    .array(z.number())
+    .min(1, "At least one segment must be selected"),
   notificationType: z.enum(["new", "updated"]),
 });
 
@@ -498,7 +511,7 @@ export const sendTestSegmentNotificationFn = createServerFn({
   method: "POST",
 })
   .middleware([adminMiddleware])
-  .validator(testSegmentNotificationSchema)
+  .inputValidator(testSegmentNotificationSchema)
   .handler(async ({ data }) => {
     try {
       // Lookup the user by email in the database
@@ -525,7 +538,10 @@ export const sendTestSegmentNotificationFn = createServerFn({
       }
 
       // Generate unsubscribe token
-      const unsubscribeToken = await createUnsubscribeToken(data.email, user.id);
+      const unsubscribeToken = await createUnsubscribeToken(
+        data.email,
+        user.id
+      );
       const unsubscribeUrl = `${env.HOST_NAME}/unsubscribe?token=${unsubscribeToken}`;
 
       // Render email HTML
@@ -594,7 +610,9 @@ async function processMultiSegmentNotificationEmails(
         const html = await renderMultiSegmentNotificationEmail({
           segments: segments.map((s) => ({
             title: s.title,
-            description: s.content?.substring(0, 150) + (s.content && s.content.length > 150 ? "..." : "") || "",
+            description:
+              s.content?.substring(0, 150) +
+                (s.content && s.content.length > 150 ? "..." : "") || "",
             url: `${env.HOST_NAME}/learn/${s.slug}`,
             isPremium: s.isPremium,
           })),

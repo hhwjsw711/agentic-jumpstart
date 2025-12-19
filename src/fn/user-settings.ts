@@ -33,7 +33,7 @@ export const updateEmailPreferencesFn = createServerFn({
   method: "POST",
 })
   .middleware([authenticatedMiddleware])
-  .validator(emailPreferencesSchema)
+  .inputValidator(emailPreferencesSchema)
   .handler(async ({ data, context }) => {
     try {
       await createOrUpdateEmailPreferences(context.userId!, data);
@@ -48,7 +48,7 @@ export const updateEmailPreferencesFn = createServerFn({
 export const processUnsubscribeFn = createServerFn({
   method: "POST",
 })
-  .validator(z.object({ token: z.string() }))
+  .inputValidator(z.object({ token: z.string() }))
   .handler(async ({ data }) => {
     try {
       const tokenData = await validateAndConsumeUnsubscribeToken(data.token);
@@ -64,7 +64,7 @@ export const processUnsubscribeFn = createServerFn({
       if (tokenData.userId) {
         await createOrUpdateEmailPreferences(tokenData.userId, {
           allowCourseUpdates: false, // Disable course updates
-          allowPromotional: false,   // Disable promotional emails
+          allowPromotional: false, // Disable promotional emails
         });
       }
 

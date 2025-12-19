@@ -5,7 +5,7 @@ import { unauthenticatedMiddleware } from "~/lib/auth";
 
 export const checkEarlyAccessFn = createServerFn()
   .middleware([unauthenticatedMiddleware])
-  .validator(z.void())
+  .inputValidator(z.void())
   .handler(async () => {
     try {
       const earlyAccessEnabled = await getEarlyAccessModeUseCase();
@@ -17,7 +17,7 @@ export const checkEarlyAccessFn = createServerFn()
   });
 
 export const shouldShowEarlyAccessFn = createServerFn()
-  .validator(z.void())
+  .inputValidator(z.void())
   .middleware([unauthenticatedMiddleware])
   .handler(async ({ context }) => {
     try {
