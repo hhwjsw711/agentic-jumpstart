@@ -28,3 +28,5 @@ backups/*
 .tanstack/
 
 .automaker/features
+.idea/
+.swarm/

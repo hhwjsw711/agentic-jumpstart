@@ -19,10 +19,18 @@ export const PRICING_CONFIG = {
 
 // Affiliate program configuration
 export const AFFILIATE_CONFIG = {
-  COMMISSION_RATE: 20, // 30% commission
+  COMMISSION_RATE: 30, // 30% commission (default, can be overridden in admin settings)
   MINIMUM_PAYOUT: 5000, // $50 minimum payout (in cents)
   AFFILIATE_CODE_LENGTH: 8, // Length of generated affiliate codes
   AFFILIATE_CODE_RETRY_ATTEMPTS: 10, // Max attempts to generate unique code
+  MAX_PURCHASE_AMOUNT: 100_000_00, // $100,000 in cents - reasonable max for single purchase
+  CONCURRENT_PAYOUTS: 3, // Max concurrent payout processing
+  BATCH_DELAY_MS: 1000, // Delay between batches in ms
+} as const;
+
+// App settings keys (not feature flags)
+export const APP_SETTING_KEYS = {
+  AFFILIATE_COMMISSION_RATE: "AFFILIATE_COMMISSION_RATE",
 } as const;
 
 // Company information for marketing emails
@@ -37,23 +45,15 @@ export const COMPANY_ADDRESS = {
   },
 } as const;
 
-export const FLAGS = {
-  EARLY_ACCESS_MODE: "EARLY_ACCESS_MODE",
-  AGENTS_FEATURE: "AGENTS_FEATURE",
-  LAUNCH_KITS_FEATURE: "LAUNCH_KITS_FEATURE",
-  AFFILIATES_FEATURE: "AFFILIATES_FEATURE",
-  BLOG_FEATURE: "BLOG_FEATURE",
-  NEWS_FEATURE: "NEWS_FEATURE",
-  VIDEO_SEGMENT_CONTENT_TABS: "VIDEO_SEGMENT_CONTENT_TABS",
-};
-
-// Fallback values for when database is not available
-export const FALLBACK_CONFIG = {
-  EARLY_ACCESS_MODE: false,
-  AGENTS_FEATURE: true,
-  LAUNCH_KITS_FEATURE: true,
-  AFFILIATES_FEATURE: true,
-  BLOG_FEATURE: true,
-  NEWS_FEATURE: true,
-  VIDEO_SEGMENT_CONTENT_TABS: false,
-} as const;
+// Re-export feature flags for backwards compatibility
+export {
+  FLAG_KEYS,
+  FLAGS,
+  TARGET_MODES,
+  FALLBACK_CONFIG,
+  FEATURE_FLAGS_CONFIG,
+  DISPLAYED_FLAGS,
+  type FlagKey,
+  type TargetMode,
+  type FeatureFlagUIConfig,
+} from "./config/feature-flags";
