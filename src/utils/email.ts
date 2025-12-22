@@ -1,4 +1,4 @@
-import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
+import { Resend } from "resend";
 import { render } from "@react-email/render";
 import { marked } from "marked";
 import { env } from "~/utils/env";
@@ -6,14 +6,8 @@ import { CourseUpdateEmail } from "~/components/emails/course-update-email";
 import { VideoNotificationEmail } from "~/components/emails/video-notification-email";
 import { MultiSegmentNotificationEmail } from "~/components/emails/multi-segment-notification-email";
 
-// Initialize SES client
-const sesClient = new SESClient({
-  region: env.AWS_SES_REGION,
-  credentials: {
-    accessKeyId: env.AWS_SES_ACCESS_KEY_ID,
-    secretAccessKey: env.AWS_SES_SECRET_ACCESS_KEY,
-  },
-});
+// Initialize Resend client
+const resend = new Resend(env.RESEND_API_KEY);
 
 export interface EmailOptions {
   to: string;
@@ -28,37 +22,24 @@ export interface EmailTemplate {
   isMarketingEmail?: boolean; // Keep for backwards compatibility but always treated as true
 }
 
-// Send email using AWS SES
+// Send email using Resend
 export async function sendEmail(options: EmailOptions): Promise<void> {
-  const command = new SendEmailCommand({
-    Source: env.FROM_EMAIL_ADDRESS,
-    Destination: {
-      ToAddresses: [options.to],
-    },
-    Message: {
-      Subject: {
-        Data: options.subject,
-        Charset: "UTF-8",
-      },
-      Body: {
-        Html: {
-          Data: options.html,
-          Charset: "UTF-8",
-        },
-        ...(options.text && {
-          Text: {
-            Data: options.text,
-            Charset: "UTF-8",
-          },
-        }),
-      },
-    },
-  });
-
   try {
-    await sesClient.send(command);
+    const { data, error } = await resend.emails.send({
+      from: env.FROM_EMAIL_ADDRESS,
+      to: [options.to],
+      subject: options.subject,
+      html: options.html,
+      text: options.text,
+    });
+
+    if (error) {
+      console.error("Failed to send email:", error);
+      throw new Error(`Failed to send email: ${error.message}`);
+    }
+
     // Don't log email addresses for security/privacy
-    console.log(`[Email Sent] Subject: ${options.subject}`);
+    console.log(`[Email Sent] Subject: ${options.subject}, ID: ${data?.id}`);
   } catch (error) {
     console.error("Failed to send email:", error);
     throw new Error(`Failed to send email: ${error}`);
@@ -169,7 +150,7 @@ export async function checkEmailDeliveryHealth(): Promise<{
   complaintRate: number;
   isHealthy: boolean;
 }> {
-  // In a real implementation, you would fetch SES statistics
+  // In a real implementation, you would fetch Resend statistics via their API
   // For now, return mock data
   return {
     bounceRate: 0.01, // 1%

@@ -1,5 +1,117 @@
 # Email Composer Feature Changelog
 
+## Version 2.0.0 - Resend Migration (2025-12-22)
+
+### 🔄 Breaking Changes
+
+#### Email Provider Migration
+- **Migrated** email delivery from AWS SES to Resend
+- **Removed** AWS SES SDK dependency (`@aws-sdk/client-ses`)
+- **Added** Resend SDK dependency (`resend`)
+- **Updated** environment variables (replaced `AWS_SES_*` with `RESEND_API_KEY`)
+
+### 🔧 Technical Changes
+
+#### Core Email Module (`src/utils/email.ts`)
+- **Replaced** AWS SES `SESClient` with Resend client initialization
+- **Updated** `sendEmail()` function to use Resend's `emails.send()` API
+- **Improved** error handling to work with Resend's error response format
+- **Added** email ID logging from Resend response for better tracking
+- **Updated** comments to reference Resend statistics API
+
+#### Environment Configuration
+- **Removed** `AWS_SES_ACCESS_KEY_ID` environment variable
+- **Removed** `AWS_SES_SECRET_ACCESS_KEY` environment variable
+- **Removed** `AWS_SES_REGION` environment variable
+- **Added** `RESEND_API_KEY` environment variable
+- **Updated** `src/utils/env.ts` with new Resend configuration
+- **Updated** `.env.sample` with new configuration template
+
+#### Infrastructure Scripts
+- **Removed** `infra/setup-ses.sh` - AWS SES domain setup script
+- **Removed** `infra/setup-iam.sh` - AWS IAM user creation script
+- **Removed** `infra/setup-dkim.sh` - AWS DKIM configuration script
+- **Removed** `infra/verify-domain.sh` - AWS domain verification script
+- **Removed** `infra/permissions.json` - AWS IAM permissions policy
+- **Added** `infra/setup-resend.sh` - Resend setup guide script
+- **Updated** `infra/README.md` with Resend setup instructions
+
+#### Documentation Updates
+- **Updated** `docs/features/email-composer/requirements.md` - Changed SES references to Resend
+- **Updated** `docs/features/email-composer/readme.md` - Updated setup and troubleshooting guides
+- **Updated** all rate limit references to Resend limits
+
+### ✨ Benefits of Migration
+
+#### Simplified Setup
+- Single API key vs multiple AWS credentials
+- Faster domain verification (minutes vs up to 72 hours)
+- No AWS CLI required for setup
+- Modern, developer-friendly API
+
+#### Improved Developer Experience
+- Cleaner API design with native TypeScript support
+- Built-in React Email integration
+- Better error messages and debugging
+- Modern dashboard for email analytics
+
+#### Cost Considerations
+- Free tier: 3,000 emails/month (vs AWS SES pay-per-email)
+- 100 emails/day on free tier
+- Predictable pricing on paid plans
+
+### 📦 Dependencies Changed
+
+#### Removed
+- `@aws-sdk/client-ses` - AWS Simple Email Service SDK
+
+#### Added
+- `resend` (^6.6.0) - Modern email API
+
+### 🔐 Environment Variables
+
+#### New Required Variables
+```env
+RESEND_API_KEY=re_your_api_key_here
+FROM_EMAIL_ADDRESS="Your App Name <no-reply@yourdomain.com>"
+```
+
+#### Removed Variables
+- `AWS_SES_ACCESS_KEY_ID`
+- `AWS_SES_SECRET_ACCESS_KEY`
+- `AWS_SES_REGION`
+
+### 📋 Migration Steps
+
+1. **Install new dependency**:
+   ```bash
+   npm install resend
+   npm uninstall @aws-sdk/client-ses
+   ```
+
+2. **Create Resend account**:
+   - Sign up at https://resend.com
+   - Add and verify your domain
+   - Generate an API key
+
+3. **Update environment variables**:
+   ```env
+   # Remove these:
+   # AWS_SES_ACCESS_KEY_ID=...
+   # AWS_SES_SECRET_ACCESS_KEY=...
+   # AWS_SES_REGION=...
+
+   # Add this:
+   RESEND_API_KEY=re_your_api_key_here
+   ```
+
+4. **Test email delivery**:
+   - Start application
+   - Navigate to Admin → Emails → Compose
+   - Send a test email to verify
+
+---
+
 ## Version 1.0.0 - Initial Release (2024-08-17)
 
 ### ✨ New Features

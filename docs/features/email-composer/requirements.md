@@ -42,12 +42,12 @@ The Email Composer feature enables administrators to send bulk emails to course 
 - Test emails use the same template as bulk emails
 
 ### REQ-EC-004: Bulk Email Processing
-**Priority**: High  
+**Priority**: High
 **Description**: System must handle bulk email sending with proper rate limiting and background processing.
 
 **Acceptance Criteria**:
 - Emails are sent in background (non-blocking for admin)
-- Rate limiting at 5 emails per second (AWS SES compliance)
+- Rate limiting at 5 emails per second (Resend compliance)
 - Progress tracking for email batch status
 - Automatic retry logic for failed deliveries
 - Comprehensive error handling and logging
@@ -86,15 +86,15 @@ The Email Composer feature enables administrators to send bulk emails to course 
 - Support for rich text content formatting
 - Automatic unsubscribe links (future enhancement)
 
-### REQ-EC-008: AWS SES Integration
-**Priority**: High  
-**Description**: System must integrate with AWS Simple Email Service for reliable email delivery.
+### REQ-EC-008: Resend Integration
+**Priority**: High
+**Description**: System must integrate with Resend for reliable email delivery.
 
 **Acceptance Criteria**:
-- Secure AWS SES configuration with dedicated IAM user
-- Proper error handling for SES API calls
+- Secure Resend configuration with API key
+- Proper error handling for Resend API calls
 - Support for HTML email content
-- Bounce and complaint handling (future enhancement)
+- Bounce and complaint handling via Resend webhooks (future enhancement)
 
 ## Technical Requirements
 
@@ -109,35 +109,35 @@ The Email Composer feature enables administrators to send bulk emails to course 
 - Migration scripts for schema updates
 
 ### REQ-EC-010: Security and Access Control
-**Priority**: High  
+**Priority**: High
 **Description**: Ensure only authorized admins can send bulk emails.
 
 **Acceptance Criteria**:
 - Admin middleware protection on all email endpoints
-- Secure handling of AWS credentials via environment variables
+- Secure handling of Resend API key via environment variables
 - Input validation and sanitization
 - Rate limiting to prevent abuse
 
 ### REQ-EC-011: Performance Requirements
-**Priority**: Medium  
+**Priority**: Medium
 **Description**: System must handle bulk email operations efficiently.
 
 **Acceptance Criteria**:
 - Non-blocking background processing for email sending
 - Efficient database queries for recipient selection
 - Memory-efficient processing of large recipient lists
-- Graceful handling of AWS SES rate limits
+- Graceful handling of Resend rate limits
 
 ## Non-Functional Requirements
 
 ### REQ-EC-012: Reliability
-**Priority**: High  
+**Priority**: High
 **Description**: Email delivery must be reliable with proper error handling.
 
 **Acceptance Criteria**:
 - Comprehensive error logging
 - Automatic retry logic for transient failures
-- Graceful degradation during AWS SES outages
+- Graceful degradation during Resend outages
 - Data integrity for email batch status
 
 ### REQ-EC-013: Scalability
@@ -207,8 +207,7 @@ The Email Composer feature enables administrators to send bulk emails to course 
 - UI component library (shadcn/ui)
 
 ### External Dependencies
-- AWS Simple Email Service (SES)
-- AWS SDK for JavaScript
+- Resend Email API
 - React Email library for template rendering
 - PostgreSQL database
 
@@ -228,4 +227,4 @@ The Email Composer feature enables administrators to send bulk emails to course 
 ### System Performance Metrics
 - **Error rate**: <1% failed email sends
 - **Background processing**: 100% non-blocking admin operations
-- **Rate limit compliance**: 100% adherence to AWS SES limits
+- **Rate limit compliance**: 100% adherence to Resend limits

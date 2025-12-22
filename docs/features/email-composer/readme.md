@@ -60,7 +60,7 @@ The Email Composer feature provides a comprehensive email marketing solution for
 
 ### Advanced Email Processing
 - **Background processing** prevents UI blocking
-- **Rate limiting** at 5 emails/second (AWS SES compliance)
+- **Rate limiting** at 5 emails/second (Resend compliance)
 - **Automatic retry logic** for failed deliveries
 - **Comprehensive error handling** and logging
 
@@ -122,7 +122,7 @@ src/
 │   └── emails/
 │       └── course-update-email.tsx  # React Email template
 ├── utils/
-│   └── email.ts                # AWS SES integration
+│   └── email.ts                # Resend integration
 └── db/
     └── schema.ts               # Database schema definitions
 ```
@@ -131,64 +131,40 @@ src/
 
 ### Prerequisites
 
-1. **AWS Account** with SES access
+1. **Resend Account** with API access
 2. **Domain ownership** for email sending
 3. **DNS management** access for domain verification
 4. **Node.js environment** with all project dependencies
 
-### 1. AWS SES Configuration
+### 1. Resend Configuration
 
-#### Step 1: Run Infrastructure Setup
-```bash
-cd infra
-chmod +x *.sh
+#### Step 1: Create Resend Account
+1. Go to https://resend.com
+2. Sign up for a free account (3,000 emails/month)
 
-# Set up SES domain verification and DKIM
-./setup-ses.sh
+#### Step 2: Add and Verify Your Domain
+1. Go to Resend Dashboard → Domains
+2. Click "Add Domain"
+3. Add the DNS records provided by Resend:
+   - SPF record (TXT)
+   - DKIM records (CNAME)
+   - Optional: DMARC record (TXT)
+4. Wait for verification (usually within minutes)
 
-# Create IAM user with minimal SES permissions  
-./setup-iam.sh
-
-# Verify domain setup
-./verify-domain.sh yourdomain.com
-```
-
-#### Step 2: Configure DNS Records
-
-Add the following DNS records provided by the setup script:
-
-**Domain Verification (TXT Record)**
-```
-Name: _amazonses.yourdomain.com
-Type: TXT
-Value: [verification_token_from_setup]
-```
-
-**DKIM Authentication (3 CNAME Records)**
-```
-Name: [token1]._domainkey.yourdomain.com
-Type: CNAME
-Value: [token1].dkim.amazonses.com
-
-Name: [token2]._domainkey.yourdomain.com  
-Type: CNAME
-Value: [token2].dkim.amazonses.com
-
-Name: [token3]._domainkey.yourdomain.com
-Type: CNAME
-Value: [token3].dkim.amazonses.com
-```
+#### Step 3: Generate API Key
+1. Go to Resend Dashboard → API Keys
+2. Click "Create API Key"
+3. Name your key (e.g., 'production')
+4. Copy the API key (shown only once)
 
 ### 2. Environment Configuration
 
 Add the following environment variables to your `.env` file:
 
 ```env
-# AWS SES Configuration
-AWS_SES_ACCESS_KEY_ID=your_access_key_id
-AWS_SES_SECRET_ACCESS_KEY=your_secret_access_key
-AWS_SES_REGION=us-east-1
-FROM_EMAIL_ADDRESS=noreply@yourdomain.com
+# Resend Configuration
+RESEND_API_KEY=re_your_api_key_here
+FROM_EMAIL_ADDRESS="Your App Name <no-reply@yourdomain.com>"
 ```
 
 ### 3. Database Migration
@@ -207,18 +183,9 @@ npm run db:migrate
 
 Test your setup:
 
-```bash
-# Verify domain status
-cd infra
-./verify-domain.sh yourdomain.com
-
-# Test email sending via AWS CLI
-aws ses send-email \
-  --source noreply@yourdomain.com \
-  --destination ToAddresses=test@example.com \
-  --message "Subject={Data='Test'},Body={Text={Data='Test email'}}" \
-  --region us-east-1
-```
+1. Start your application with `npm run dev`
+2. Navigate to Admin → Emails → Compose
+3. Send a test email to verify delivery
 
 ## Usage Examples
 
@@ -256,32 +223,24 @@ aws ses send-email \
 ### Common Issues
 
 #### Domain Verification Fails
-```bash
-# Check verification status
-cd infra
-./verify-domain.sh yourdomain.com
-
-# Common causes:
-# - DNS propagation delay (up to 72 hours)
-# - Incorrect DNS record format
-# - DNS caching issues
-```
+- DNS propagation usually takes a few minutes with Resend
+- Use DNS lookup tools to verify records are propagated
+- Check Resend dashboard for verification status
 
 #### Email Sending Fails
-```bash
-# Check SES status
-aws ses get-send-quota --region us-east-1
+- Verify API key is correct and has proper permissions
+- Check if domain is verified in Resend dashboard
+- Review Resend logs for delivery status
 
-# Common error codes:
-# - MessageRejected: Domain not verified or sandbox mode
-# - SendingPausedException: Account sending disabled
-# - MailFromDomainNotVerifiedException: FROM domain not verified
-```
+Common error codes:
+- `validation_error`: Invalid email format or missing fields
+- `not_found`: Domain not found or not verified
+- `rate_limit_exceeded`: Too many requests, slow down
 
 #### Rate Limiting Issues
-- Verify AWS SES limits in console
-- Check for sandbox mode restrictions (200 emails/day)
-- Request production access for higher limits
+- Free tier: 100 emails/day, 3,000 emails/month
+- Upgrade to paid plan for higher limits
+- Check Resend dashboard for usage stats
 
 ### Debug Mode
 
@@ -302,8 +261,8 @@ npm run db:studio
 ## Performance Considerations
 
 ### Rate Limiting
-- **Sandbox Mode**: 1 email/second, 200 emails/24 hours
-- **Production Mode**: Configurable, typically starts at 14 emails/second
+- **Free Tier**: 100 emails/day, 3,000 emails/month
+- **Paid Plans**: Configurable, much higher limits
 - **Current Implementation**: 5 emails/second to ensure compliance
 
 ### Batch Processing
@@ -325,7 +284,7 @@ npm run db:studio
 - Rate limiting prevents abuse
 
 ### Data Protection
-- AWS credentials stored securely in environment variables
+- Resend API key stored securely in environment variables
 - User email preferences encrypted in database
 - GDPR-compliant opt-out mechanisms
 
@@ -362,7 +321,7 @@ npm run db:studio
 ### Logging
 - Comprehensive error logging for troubleshooting
 - Email send attempt tracking
-- AWS SES API interaction logs
+- Resend API interaction logs
 
 ### Future Analytics
 - Email open rates (planned)
@@ -372,14 +331,15 @@ npm run db:studio
 ## Support and Documentation
 
 ### Additional Resources
-- [AWS SES Documentation](https://docs.aws.amazon.com/ses/)
+- [Resend Documentation](https://resend.com/docs)
+- [Resend API Reference](https://resend.com/docs/api-reference)
 - [React Email Documentation](https://react.email/)
-- [Infrastructure Setup Guide](/docs/features/email-composer/infra/README.md)
+- [Infrastructure Setup Guide](/infra/README.md)
 
 ### Getting Help
 1. Check the troubleshooting section above
-2. Review AWS SES console for service-specific errors
-3. Verify DNS configuration using the verification script
+2. Review Resend dashboard for service-specific errors
+3. Verify DNS configuration in Resend dashboard
 4. Check application logs for detailed error information
 
 ### Feature Requests
