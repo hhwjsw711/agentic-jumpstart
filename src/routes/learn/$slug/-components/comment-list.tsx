@@ -39,7 +39,7 @@ import { useDeleteComment } from "~/hooks/mutations/use-delete-comment";
 import { toast } from "sonner";
 import { useEditComment } from "~/hooks/mutations/use-edit-comment";
 import { useCreateComment } from "~/hooks/mutations/use-create-comment";
-import type { CommentsWithUser } from "~/data-access/comments";
+import { CommentsWithUser } from "~/data-access/comments";
 
 interface CommentItemProps {
   comment: any;
