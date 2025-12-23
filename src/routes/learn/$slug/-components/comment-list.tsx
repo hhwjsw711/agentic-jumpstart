@@ -39,7 +39,7 @@ import { useDeleteComment } from "~/hooks/mutations/use-delete-comment";
 import { toast } from "sonner";
 import { useEditComment } from "~/hooks/mutations/use-edit-comment";
 import { useCreateComment } from "~/hooks/mutations/use-create-comment";
-import { CommentsWithUser } from "~/data-access/comments";
+import type { CommentsWithUser } from "~/data-access/comments";
 
 interface CommentItemProps {
   comment: any;
@@ -193,7 +193,7 @@ function CommentItem({ comment, level = 0 }: CommentItemProps) {
                   className="max-h-10 w-auto object-cover"
                   src={
                     comment.profile.image ??
-                    `https://api.dicebear.com/9.x/initials/svg?seed=${comment.profile.displayName || "User"}&backgroundColor=6366f1&textColor=ffffff`
+                    `https://api.dicebear.com/9.x/initials/svg?seed=${comment.profile.publicName || "User"}&backgroundColor=6366f1&textColor=ffffff`
                   }
                   alt="User avatar"
                 />
@@ -208,7 +208,7 @@ function CommentItem({ comment, level = 0 }: CommentItemProps) {
                       params={{ userId: comment.profile.userId.toString() }}
                       className="text-sm font-semibold text-foreground hover:text-theme-600 dark:hover:text-theme-400 transition-colors truncate"
                     >
-                      {comment.profile.displayName}
+                      {comment.profile.publicName}
                     </Link>
 
                     {/* Visual separator */}
@@ -236,7 +236,7 @@ function CommentItem({ comment, level = 0 }: CommentItemProps) {
                               }}
                               className="font-medium text-theme-600 dark:text-theme-400 hover:text-theme-700 dark:hover:text-theme-300 transition-colors"
                             >
-                              {comment.repliedToProfile.displayName}
+                              {comment.repliedToProfile.publicName}
                             </Link>
                           </span>
                         </div>
