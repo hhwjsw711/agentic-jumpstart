@@ -532,7 +532,7 @@ export function Header() {
   const filteredNavLinks = getFilteredNavLinks(navData);
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50">
+    <div className="fixed top-[40px] left-0 right-0 z-50">
       {/* Sophisticated gradient background matching hero */}
       <div className="absolute inset-0 bg-gradient-to-r from-background via-background to-background"></div>
 
