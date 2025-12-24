@@ -30,3 +30,5 @@ backups/*
 .automaker/features
 .idea/
 .swarm/
+
+proof/
