@@ -22,6 +22,9 @@ ARG VITE_RECAPTCHA_KEY
 ARG VITE_STRIPE_PUBLISHABLE_KEY
 ARG VITE_HOST_NAME
 
+# Increase Node.js memory limit for build process
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
 # Build the application
 RUN npm run build
 

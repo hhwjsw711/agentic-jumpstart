@@ -81,6 +81,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           defer: true,
           "data-website-id": "a25b9b45-4772-4642-b752-052c04e52cf5",
         },
+        {
+          src: "https://www.googletagmanager.com/gtag/js?id=AW-11111910585",
+          async: true,
+        },
       ],
     }),
     errorComponent: (props) => {
@@ -119,6 +123,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   const routerState = useRouterState();
   const loaderData = Route.useLoaderData();
   const shouldShowEarlyAccess = loaderData?.shouldShowEarlyAccess ?? false;
+  const bannerMessage = publicEnv.VITE_BANNER_MESSAGE;
+  const showBanner = !!bannerMessage;
   const showFooter =
     !routerState.location.pathname.startsWith("/learn") &&
     !routerState.location.pathname.startsWith("/admin") &&
@@ -152,6 +158,17 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     <html className="font-inter" suppressHydrationWarning>
       <head>
         <HeadContent />
+        {/* Google tag (gtag.js) */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'AW-11111910585');
+            `,
+          }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -209,9 +226,25 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body className="min-h-screen flex flex-col">
         <ThemeProvider>
-          {showHeader && <Header />}
+          {/* Configurable banner */}
+          {showBanner && (
+            <div className="fixed top-0 left-0 right-0 z-[60] bg-yellow-500 dark:bg-yellow-600 text-yellow-900 dark:text-yellow-100 border-b border-yellow-600 dark:border-yellow-700">
+              <div className="container mx-auto px-4 py-2 text-center text-sm font-medium">
+                {bannerMessage}
+              </div>
+            </div>
+          )}
+          {showHeader && <Header hasBanner={showBanner} />}
           <main
-            className={`overflow-x-hidden flex-1 ${showHeader ? "mt-16" : ""}`}
+            className={`overflow-x-hidden flex-1 ${
+              showHeader
+                ? showBanner
+                  ? "mt-[104px]"
+                  : "mt-16"
+                : showBanner
+                  ? "mt-[40px]"
+                  : ""
+            }`}
           >
             {children}
           </main>

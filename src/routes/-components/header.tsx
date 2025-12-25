@@ -99,6 +99,7 @@ const NAVIGATION_LINKS: NavLink[] = [
     to: "/purchase",
     label: "Pricing",
     icon: Tag,
+    condition: ({ user }) => !user?.isPremium && !user?.isAdmin,
     category: "primary",
   },
   // Community dropdown
@@ -486,7 +487,7 @@ const MobileNavigation = ({
   );
 };
 
-export function Header() {
+export function Header({ hasBanner = false }: { hasBanner?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
   const continueSlug = useContinueSlug();
   const { user, profile } = useAuthWithProfile();
@@ -532,7 +533,7 @@ export function Header() {
   const filteredNavLinks = getFilteredNavLinks(navData);
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50">
+    <div className={`fixed left-0 right-0 z-50 ${hasBanner ? "top-[40px]" : "top-0"}`}>
       {/* Sophisticated gradient background matching hero */}
       <div className="absolute inset-0 bg-gradient-to-r from-background via-background to-background"></div>
 
