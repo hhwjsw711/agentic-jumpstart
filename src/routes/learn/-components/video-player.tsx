@@ -24,6 +24,7 @@ import {
 const VIDEO_AVAILABILITY_MAX_ATTEMPTS = 5;
 const VIDEO_AVAILABILITY_INITIAL_DELAY_MS = 300;
 const GLOBAL_QUALITY_PREFERENCE_KEY = "video-quality-preference-global";
+const GLOBAL_PLAYBACK_RATE_KEY = "video-playback-rate-global";
 
 function wait(durationMs: number) {
   return new Promise((resolve) => setTimeout(resolve, durationMs));
@@ -47,6 +48,32 @@ function setStoredQualityPreference(quality: string): void {
   }
 }
 
+function getStoredPlaybackRate(): number {
+  if (typeof window === "undefined") return 1;
+  try {
+    const stored = localStorage.getItem(GLOBAL_PLAYBACK_RATE_KEY);
+    if (stored) {
+      const rate = parseFloat(stored);
+      // Validate the rate is within reasonable bounds (0.25x to 2x)
+      if (!isNaN(rate) && rate >= 0.25 && rate <= 2) {
+        return rate;
+      }
+    }
+    return 1;
+  } catch {
+    return 1;
+  }
+}
+
+function setStoredPlaybackRate(rate: number): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(GLOBAL_PLAYBACK_RATE_KEY, rate.toString());
+  } catch {
+    // Ignore localStorage errors
+  }
+}
+
 // Map quality values to display labels
 const QUALITY_TO_LABEL: Record<string, string> = {
   original: "1080p",
@@ -57,16 +84,21 @@ const QUALITY_TO_LABEL: Record<string, string> = {
 // Order of qualities (highest to lowest)
 const QUALITY_ORDER = ["original", "720p", "480p"];
 
+// Threshold for auto-completing video (95%)
+const AUTO_COMPLETE_THRESHOLD = 0.95;
+
 interface VideoPlayerProps {
   segmentId: number;
   videoKey: string;
   initialThumbnailUrl?: string | null;
+  onAutoComplete?: () => void;
 }
 
 export function VideoPlayer({
   segmentId,
   videoKey,
   initialThumbnailUrl,
+  onAutoComplete,
 }: VideoPlayerProps) {
   const [isClient, setIsClient] = useState(false);
   const playerRef = useRef<HTMLVideoElement>(null);
@@ -79,6 +111,8 @@ export function VideoPlayer({
   const [playedSeconds, setPlayedSeconds] = useState(0);
   const [isReady, setIsReady] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1);
+  const [hasAutoCompleted, setHasAutoCompleted] = useState(false);
   const getAvailableQualities = useServerFn(getAvailableQualitiesFn);
   const getThumbnailUrl = useServerFn(getThumbnailUrlFn);
 
@@ -96,6 +130,7 @@ export function VideoPlayer({
     setPlayedSeconds(0);
     setIsReady(false);
     setHasError(false);
+    setHasAutoCompleted(false);
   }, [segmentId, initialThumbnailUrl]);
 
   // Fetch thumbnail URL independently (never blocks video loading)
@@ -166,6 +201,32 @@ export function VideoPlayer({
       }
     }
   }, [availableQualities]);
+
+  // Initialize playback rate from localStorage on mount
+  useEffect(() => {
+    const storedRate = getStoredPlaybackRate();
+    setPlaybackRate(storedRate);
+  }, []);
+
+  // Listen for playback rate changes from native video controls
+  // This serves as a fallback in case onRateChange prop doesn't fire
+  useEffect(() => {
+    const videoElement = playerRef.current;
+    if (!videoElement) return;
+
+    const handleRateChange = () => {
+      const newRate = videoElement.playbackRate;
+      if (newRate !== playbackRate) {
+        setPlaybackRate(newRate);
+        setStoredPlaybackRate(newRate);
+      }
+    };
+
+    videoElement.addEventListener("ratechange", handleRateChange);
+    return () => {
+      videoElement.removeEventListener("ratechange", handleRateChange);
+    };
+  }, [playbackRate]);
 
   // Handle quality change
   const handleQualityChange = (quality: string) => {
@@ -275,6 +336,7 @@ export function VideoPlayer({
           ref={playerRef}
           src={currentVideoUrl}
           playing={playing}
+          playbackRate={playbackRate}
           controls
           width="100%"
           height="100%"
@@ -284,10 +346,32 @@ export function VideoPlayer({
             setHasError(false);
           }}
           onPause={() => setPlaying(false)}
+          onRateChange={(e: React.SyntheticEvent<HTMLVideoElement>) => {
+            const newRate = e.currentTarget.playbackRate;
+            if (newRate !== playbackRate) {
+              setPlaybackRate(newRate);
+              setStoredPlaybackRate(newRate);
+            }
+          }}
           onError={(error) => {
             console.error("Video player error:", error);
             setHasError(true);
             setIsReady(false);
+          }}
+          onTimeUpdate={(e: React.SyntheticEvent<HTMLVideoElement>) => {
+            const video = e.currentTarget;
+            if (video.duration > 0) {
+              const percentWatched = video.currentTime / video.duration;
+              // Auto-complete when user watches 95% of the video
+              if (
+                percentWatched >= AUTO_COMPLETE_THRESHOLD &&
+                !hasAutoCompleted &&
+                onAutoComplete
+              ) {
+                setHasAutoCompleted(true);
+                onAutoComplete();
+              }
+            }
           }}
           light={false}
         />

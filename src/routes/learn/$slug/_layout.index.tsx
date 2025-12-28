@@ -1,7 +1,7 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { getSegmentBySlugUseCase } from "~/use-cases/segments";
 import { getSegments } from "~/data-access/segments";
 import { type Segment, type Progress } from "~/db/schema";
@@ -19,7 +19,7 @@ import { setLastWatchedSegment } from "~/utils/local-storage";
 import { useAuth } from "~/hooks/use-auth";
 
 import { getCommentsQuery } from "~/lib/queries/comments";
-import { VideoControls } from "./-components/video-controls";
+import { VideoControls, markedAsWatchedFn } from "./-components/video-controls";
 import { VideoContentTabsPanel } from "./-components/video-content-tabs-panel";
 import { UpgradePlaceholder } from "./-components/upgrade-placeholder";
 import { isFeatureEnabledForUserFn } from "~/fn/app-settings";
@@ -131,6 +131,7 @@ function ViewSegment({
   thumbnailUrl?: string | null;
 }) {
   const { setCurrentSegmentId } = useSegment();
+  const router = useRouter();
 
   useEffect(() => {
     setLastWatchedSegment(currentSegment.slug);
@@ -142,6 +143,41 @@ function ViewSegment({
   const showUpgradePanel = currentSegment.isPremium && !isPremium && !isAdmin;
   const showComingSoonPlaceholder =
     currentSegment.isComingSoon && !currentSegment.videoKey;
+
+  // Track if we've already auto-completed this segment to prevent duplicate calls
+  const hasAutoCompletedRef = useRef(false);
+
+  // Reset auto-complete tracking when segment changes
+  useEffect(() => {
+    hasAutoCompletedRef.current = false;
+  }, [currentSegmentId]);
+
+  // Handle auto-completion when user watches 95% of the video
+  const handleAutoComplete = useCallback(async () => {
+    // Only mark as watched if user can actually access the video content
+    const canAccessVideo = !currentSegment.isPremium || isPremium || isAdmin;
+    if (
+      isLoggedIn &&
+      !currentSegment.isComingSoon &&
+      canAccessVideo &&
+      !hasAutoCompletedRef.current
+    ) {
+      hasAutoCompletedRef.current = true;
+      await markedAsWatchedFn({
+        data: { segmentId: currentSegmentId },
+      });
+      // Invalidate the router to refresh the UI (hides "Mark As Complete" button)
+      router.invalidate();
+    }
+  }, [
+    currentSegment.isPremium,
+    currentSegment.isComingSoon,
+    isPremium,
+    isAdmin,
+    isLoggedIn,
+    currentSegmentId,
+    router,
+  ]);
 
   return (
     <div className="w-full h-full flex flex-col min-w-0">
@@ -202,6 +238,7 @@ function ViewSegment({
                   segmentId={currentSegment.id}
                   videoKey={currentSegment.videoKey}
                   initialThumbnailUrl={thumbnailUrl}
+                  onAutoComplete={handleAutoComplete}
                 />
               </div>
             </GlassPanel>
