@@ -102,6 +102,7 @@ const checkoutFn = createServerFn()
       customer_email: context.email,
       cancel_url: `${env.HOST_NAME}/purchase`,
       metadata,
+      allow_promotion_codes: true,
     };
 
     // Apply discount if a valid discount code is provided
