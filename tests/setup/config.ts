@@ -1,7 +1,19 @@
 export const TEST_CONFIG = {
+  // Timeout constants for test reliability
+  TIMEOUTS: {
+    ELEMENT_VISIBLE: 10000,    // Wait for elements to appear
+    CLICK_RETRY: 3000,         // Short timeout for retry attempts
+    FINAL_ASSERTION: 5000,     // Final assertion after retries
+    MAX_RETRY_ATTEMPTS: 3,     // Number of click retry attempts
+  },
   MODULES: {
     GETTING_STARTED: "Getting Started",
     ADVANCED_TOPICS: "Advanced Topics"
+  },
+  PROGRESS: {
+    GETTING_STARTED_INITIAL: "0/3",
+    GETTING_STARTED_ONE_COMPLETE: "1/3",
+    ADVANCED_TOPICS_INITIAL: "0/2"
   },
   SEGMENTS: {
     WELCOME_TO_COURSE: {
@@ -54,7 +66,9 @@ export const TEST_CONFIG = {
   },
   CSS_CLASSES: {
     SEGMENT_ITEM: ".segment-item",
-    BORDER_THEME_200: /border-theme-200/,
-    BORDER_TRANSPARENT: /border-transparent/
+    // Active segment uses segment-active class (defined in app.css)
+    SEGMENT_ACTIVE: /segment-active/,
+    // Inactive segments don't have segment-active class
+    SEGMENT_INACTIVE: /^(?!.*segment-active)/
   }
 };
