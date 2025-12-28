@@ -5,4 +5,6 @@ export const publicEnv = {
   VITE_RECAPTCHA_KEY: import.meta.env.VITE_RECAPTCHA_KEY!,
   VITE_HOST_NAME: import.meta.env.VITE_HOST_NAME ?? "http://localhost:4000",
   VITE_BANNER_MESSAGE: import.meta.env.VITE_BANNER_MESSAGE,
+  VITE_GOOGLE_ADS_CONVERSION_LABEL: import.meta.env
+    .VITE_GOOGLE_ADS_CONVERSION_LABEL!,
 };

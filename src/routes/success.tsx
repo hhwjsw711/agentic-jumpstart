@@ -4,8 +4,17 @@ import Confetti from "react-confetti";
 import { Button } from "~/components/ui/button";
 import { useEffect, useState } from "react";
 import { useWindowSize } from "~/hooks/use-window-size";
+import { publicEnv } from "~/utils/env-public";
 
 export const Route = createFileRoute("/success")({ component: RouteComponent });
+
+// Declare gtag function for TypeScript
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag: (...args: any[]) => void;
+  }
+}
 
 function RouteComponent() {
   const [cofettiPieces, setCofettiPieces] = useState(100);
@@ -18,6 +27,17 @@ function RouteComponent() {
     }, 5000);
 
     return () => clearTimeout(timeout);
+  }, []);
+
+  // Send conversion event to Google Ads
+  useEffect(() => {
+    // Wait for gtag to be available
+    if (typeof window !== "undefined" && window.gtag) {
+      window.gtag("event", "conversion", {
+        send_to: publicEnv.VITE_GOOGLE_ADS_CONVERSION_LABEL,
+      });
+      console.log("[Analytics] Conversion event sent to Google Ads");
+    }
   }, []);
 
   return (
