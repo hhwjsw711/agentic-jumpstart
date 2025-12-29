@@ -37,8 +37,6 @@ export const env = {
   STRIPE_WEBHOOK_SECRET: testFallback(process.env.STRIPE_WEBHOOK_SECRET, "whsec_test_placeholder", "STRIPE_WEBHOOK_SECRET"),
   STRIPE_DISCOUNT_COUPON_ID: process.env.STRIPE_DISCOUNT_COUPON_ID,
   RECAPTCHA_SECRET_KEY: testFallback(process.env.RECAPTCHA_SECRET_KEY, "test-recaptcha-secret", "RECAPTCHA_SECRET_KEY"),
-  MAILING_LIST_ENDPOINT: testFallback(process.env.MAILING_LIST_ENDPOINT, "https://test.example.com/mailing", "MAILING_LIST_ENDPOINT"),
-  MAILING_LIST_PASSWORD: testFallback(process.env.MAILING_LIST_PASSWORD, "test-mailing-password", "MAILING_LIST_PASSWORD"),
   AWS_SES_ACCESS_KEY_ID: testFallback(process.env.AWS_SES_ACCESS_KEY_ID, "test-ses-access-key", "AWS_SES_ACCESS_KEY_ID"),
   AWS_SES_SECRET_ACCESS_KEY: testFallback(process.env.AWS_SES_SECRET_ACCESS_KEY, "test-ses-secret-key", "AWS_SES_SECRET_ACCESS_KEY"),
   AWS_SES_REGION: process.env.AWS_SES_REGION || "us-east-1",
