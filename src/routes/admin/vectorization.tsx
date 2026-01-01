@@ -27,8 +27,10 @@ import {
 } from "~/fn/vector-search";
 import { toast } from "sonner";
 import { queryOptions } from "@tanstack/react-query";
+import { assertIsAdminFn } from "~/fn/auth";
 
 export const Route = createFileRoute("/admin/vectorization")({
+  beforeLoad: () => assertIsAdminFn(),
   component: AdminVectorization,
 });
 

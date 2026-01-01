@@ -15,6 +15,7 @@ import { Badge } from "~/components/ui/badge";
 import { PageHeader } from "./-components/page-header";
 import { Page } from "./-components/page";
 import { searchTranscriptsFn } from "~/fn/vector-search";
+import { assertIsAdminFn } from "~/fn/auth";
 import { z } from "zod";
 
 const searchParamsSchema = z.object({
@@ -22,6 +23,7 @@ const searchParamsSchema = z.object({
 });
 
 export const Route = createFileRoute("/admin/vector-search")({
+  beforeLoad: () => assertIsAdminFn(),
   component: VectorSearchPage,
   validateSearch: searchParamsSchema,
 });

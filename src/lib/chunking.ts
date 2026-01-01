@@ -45,8 +45,8 @@ export function chunkTranscript(transcript: string): Chunk[] {
     // Move forward with overlap
     start = end - OVERLAP_SIZE;
 
-    // Avoid tiny trailing chunks
-    if (start >= tokens.length - OVERLAP_SIZE) {
+    // Only break when we've processed all tokens
+    if (start >= tokens.length) {
       break;
     }
 
