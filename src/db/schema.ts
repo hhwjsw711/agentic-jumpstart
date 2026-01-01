@@ -2,6 +2,7 @@ import { relations } from "drizzle-orm";
 import {
   AnyPgColumn,
   boolean,
+  customType,
   index,
   integer,
   pgEnum,
@@ -12,6 +13,20 @@ import {
   uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
+
+// Custom type for pgvector
+const vector = customType<{ data: number[]; driverData: string }>({
+  dataType() {
+    return "vector(1536)";
+  },
+  toDriver(value: number[]): string {
+    return `[${value.join(",")}]`;
+  },
+  fromDriver(value: string): number[] {
+    // Parse the vector string format "[1,2,3,...]"
+    return JSON.parse(value);
+  },
+});
 
 const PREFIX = "app";
 
@@ -155,6 +170,29 @@ export const videoProcessingJobs = tableCreator(
     index("video_processing_jobs_segment_idx").on(table.segmentId),
     index("video_processing_jobs_status_idx").on(table.status),
     index("video_processing_jobs_created_idx").on(table.createdAt),
+  ]
+);
+
+export const transcriptChunks = tableCreator(
+  "transcript_chunk",
+  {
+    id: serial("id").primaryKey(),
+    segmentId: serial("segmentId")
+      .notNull()
+      .references(() => segments.id, { onDelete: "cascade" }),
+    chunkIndex: integer("chunkIndex").notNull(),
+    chunkText: text("chunkText").notNull(),
+    embedding: vector("embedding"),
+    tokenCount: integer("tokenCount").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("transcript_chunks_segment_idx").on(table.segmentId),
+    index("transcript_chunks_segment_order_idx").on(
+      table.segmentId,
+      table.chunkIndex
+    ),
   ]
 );
 
@@ -751,7 +789,18 @@ export const segmentsRelations = relations(segments, ({ one, many }) => ({
     references: [modules.id],
   }),
   comments: many(comments),
+  transcriptChunks: many(transcriptChunks),
 }));
+
+export const transcriptChunksRelations = relations(
+  transcriptChunks,
+  ({ one }) => ({
+    segment: one(segments, {
+      fields: [transcriptChunks.segmentId],
+      references: [segments.id],
+    }),
+  })
+);
 
 export const commentsRelations = relations(comments, ({ one, many }) => ({
   profile: one(profiles, {
@@ -1149,3 +1198,5 @@ export type LaunchKitComment = typeof launchKitComments.$inferSelect;
 export type LaunchKitCommentCreate = typeof launchKitComments.$inferInsert;
 export type LaunchKitAnalytics = typeof launchKitAnalytics.$inferSelect;
 export type LaunchKitAnalyticsCreate = typeof launchKitAnalytics.$inferInsert;
+export type TranscriptChunk = typeof transcriptChunks.$inferSelect;
+export type TranscriptChunkCreate = typeof transcriptChunks.$inferInsert;
