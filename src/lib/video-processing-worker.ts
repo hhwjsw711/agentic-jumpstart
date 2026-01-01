@@ -9,6 +9,7 @@ import {
   getSegmentByIdUseCase,
   editSegmentUseCase,
 } from "~/use-cases/segments";
+import { vectorizeSegmentUseCase } from "~/use-cases/vector-search";
 import { getStorage } from "~/utils/storage";
 import { getVideoQualityKey } from "~/utils/storage/r2";
 import { generateTranscriptFromVideo } from "~/utils/openai";
@@ -121,6 +122,8 @@ class VideoProcessingWorker {
         await this.processTranscodeJob(job.segmentId);
       } else if (job.jobType === "thumbnail") {
         await this.processThumbnailJob(job.segmentId);
+      } else if (job.jobType === "vectorize") {
+        await this.processVectorizeJob(job.segmentId);
       } else {
         throw new Error(`Unknown job type: ${job.jobType}`);
       }
@@ -346,6 +349,19 @@ class VideoProcessingWorker {
       // Clean up temporary files
       await cleanupTempFiles(...tempFiles);
     }
+  }
+
+  /**
+   * Process a vectorization job - generate embeddings for transcript chunks
+   */
+  private async processVectorizeJob(segmentId: number): Promise<void> {
+    console.log(`[Worker] Starting vectorization for segment ${segmentId}`);
+
+    const result = await vectorizeSegmentUseCase(segmentId);
+
+    console.log(
+      `[Worker] Vectorization completed for segment ${segmentId}: ${result.chunksCreated} chunks created`
+    );
   }
 
   /**

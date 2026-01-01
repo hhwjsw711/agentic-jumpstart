@@ -2,23 +2,42 @@ import { createServerFn } from "@tanstack/react-start";
 import { adminMiddleware } from "~/lib/auth";
 import { z } from "zod";
 import {
-  vectorizeSegmentUseCase,
-  vectorizeAllSegmentsUseCase,
   searchTranscriptsUseCase,
   getVectorizationStatusUseCase,
 } from "~/use-cases/vector-search";
+import {
+  queueVectorizeJobUseCase,
+  queueVectorizeAllSegmentsUseCase,
+} from "~/use-cases/video-processing";
+import { startVideoProcessingWorker } from "~/lib/video-processing-worker";
 
-export const vectorizeSegmentFn = createServerFn({ method: "POST" })
+/**
+ * Queue a vectorization job for a segment (non-blocking)
+ */
+export const queueVectorizeSegmentFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
   .inputValidator(z.object({ segmentId: z.number() }))
   .handler(async ({ data }) => {
-    return vectorizeSegmentUseCase(data.segmentId);
+    const job = await queueVectorizeJobUseCase(data.segmentId);
+    if (job) {
+      // Start worker if not already running
+      await startVideoProcessingWorker();
+    }
+    return { success: true, job };
   });
 
-export const vectorizeAllSegmentsFn = createServerFn({ method: "POST" })
+/**
+ * Queue vectorization jobs for all segments that need it (non-blocking)
+ */
+export const queueVectorizeAllSegmentsFn = createServerFn({ method: "POST" })
   .middleware([adminMiddleware])
   .handler(async () => {
-    return vectorizeAllSegmentsUseCase();
+    const jobs = await queueVectorizeAllSegmentsUseCase();
+    if (jobs.length > 0) {
+      // Start worker if not already running
+      await startVideoProcessingWorker();
+    }
+    return { success: true, jobsQueued: jobs.length, jobs };
   });
 
 export const searchTranscriptsFn = createServerFn({ method: "GET" })

@@ -11,7 +11,7 @@ import { getVideoQualityKey } from "~/utils/storage/r2";
 import { getThumbnailKey } from "~/utils/video-transcoding";
 import type { VideoProcessingJobCreate } from "~/db/schema";
 
-export type JobType = "transcript" | "transcode" | "thumbnail";
+export type JobType = "transcript" | "transcode" | "thumbnail" | "vectorize";
 
 /**
  * Queue a transcript job for a segment
@@ -279,6 +279,77 @@ export async function queueMissingJobsForAllSegmentsUseCase() {
           status: "pending",
         });
       }
+    }
+  }
+
+  if (jobsToCreate.length === 0) {
+    return [];
+  }
+
+  return createVideoProcessingJobs(jobsToCreate);
+}
+
+/**
+ * Queue a vectorization job for a segment
+ */
+export async function queueVectorizeJobUseCase(segmentId: number) {
+  // Check if there's already a pending or processing vectorize job
+  const existingJobs = await getVideoProcessingJobsBySegmentId(segmentId);
+  const hasActiveVectorizeJob = existingJobs.some(
+    (job) =>
+      job.jobType === "vectorize" &&
+      (job.status === "pending" || job.status === "processing")
+  );
+
+  if (hasActiveVectorizeJob) {
+    return null; // Job already queued
+  }
+
+  return createVideoProcessingJob({
+    segmentId,
+    jobType: "vectorize",
+    status: "pending",
+  });
+}
+
+/**
+ * Queue vectorization jobs for all segments that need it
+ */
+export async function queueVectorizeAllSegmentsUseCase() {
+  const segments = await getSegments();
+
+  const jobsToCreate: VideoProcessingJobCreate[] = [];
+  const segmentIds = segments.map((s) => s.id);
+
+  // Get all existing jobs for these segments
+  const existingJobs = await getVideoProcessingJobsBySegmentIds(segmentIds);
+  const existingJobsBySegment = new Map<number, typeof existingJobs>();
+  existingJobs.forEach((job) => {
+    if (!existingJobsBySegment.has(job.segmentId)) {
+      existingJobsBySegment.set(job.segmentId, []);
+    }
+    existingJobsBySegment.get(job.segmentId)!.push(job);
+  });
+
+  for (const segment of segments) {
+    // Only vectorize segments that have transcripts
+    if (!segment.transcripts) {
+      continue;
+    }
+
+    const segmentJobs = existingJobsBySegment.get(segment.id) || [];
+    const hasActiveVectorizeJob = segmentJobs.some(
+      (job) =>
+        job.jobType === "vectorize" &&
+        (job.status === "pending" || job.status === "processing")
+    );
+
+    if (!hasActiveVectorizeJob) {
+      jobsToCreate.push({
+        segmentId: segment.id,
+        jobType: "vectorize",
+        status: "pending",
+      });
     }
   }
 

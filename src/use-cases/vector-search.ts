@@ -7,6 +7,7 @@ import {
   type SearchResult,
 } from "~/data-access/transcript-chunks";
 import { getSegmentById, getSegments } from "~/data-access/segments";
+import { getVideoProcessingJobsBySegmentIds } from "~/data-access/video-processing-jobs";
 import { getModulesWithSegmentsUseCase } from "~/use-cases/modules";
 import { chunkTranscript } from "~/lib/chunking";
 import { generateEmbedding, generateEmbeddings } from "~/lib/openai";
@@ -119,6 +120,7 @@ export interface SegmentVectorizationStatus {
   chunkCount: number;
   isVectorized: boolean;
   needsVectorization: boolean;
+  activeVectorizeJob: boolean;
 }
 
 export interface VectorizationStatus {
@@ -140,20 +142,40 @@ export async function getVectorizationStatusUseCase(): Promise<VectorizationStat
   const chunkCounts = await getChunkCountBySegmentIds(segmentIds);
   const totalChunks = await getTotalChunkCount();
 
+  // Get all vectorization jobs for these segments
+  const allJobs = await getVideoProcessingJobsBySegmentIds(segmentIds);
+  const jobsBySegmentId = new Map<number, typeof allJobs>();
+  allJobs.forEach((job) => {
+    if (!jobsBySegmentId.has(job.segmentId)) {
+      jobsBySegmentId.set(job.segmentId, []);
+    }
+    jobsBySegmentId.get(job.segmentId)!.push(job);
+  });
+
   const segmentsWithStatus: SegmentVectorizationStatus[] = modules.flatMap(
     (module) =>
-      module.segments.map((segment) => ({
-        id: segment.id,
-        slug: segment.slug,
-        title: segment.title,
-        moduleTitle: module.title,
-        moduleOrder: module.order,
-        hasTranscript: !!segment.transcripts,
-        chunkCount: chunkCounts.get(segment.id) || 0,
-        isVectorized: (chunkCounts.get(segment.id) || 0) > 0,
-        needsVectorization:
-          !!segment.transcripts && (chunkCounts.get(segment.id) || 0) === 0,
-      }))
+      module.segments.map((segment) => {
+        const jobs = jobsBySegmentId.get(segment.id) || [];
+        const hasActiveVectorizeJob = jobs.some(
+          (job) =>
+            job.jobType === "vectorize" &&
+            (job.status === "pending" || job.status === "processing")
+        );
+
+        return {
+          id: segment.id,
+          slug: segment.slug,
+          title: segment.title,
+          moduleTitle: module.title,
+          moduleOrder: module.order,
+          hasTranscript: !!segment.transcripts,
+          chunkCount: chunkCounts.get(segment.id) || 0,
+          isVectorized: (chunkCounts.get(segment.id) || 0) > 0,
+          needsVectorization:
+            !!segment.transcripts && (chunkCounts.get(segment.id) || 0) === 0,
+          activeVectorizeJob: hasActiveVectorizeJob,
+        };
+      })
   );
 
   return {
