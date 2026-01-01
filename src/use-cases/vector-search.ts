@@ -15,59 +15,121 @@ import { generateEmbedding, generateEmbeddings } from "~/lib/openai";
 const EMBEDDING_BATCH_SIZE = 20;
 
 export async function vectorizeSegmentUseCase(segmentId: number) {
-  const segment = await getSegmentById(segmentId);
-  if (!segment) {
-    throw new Error("Segment not found");
-  }
-  if (!segment.transcripts) {
-    throw new Error("Segment has no transcript");
-  }
+  const startedAt = Date.now();
+  try {
+    const segment = await getSegmentById(segmentId);
+    if (!segment) {
+      throw new Error("Segment not found");
+    }
+    if (!segment.transcripts) {
+      throw new Error("Segment has no transcript");
+    }
 
-  // Delete existing chunks for this segment
-  await deleteChunksBySegmentId(segmentId);
+    console.log("[Vectorize] Starting", {
+      segmentId,
+      transcriptLength: segment.transcripts.length,
+    });
 
-  // Chunk the transcript
-  const chunks = chunkTranscript(segment.transcripts);
+    // Delete existing chunks for this segment
+    console.log("[Vectorize] Deleting existing chunks", { segmentId });
+    await deleteChunksBySegmentId(segmentId);
 
-  if (chunks.length === 0) {
+    // Chunk the transcript
+    const chunks = chunkTranscript(segment.transcripts);
+    const totalTokens = chunks.reduce((sum, c) => sum + c.tokenCount, 0);
+    console.log("[Vectorize] Chunked transcript", {
+      segmentId,
+      chunks: chunks.length,
+      totalTokens,
+    });
+
+    if (chunks.length === 0) {
+      return {
+        segmentId,
+        chunksCreated: 0,
+      };
+    }
+
+    // Generate embeddings in batches
+    const allChunksWithEmbeddings: Array<{
+      segmentId: number;
+      chunkIndex: number;
+      chunkText: string;
+      embedding: number[];
+      tokenCount: number;
+    }> = [];
+
+    for (let i = 0; i < chunks.length; i += EMBEDDING_BATCH_SIZE) {
+      const batch = chunks.slice(i, i + EMBEDDING_BATCH_SIZE);
+      const texts = batch.map((c) => c.text);
+      console.log("[Vectorize] Generating embeddings", {
+        segmentId,
+        batchStart: i,
+        batchSize: batch.length,
+        totalBatches: Math.ceil(chunks.length / EMBEDDING_BATCH_SIZE),
+      });
+
+      const embeddings = await generateEmbeddings(texts);
+      const embeddingDimensions = embeddings[0]?.length ?? 0;
+      console.log("[Vectorize] Embeddings generated", {
+        segmentId,
+        batchStart: i,
+        embeddingsReturned: embeddings.length,
+        embeddingDimensions,
+      });
+
+      for (let j = 0; j < batch.length; j++) {
+        allChunksWithEmbeddings.push({
+          segmentId,
+          chunkIndex: batch[j].index,
+          chunkText: batch[j].text,
+          embedding: embeddings[j],
+          tokenCount: batch[j].tokenCount,
+        });
+      }
+    }
+
+    console.log("[Vectorize] Saving chunks", {
+      segmentId,
+      chunks: allChunksWithEmbeddings.length,
+    });
+
+    // Store chunks
+    const created = await createTranscriptChunks(allChunksWithEmbeddings);
+    const durationMs = Date.now() - startedAt;
+    console.log("[Vectorize] Completed", {
+      segmentId,
+      chunksCreated: created.length,
+      durationMs,
+    });
+
     return {
       segmentId,
-      chunksCreated: 0,
+      chunksCreated: created.length,
     };
+  } catch (error) {
+    const durationMs = Date.now() - startedAt;
+    const errorDetails =
+      error && typeof error === "object"
+        ? {
+            errorCode: "code" in error ? (error as { code?: string }).code : undefined,
+            errorStatus:
+              "status" in error ? (error as { status?: number }).status : undefined,
+            errorContext:
+              "context" in error
+                ? (error as { context?: Record<string, unknown> }).context
+                : undefined,
+          }
+        : undefined;
+    console.error("[Vectorize] Failed", {
+      segmentId,
+      durationMs,
+      errorMessage: error instanceof Error ? error.message : String(error),
+      errorName: error instanceof Error ? error.name : "UnknownError",
+      ...errorDetails,
+    });
+    throw error;
   }
-
-  // Generate embeddings in batches
-  const allChunksWithEmbeddings: Array<{
-    segmentId: number;
-    chunkIndex: number;
-    chunkText: string;
-    embedding: number[];
-    tokenCount: number;
-  }> = [];
-
-  for (let i = 0; i < chunks.length; i += EMBEDDING_BATCH_SIZE) {
-    const batch = chunks.slice(i, i + EMBEDDING_BATCH_SIZE);
-    const texts = batch.map((c) => c.text);
-    const embeddings = await generateEmbeddings(texts);
-
-    for (let j = 0; j < batch.length; j++) {
-      allChunksWithEmbeddings.push({
-        segmentId,
-        chunkIndex: batch[j].index,
-        chunkText: batch[j].text,
-        embedding: embeddings[j],
-        tokenCount: batch[j].tokenCount,
-      });
-    }
-  }
-
-  // Store chunks
-  const created = await createTranscriptChunks(allChunksWithEmbeddings);
-
-  return {
-    segmentId,
-    chunksCreated: created.length,
-  };
 }
 
 export async function vectorizeAllSegmentsUseCase() {

@@ -355,13 +355,24 @@ class VideoProcessingWorker {
    * Process a vectorization job - generate embeddings for transcript chunks
    */
   private async processVectorizeJob(segmentId: number): Promise<void> {
+    const startedAt = Date.now();
     console.log(`[Worker] Starting vectorization for segment ${segmentId}`);
 
-    const result = await vectorizeSegmentUseCase(segmentId);
-
-    console.log(
-      `[Worker] Vectorization completed for segment ${segmentId}: ${result.chunksCreated} chunks created`
-    );
+    try {
+      const result = await vectorizeSegmentUseCase(segmentId);
+      const durationMs = Date.now() - startedAt;
+      console.log(
+        `[Worker] Vectorization completed for segment ${segmentId}: ${result.chunksCreated} chunks created in ${durationMs}ms`
+      );
+    } catch (error) {
+      const durationMs = Date.now() - startedAt;
+      console.error(`[Worker] Vectorization failed for segment ${segmentId}`, {
+        durationMs,
+        errorMessage: error instanceof Error ? error.message : String(error),
+        errorName: error instanceof Error ? error.name : "UnknownError",
+      });
+      throw error;
+    }
   }
 
   /**
