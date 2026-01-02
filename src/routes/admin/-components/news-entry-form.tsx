@@ -34,7 +34,11 @@ const newsEntrySchema = z.object({
   type: z.enum(["video", "blog", "changelog"], {
     required_error: "Please select a content type",
   }),
-  imageUrl: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
+  imageUrl: z
+    .string()
+    .url("Please enter a valid URL")
+    .optional()
+    .or(z.literal("")),
   publishedAt: z.string().min(1, "Published date is required"),
   isPublished: z.boolean().default(true),
 });
@@ -47,7 +51,11 @@ interface NewsEntryFormProps {
   onSuccess: () => void;
 }
 
-export function NewsEntryForm({ entry, availableTags, onSuccess }: NewsEntryFormProps) {
+export function NewsEntryForm({
+  entry,
+  availableTags,
+  onSuccess,
+}: NewsEntryFormProps) {
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>(
     entry?.tags?.map((tag: any) => tag.id) || []
   );
@@ -65,7 +73,7 @@ export function NewsEntryForm({ entry, availableTags, onSuccess }: NewsEntryForm
       url: entry?.url || "",
       type: entry?.type || "blog",
       imageUrl: entry?.imageUrl || "",
-      publishedAt: entry?.publishedAt 
+      publishedAt: entry?.publishedAt
         ? formatDateForInput(entry.publishedAt)
         : formatDateForInput(new Date()),
       isPublished: entry?.isPublished ?? true,
@@ -110,7 +118,7 @@ export function NewsEntryForm({ entry, availableTags, onSuccess }: NewsEntryForm
   };
 
   const removeTag = (tagId: number) => {
-    setSelectedTagIds(selectedTagIds.filter(id => id !== tagId));
+    setSelectedTagIds(selectedTagIds.filter((id) => id !== tagId));
   };
 
   const isLoading = createMutation.isPending || updateMutation.isPending;
@@ -139,14 +147,15 @@ export function NewsEntryForm({ entry, availableTags, onSuccess }: NewsEntryForm
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea 
-                  placeholder="Brief description of the content..." 
-                  rows={3}
-                  {...field} 
+                <Textarea
+                  placeholder="Brief description of the content..."
+                  rows={12}
+                  {...field}
                 />
               </FormControl>
               <FormDescription>
-                Optional description that will be shown in the news list
+                Optional description that will be shown in the news list.
+                Supports markdown formatting.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -177,7 +186,10 @@ export function NewsEntryForm({ entry, availableTags, onSuccess }: NewsEntryForm
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Content Type</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select content type" />
@@ -221,9 +233,7 @@ export function NewsEntryForm({ entry, availableTags, onSuccess }: NewsEntryForm
               <FormControl>
                 <Input type="datetime-local" {...field} />
               </FormControl>
-              <FormDescription>
-                When this content was published
-              </FormDescription>
+              <FormDescription>When this content was published</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -234,11 +244,11 @@ export function NewsEntryForm({ entry, availableTags, onSuccess }: NewsEntryForm
           <div className="space-y-3">
             {selectedTagIds.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {selectedTagIds.map(tagId => {
-                  const tag = availableTags.find(t => t.id === tagId);
+                {selectedTagIds.map((tagId) => {
+                  const tag = availableTags.find((t) => t.id === tagId);
                   if (!tag) return null;
                   return (
-                    <Badge 
+                    <Badge
                       key={tagId}
                       variant="outline"
                       className="flex items-center gap-1"
@@ -257,18 +267,18 @@ export function NewsEntryForm({ entry, availableTags, onSuccess }: NewsEntryForm
                 })}
               </div>
             )}
-            
+
             <Select onValueChange={(value) => addTag(parseInt(value))}>
               <SelectTrigger>
                 <SelectValue placeholder="Add tags..." />
               </SelectTrigger>
               <SelectContent>
                 {availableTags
-                  .filter(tag => !selectedTagIds.includes(tag.id))
-                  .map(tag => (
+                  .filter((tag) => !selectedTagIds.includes(tag.id))
+                  .map((tag) => (
                     <SelectItem key={tag.id} value={tag.id.toString()}>
                       <div className="flex items-center gap-2">
-                        <div 
+                        <div
                           className="w-3 h-3 rounded-full"
                           style={{ backgroundColor: tag.color }}
                         />
@@ -280,7 +290,8 @@ export function NewsEntryForm({ entry, availableTags, onSuccess }: NewsEntryForm
             </Select>
           </div>
           <p className="text-sm text-muted-foreground mt-2">
-            Select tags to categorize this news entry (claude, cursor, cline, llms, tutorial, etc.)
+            Select tags to categorize this news entry (claude, cursor, cline,
+            llms, tutorial, etc.)
           </p>
         </div>
 
@@ -307,10 +318,13 @@ export function NewsEntryForm({ entry, availableTags, onSuccess }: NewsEntryForm
 
         <div className="flex justify-end gap-3">
           <Button type="submit" disabled={isLoading}>
-            {isLoading 
-              ? (entry ? "Updating..." : "Creating...") 
-              : (entry ? "Update Entry" : "Create Entry")
-            }
+            {isLoading
+              ? entry
+                ? "Updating..."
+                : "Creating..."
+              : entry
+                ? "Update Entry"
+                : "Create Entry"}
           </Button>
         </div>
       </form>
