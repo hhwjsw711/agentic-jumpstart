@@ -4,7 +4,7 @@ import { cn } from "~/lib/utils";
 import { type Segment } from "~/db/schema";
 import { ContentPanel } from "./content-panel";
 import { CommentsPanel } from "./comments-panel";
-import { MarkdownContent } from "~/routes/learn/-components/markdown-content";
+import { EditableContent } from "./editable-content";
 import { GlassPanel } from "~/components/ui/glass-panel";
 
 type TabType = "summary" | "content" | "transcripts" | "comments";
@@ -105,16 +105,16 @@ export function VideoContentTabsPanel({
       {/* Tab Content */}
       <div className="p-6 min-h-96">
         {activeTab === "summary" && (
-          <div className="animate-fade-in">
-            {currentSegment.summary ? (
-              <MarkdownContent content={currentSegment.summary} />
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No summary available for this segment.</p>
-              </div>
-            )}
-          </div>
+          <EditableContent
+            segmentId={currentSegment.id}
+            field="summary"
+            content={currentSegment.summary}
+            isAdmin={isAdmin ?? false}
+            emptyMessage="No summary available for this segment."
+            emptyIcon={
+              <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            }
+          />
         )}
 
         {showContentTabs && activeTab === "content" && (
@@ -122,16 +122,16 @@ export function VideoContentTabsPanel({
         )}
 
         {activeTab === "transcripts" && (
-          <div className="animate-fade-in">
-            {currentSegment.transcripts ? (
-              <MarkdownContent content={currentSegment.transcripts} />
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No transcripts available for this segment.</p>
-              </div>
-            )}
-          </div>
+          <EditableContent
+            segmentId={currentSegment.id}
+            field="transcripts"
+            content={currentSegment.transcripts}
+            isAdmin={isAdmin ?? false}
+            emptyMessage="No transcripts available for this segment."
+            emptyIcon={
+              <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            }
+          />
         )}
 
         {activeTab === "comments" && (
