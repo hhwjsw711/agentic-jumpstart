@@ -1,5 +1,5 @@
 import { database } from "~/db";
-import { transcriptChunks, segments, modules } from "~/db/schema";
+import { transcriptChunks } from "~/db/schema";
 import { eq, sql, inArray } from "drizzle-orm";
 import type { TranscriptChunkCreate } from "~/db/schema";
 
@@ -9,10 +9,30 @@ export async function createTranscriptChunks(chunks: TranscriptChunkCreate[]) {
 }
 
 export async function deleteChunksBySegmentId(segmentId: number) {
-  return database
-    .delete(transcriptChunks)
-    .where(eq(transcriptChunks.segmentId, segmentId))
-    .returning();
+  const startedAt = Date.now();
+  console.log("[Vectorize] Deleting chunks start", { segmentId });
+  const slowLog = setTimeout(() => {
+    console.warn("[Vectorize] Deleting chunks still running", {
+      segmentId,
+      durationMs: Date.now() - startedAt,
+    });
+  }, 10000);
+
+  try {
+    const deleted = await database
+      .delete(transcriptChunks)
+      .where(eq(transcriptChunks.segmentId, segmentId))
+      .returning();
+    const durationMs = Date.now() - startedAt;
+    console.log("[Vectorize] Deleting chunks done", {
+      segmentId,
+      durationMs,
+      deletedCount: deleted.length,
+    });
+    return deleted;
+  } finally {
+    clearTimeout(slowLog);
+  }
 }
 
 export async function getChunksBySegmentId(segmentId: number) {
