@@ -14,6 +14,7 @@ import {
   Filter,
   X,
   Settings,
+  Edit,
 } from "lucide-react";
 import {
   Select,
@@ -27,6 +28,7 @@ import { Page } from "./admin/-components/page";
 import { PageHeader } from "./admin/-components/page-header";
 import { Link } from "@tanstack/react-router";
 import { assertFeatureEnabled } from "~/lib/feature-flags";
+import { MarkdownRenderer } from "~/components/markdown-renderer";
 
 export const Route = createFileRoute("/news")({
   beforeLoad: () => assertFeatureEnabled("NEWS_FEATURE"),
@@ -233,9 +235,9 @@ function NewsPage() {
                   </CardTitle>
 
                   {entry.description && (
-                    <p className="text-muted-foreground leading-relaxed mb-4">
-                      {entry.description}
-                    </p>
+                    <div className="text-muted-foreground leading-relaxed mb-4">
+                      <MarkdownRenderer content={entry.description} className="prose-sm" />
+                    </div>
                   )}
 
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -248,7 +250,14 @@ function NewsPage() {
                   </div>
                 </div>
 
-                <div className="ml-6 flex-shrink-0">
+                <div className="ml-6 flex-shrink-0 flex items-center gap-2">
+                  {isAdmin && (
+                    <Button variant="outline" size="sm" asChild>
+                      <Link to={`/admin/news/${entry.id}/edit` as any}>
+                        <Edit className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  )}
                   <Button asChild size="sm">
                     <a
                       href={entry.url}

@@ -2,6 +2,7 @@ import { relations } from "drizzle-orm";
 import {
   AnyPgColumn,
   boolean,
+  customType,
   index,
   integer,
   pgEnum,
@@ -12,6 +13,20 @@ import {
   uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
+
+// Custom type for pgvector
+const vector = customType<{ data: number[]; driverData: string }>({
+  dataType() {
+    return "vector(1536)";
+  },
+  toDriver(value: number[]): string {
+    return `[${value.join(",")}]`;
+  },
+  fromDriver(value: string): number[] {
+    // Parse the vector string format "[1,2,3,...]"
+    return JSON.parse(value);
+  },
+});
 
 const PREFIX = "app";
 
@@ -30,7 +45,7 @@ export const accounts = tableCreator(
   "accounts",
   {
     id: serial("id").primaryKey(),
-    userId: serial("userId")
+    userId: integer("userId")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     googleId: text("googleId").unique(),
@@ -40,7 +55,7 @@ export const accounts = tableCreator(
 
 export const profiles = tableCreator("profile", {
   id: serial("id").primaryKey(),
-  userId: serial("userId")
+  userId: integer("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" })
     .unique(),
@@ -62,7 +77,7 @@ export const projects = tableCreator(
   "project",
   {
     id: serial("id").primaryKey(),
-    userId: serial("userId")
+    userId: integer("userId")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     title: text("title").notNull(),
@@ -86,7 +101,7 @@ export const sessions = tableCreator(
   "session",
   {
     id: text("id").primaryKey(),
-    userId: serial("userId")
+    userId: integer("userId")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     expiresAt: timestamp("expires_at", {
@@ -118,12 +133,13 @@ export const segments = tableCreator(
     title: text("title").notNull(),
     content: text("content"),
     transcripts: text("transcripts"),
+    summary: text("summary"),
     order: integer("order").notNull(),
     length: text("length"),
     icon: text("icon"), // Lucide icon name, e.g., "PlayCircle", "Code", "FileText"
     isPremium: boolean("isPremium").notNull().default(false),
     isComingSoon: boolean("isComingSoon").notNull().default(false),
-    moduleId: serial("moduleId")
+    moduleId: integer("moduleId")
       .notNull()
       .references(() => modules.id, { onDelete: "cascade" }),
     videoKey: text("videoKey"),
@@ -141,7 +157,7 @@ export const videoProcessingJobs = tableCreator(
   "video_processing_job",
   {
     id: serial("id").primaryKey(),
-    segmentId: serial("segmentId")
+    segmentId: integer("segmentId")
       .notNull()
       .references(() => segments.id, { onDelete: "cascade" }),
     jobType: text("jobType").notNull(), // "transcript" | "transcode" | "thumbnail"
@@ -158,14 +174,37 @@ export const videoProcessingJobs = tableCreator(
   ]
 );
 
+export const transcriptChunks = tableCreator(
+  "transcript_chunk",
+  {
+    id: serial("id").primaryKey(),
+    segmentId: integer("segmentId")
+      .notNull()
+      .references(() => segments.id, { onDelete: "cascade" }),
+    chunkIndex: integer("chunkIndex").notNull(),
+    chunkText: text("chunkText").notNull(),
+    embedding: vector("embedding"),
+    tokenCount: integer("tokenCount").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("transcript_chunks_segment_idx").on(table.segmentId),
+    index("transcript_chunks_segment_order_idx").on(
+      table.segmentId,
+      table.chunkIndex
+    ),
+  ]
+);
+
 export const comments = tableCreator(
   "comment",
   {
     id: serial("id").primaryKey(),
-    userId: serial("userId")
+    userId: integer("userId")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    segmentId: serial("segmentId")
+    segmentId: integer("segmentId")
       .notNull()
       .references(() => segments.id, {
         onDelete: "cascade",
@@ -195,10 +234,10 @@ export const progress = tableCreator(
   "progress",
   {
     id: serial("id").primaryKey(),
-    userId: serial("userId")
+    userId: integer("userId")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    segmentId: serial("segmentId").references(() => segments.id, {
+    segmentId: integer("segmentId").references(() => segments.id, {
       onDelete: "cascade",
     }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -215,7 +254,7 @@ export const testimonials = tableCreator(
   "testimonial",
   {
     id: serial("id").primaryKey(),
-    userId: serial("userId")
+    userId: integer("userId")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     content: text("content").notNull(),
@@ -232,7 +271,7 @@ export const attachments = tableCreator(
   "attachment",
   {
     id: serial("id").primaryKey(),
-    segmentId: serial("segmentId")
+    segmentId: integer("segmentId")
       .notNull()
       .references(() => segments.id, { onDelete: "cascade" }),
     fileName: text("fileName").notNull(),
@@ -251,7 +290,7 @@ export const affiliates = tableCreator(
   "affiliate",
   {
     id: serial("id").primaryKey(),
-    userId: serial("userId")
+    userId: integer("userId")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" })
       .unique(),
@@ -275,10 +314,10 @@ export const affiliateReferrals = tableCreator(
   "affiliate_referral",
   {
     id: serial("id").primaryKey(),
-    affiliateId: serial("affiliateId")
+    affiliateId: integer("affiliateId")
       .notNull()
       .references(() => affiliates.id, { onDelete: "cascade" }),
-    purchaserId: serial("purchaserId")
+    purchaserId: integer("purchaserId")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     stripeSessionId: text("stripeSessionId").notNull(),
@@ -301,7 +340,7 @@ export const affiliatePayouts = tableCreator(
   "affiliate_payout",
   {
     id: serial("id").primaryKey(),
-    affiliateId: serial("affiliateId")
+    affiliateId: integer("affiliateId")
       .notNull()
       .references(() => affiliates.id, { onDelete: "cascade" }),
     amount: integer("amount").notNull(),
@@ -309,7 +348,7 @@ export const affiliatePayouts = tableCreator(
     transactionId: text("transactionId"),
     notes: text("notes"),
     paidAt: timestamp("paid_at").notNull().defaultNow(),
-    paidBy: serial("paidBy")
+    paidBy: integer("paidBy")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
   },
@@ -328,7 +367,7 @@ export const emailBatches = tableCreator(
     sentCount: integer("sentCount").notNull().default(0),
     failedCount: integer("failedCount").notNull().default(0),
     status: text("status").notNull().default("pending"), // pending, processing, completed, failed
-    adminId: serial("adminId")
+    adminId: integer("adminId")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -344,7 +383,7 @@ export const userEmailPreferences = tableCreator(
   "user_email_preference",
   {
     id: serial("id").primaryKey(),
-    userId: serial("userId")
+    userId: integer("userId")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" })
       .unique(),
@@ -405,7 +444,7 @@ export const emailTemplates = tableCreator(
     subject: text("subject").notNull(),
     content: text("content").notNull(), // Markdown content
     isActive: boolean("isActive").notNull().default(true),
-    updatedBy: serial("updatedBy")
+    updatedBy: integer("updatedBy")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -427,18 +466,20 @@ export const appSettings = tableCreator(
   (table) => [index("app_settings_key_idx").on(table.key)]
 );
 
-export const targetModeEnum = pgEnum("target_mode_enum", ["all", "premium", "non_premium", "custom"]);
+export const targetModeEnum = pgEnum("target_mode_enum", [
+  "all",
+  "premium",
+  "non_premium",
+  "custom",
+]);
 
-export const featureFlagTargets = tableCreator(
-  "feature_flag_target",
-  {
-    id: serial("id").primaryKey(),
-    flagKey: text("flag_key").notNull().unique(),
-    targetMode: targetModeEnum("target_mode").notNull().default("all"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  },
-);
+export const featureFlagTargets = tableCreator("feature_flag_target", {
+  id: serial("id").primaryKey(),
+  flagKey: text("flag_key").notNull().unique(),
+  targetMode: targetModeEnum("target_mode").notNull().default("all"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
 
 export const featureFlagUsers = tableCreator(
   "feature_flag_user",
@@ -468,7 +509,7 @@ export const agents = tableCreator(
     description: text("description").notNull(),
     type: varchar("type", { length: 50 }).notNull(),
     content: text("content").notNull(),
-    authorId: serial("author_id")
+    authorId: integer("author_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     isPublic: boolean("is_public").default(true),
@@ -493,7 +534,7 @@ export const newsEntries = tableCreator(
     type: varchar("type", { length: 50 }).notNull(), // video, blog, changelog
     imageUrl: text("image_url"),
     publishedAt: timestamp("published_at").notNull(),
-    authorId: serial("author_id")
+    authorId: integer("author_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     isPublished: boolean("is_published").default(true),
@@ -567,9 +608,12 @@ export const launchKitTags = tableCreator(
     color: varchar("color", { length: 7 }).notNull().default("#3B82F6"), // hex color
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
-    categoryId: serial("category_id").references(() => launchKitCategories.id, {
-      onDelete: "cascade",
-    }),
+    categoryId: integer("category_id").references(
+      () => launchKitCategories.id,
+      {
+        onDelete: "cascade",
+      }
+    ),
   },
   (table) => [
     index("launch_kit_tags_category_idx").on(table.categoryId),
@@ -581,10 +625,10 @@ export const newsEntryTags = tableCreator(
   "news_entry_tag",
   {
     id: serial("id").primaryKey(),
-    newsEntryId: serial("news_entry_id")
+    newsEntryId: integer("news_entry_id")
       .notNull()
       .references(() => newsEntries.id, { onDelete: "cascade" }),
-    newsTagId: serial("news_tag_id")
+    newsTagId: integer("news_tag_id")
       .notNull()
       .references(() => newsTags.id, { onDelete: "cascade" }),
   },
@@ -602,10 +646,10 @@ export const launchKitTagRelations = tableCreator(
   "launch_kit_tag_relation",
   {
     id: serial("id").primaryKey(),
-    launchKitId: serial("launch_kit_id")
+    launchKitId: integer("launch_kit_id")
       .notNull()
       .references(() => launchKits.id, { onDelete: "cascade" }),
-    tagId: serial("tag_id")
+    tagId: integer("tag_id")
       .notNull()
       .references(() => launchKitTags.id, { onDelete: "cascade" }),
   },
@@ -623,10 +667,10 @@ export const launchKitComments = tableCreator(
   "launch_kit_comment",
   {
     id: serial("id").primaryKey(),
-    userId: serial("userId")
+    userId: integer("userId")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    launchKitId: serial("launch_kit_id")
+    launchKitId: integer("launch_kit_id")
       .notNull()
       .references(() => launchKits.id, { onDelete: "cascade" }),
     parentId: integer("parent_id").references(
@@ -751,7 +795,18 @@ export const segmentsRelations = relations(segments, ({ one, many }) => ({
     references: [modules.id],
   }),
   comments: many(comments),
+  transcriptChunks: many(transcriptChunks),
 }));
+
+export const transcriptChunksRelations = relations(
+  transcriptChunks,
+  ({ one }) => ({
+    segment: one(segments, {
+      fields: [transcriptChunks.segmentId],
+      references: [segments.id],
+    }),
+  })
+);
 
 export const commentsRelations = relations(comments, ({ one, many }) => ({
   profile: one(profiles, {
@@ -912,7 +967,7 @@ export const blogPosts = tableCreator(
     content: text("content").notNull(),
     excerpt: text("excerpt"),
     isPublished: boolean("isPublished").notNull().default(false),
-    authorId: serial("authorId")
+    authorId: integer("authorId")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     featuredImage: text("featuredImage"),
@@ -933,7 +988,7 @@ export const blogPostViews = tableCreator(
   "blog_post_view",
   {
     id: serial("id").primaryKey(),
-    blogPostId: serial("blogPostId")
+    blogPostId: integer("blogPostId")
       .notNull()
       .references(() => blogPosts.id, { onDelete: "cascade" }),
     sessionId: text("sessionId").notNull(),
@@ -1149,3 +1204,5 @@ export type LaunchKitComment = typeof launchKitComments.$inferSelect;
 export type LaunchKitCommentCreate = typeof launchKitComments.$inferInsert;
 export type LaunchKitAnalytics = typeof launchKitAnalytics.$inferSelect;
 export type LaunchKitAnalyticsCreate = typeof launchKitAnalytics.$inferInsert;
+export type TranscriptChunk = typeof transcriptChunks.$inferSelect;
+export type TranscriptChunkCreate = typeof transcriptChunks.$inferInsert;

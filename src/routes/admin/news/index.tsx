@@ -18,7 +18,6 @@ import {
 import { Badge } from "~/components/ui/badge";
 import {
   Plus,
-  Edit,
   Trash2,
   ExternalLink,
   Video,
@@ -40,6 +39,10 @@ import {
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
 import { Page } from "../-components/page";
+import { MarkdownRenderer } from "~/components/markdown-renderer";
+
+// Maximum characters to show in markdown preview
+const MARKDOWN_PREVIEW_MAX_LENGTH = 600;
 
 export const Route = createFileRoute("/admin/news/")({
   beforeLoad: () => assertIsAdminFn(),
@@ -55,6 +58,16 @@ function AdminNewsPage() {
       month: "short",
       day: "numeric",
     });
+  };
+
+  const truncateMarkdown = (content: string): string => {
+    if (content.length <= MARKDOWN_PREVIEW_MAX_LENGTH) {
+      return content;
+    }
+    // Truncate at the last space before the limit to avoid cutting words
+    const truncated = content.substring(0, MARKDOWN_PREVIEW_MAX_LENGTH);
+    const lastSpace = truncated.lastIndexOf(" ");
+    return lastSpace > 0 ? truncated.substring(0, lastSpace) + "..." : truncated + "...";
   };
 
   const { data: newsEntries, isLoading } = useQuery({
@@ -134,6 +147,12 @@ function AdminNewsPage() {
         description="Manage AI news entries, YouTube videos, and blog posts"
         actions={
           <div className="flex items-end gap-2 self-end">
+            <Button variant="outline" asChild>
+              <Link to="/news">
+                <Eye className="h-4 w-4 mr-2" />
+                View News Page
+              </Link>
+            </Button>
             <Button asChild className="self-end">
               <Link to="/admin/news/new">
                 <Plus className="h-4 w-4 mr-2" />
@@ -189,12 +208,22 @@ function AdminNewsPage() {
                     )}
                   </div>
 
-                  <CardTitle className="text-lg mb-1">{entry.title}</CardTitle>
+                  <CardTitle className="text-lg mb-1">
+                    <Link
+                      to={`/admin/news/${entry.id}/edit` as any}
+                      className="hover:text-theme-600 dark:hover:text-theme-400 transition-colors"
+                    >
+                      {entry.title}
+                    </Link>
+                  </CardTitle>
 
                   {entry.description && (
-                    <CardDescription className="line-clamp-2">
-                      {entry.description}
-                    </CardDescription>
+                    <div className="text-sm text-muted-foreground mt-2">
+                      <MarkdownRenderer
+                        content={truncateMarkdown(entry.description)}
+                        className="prose-sm prose-headings:text-sm prose-p:text-sm prose-p:my-1 prose-ul:text-sm prose-ol:text-sm"
+                      />
+                    </div>
                   )}
                 </div>
 
@@ -205,14 +234,9 @@ function AdminNewsPage() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <ExternalLink className="h-4 w-4" />
+                      <ExternalLink className="h-4 w-4 mr-1" />
+                      Open External Link
                     </a>
-                  </Button>
-
-                  <Button variant="outline" size="sm" asChild>
-                    <Link to={`/admin/news/${entry.id}/edit` as any}>
-                      <Edit className="h-4 w-4" />
-                    </Link>
                   </Button>
 
                   <AlertDialog>
