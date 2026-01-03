@@ -18,7 +18,7 @@ import {
   HeaderStatCard,
 } from "~/routes/admin/-components/header-stats";
 
-export const Route = createFileRoute("/admin/users")({
+export const Route = createFileRoute("/admin/users/")({
   beforeLoad: () => assertIsAdminFn(),
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(usersQuery);
@@ -182,7 +182,7 @@ function AdminUsers() {
                 {filteredUsers.map((user, index) => (
                   <Link
                     key={user.id}
-                    to="/profile/$userId"
+                    to="/admin/users/$userId"
                     params={{ userId: user.id.toString() }}
                     className="block"
                   >

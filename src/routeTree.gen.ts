@@ -51,13 +51,13 @@ import { Route as AdminVideoProcessingRouteImport } from './routes/admin/video-p
 import { Route as AdminVectorizationRouteImport } from './routes/admin/vectorization'
 import { Route as AdminVectorSearchRouteImport } from './routes/admin/vector-search'
 import { Route as AdminUtmAnalyticsRouteImport } from './routes/admin/utm-analytics'
-import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
 import { Route as AdminCommentsRouteImport } from './routes/admin/comments'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin/analytics'
 import { Route as AdminAffiliatesRouteImport } from './routes/admin/affiliates'
 import { Route as AdminEmailsRouteRouteImport } from './routes/admin/emails/route'
 import { Route as AdminConversionsRouteRouteImport } from './routes/admin/conversions/route'
+import { Route as AdminUsersIndexRouteImport } from './routes/admin/users/index'
 import { Route as AdminNewsIndexRouteImport } from './routes/admin/news/index'
 import { Route as AdminLaunchKitsIndexRouteImport } from './routes/admin/launch-kits/index'
 import { Route as AdminEmailsIndexRouteImport } from './routes/admin/emails/index'
@@ -66,6 +66,7 @@ import { Route as AdminBlogIndexRouteImport } from './routes/admin/blog/index'
 import { Route as LearnSlugEditRouteImport } from './routes/learn/$slug/edit'
 import { Route as LearnSlugLayoutRouteImport } from './routes/learn/$slug/_layout'
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
+import { Route as AdminUsersUserIdRouteImport } from './routes/admin/users/$userId'
 import { Route as AdminNewsNewRouteImport } from './routes/admin/news/new'
 import { Route as AdminLaunchKitsTagsRouteImport } from './routes/admin/launch-kits/tags'
 import { Route as AdminEmailsWaitlistRouteImport } from './routes/admin/emails/waitlist'
@@ -296,11 +297,6 @@ const AdminUtmAnalyticsRoute = AdminUtmAnalyticsRouteImport.update({
   path: '/utm-analytics',
   getParentRoute: () => AdminRouteRoute,
 } as any)
-const AdminUsersRoute = AdminUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => AdminRouteRoute,
-} as any)
 const AdminSettingsRoute = AdminSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -329,6 +325,11 @@ const AdminEmailsRouteRoute = AdminEmailsRouteRouteImport.update({
 const AdminConversionsRouteRoute = AdminConversionsRouteRouteImport.update({
   id: '/conversions',
   path: '/conversions',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminUsersIndexRoute = AdminUsersIndexRouteImport.update({
+  id: '/users/',
+  path: '/users/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminNewsIndexRoute = AdminNewsIndexRouteImport.update({
@@ -370,6 +371,11 @@ const ApiStripeWebhookRoute = ApiStripeWebhookRouteImport.update({
   id: '/api/stripe/webhook',
   path: '/api/stripe/webhook',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminUsersUserIdRoute = AdminUsersUserIdRouteImport.update({
+  id: '/users/$userId',
+  path: '/users/$userId',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminNewsNewRoute = AdminNewsNewRouteImport.update({
   id: '/news/new',
@@ -500,7 +506,6 @@ export interface FileRoutesByFullPath {
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/settings': typeof AdminSettingsRoute
-  '/admin/users': typeof AdminUsersRoute
   '/admin/utm-analytics': typeof AdminUtmAnalyticsRoute
   '/admin/vector-search': typeof AdminVectorSearchRoute
   '/admin/vectorization': typeof AdminVectorizationRoute
@@ -532,6 +537,7 @@ export interface FileRoutesByFullPath {
   '/admin/emails/waitlist': typeof AdminEmailsWaitlistRoute
   '/admin/launch-kits/tags': typeof AdminLaunchKitsTagsRoute
   '/admin/news/new': typeof AdminNewsNewRoute
+  '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/learn/$slug': typeof LearnSlugLayoutRouteWithChildren
   '/learn/$slug/edit': typeof LearnSlugEditRoute
@@ -540,6 +546,7 @@ export interface FileRoutesByFullPath {
   '/admin/emails/': typeof AdminEmailsIndexRoute
   '/admin/launch-kits': typeof AdminLaunchKitsIndexRoute
   '/admin/news': typeof AdminNewsIndexRoute
+  '/admin/users': typeof AdminUsersIndexRoute
   '/admin/blog/$id/edit': typeof AdminBlogIdEditRoute
   '/admin/launch-kits/edit/$id': typeof AdminLaunchKitsEditIdRoute
   '/admin/news/$id/edit': typeof AdminNewsIdEditRoute
@@ -576,7 +583,6 @@ export interface FileRoutesByTo {
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/settings': typeof AdminSettingsRoute
-  '/admin/users': typeof AdminUsersRoute
   '/admin/utm-analytics': typeof AdminUtmAnalyticsRoute
   '/admin/vector-search': typeof AdminVectorSearchRoute
   '/admin/vectorization': typeof AdminVectorizationRoute
@@ -608,6 +614,7 @@ export interface FileRoutesByTo {
   '/admin/emails/waitlist': typeof AdminEmailsWaitlistRoute
   '/admin/launch-kits/tags': typeof AdminLaunchKitsTagsRoute
   '/admin/news/new': typeof AdminNewsNewRoute
+  '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/learn/$slug/edit': typeof LearnSlugEditRoute
   '/admin/blog': typeof AdminBlogIndexRoute
@@ -615,6 +622,7 @@ export interface FileRoutesByTo {
   '/admin/emails': typeof AdminEmailsIndexRoute
   '/admin/launch-kits': typeof AdminLaunchKitsIndexRoute
   '/admin/news': typeof AdminNewsIndexRoute
+  '/admin/users': typeof AdminUsersIndexRoute
   '/admin/blog/$id/edit': typeof AdminBlogIdEditRoute
   '/admin/launch-kits/edit/$id': typeof AdminLaunchKitsEditIdRoute
   '/admin/news/$id/edit': typeof AdminNewsIdEditRoute
@@ -654,7 +662,6 @@ export interface FileRoutesById {
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/settings': typeof AdminSettingsRoute
-  '/admin/users': typeof AdminUsersRoute
   '/admin/utm-analytics': typeof AdminUtmAnalyticsRoute
   '/admin/vector-search': typeof AdminVectorSearchRoute
   '/admin/vectorization': typeof AdminVectorizationRoute
@@ -686,6 +693,7 @@ export interface FileRoutesById {
   '/admin/emails/waitlist': typeof AdminEmailsWaitlistRoute
   '/admin/launch-kits/tags': typeof AdminLaunchKitsTagsRoute
   '/admin/news/new': typeof AdminNewsNewRoute
+  '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
   '/learn/$slug/_layout': typeof LearnSlugLayoutRouteWithChildren
   '/learn/$slug/edit': typeof LearnSlugEditRoute
@@ -694,6 +702,7 @@ export interface FileRoutesById {
   '/admin/emails/': typeof AdminEmailsIndexRoute
   '/admin/launch-kits/': typeof AdminLaunchKitsIndexRoute
   '/admin/news/': typeof AdminNewsIndexRoute
+  '/admin/users/': typeof AdminUsersIndexRoute
   '/admin/blog/$id/edit': typeof AdminBlogIdEditRoute
   '/admin/launch-kits/edit/$id': typeof AdminLaunchKitsEditIdRoute
   '/admin/news/$id/edit': typeof AdminNewsIdEditRoute
@@ -734,7 +743,6 @@ export interface FileRouteTypes {
     | '/admin/analytics'
     | '/admin/comments'
     | '/admin/settings'
-    | '/admin/users'
     | '/admin/utm-analytics'
     | '/admin/vector-search'
     | '/admin/vectorization'
@@ -766,6 +774,7 @@ export interface FileRouteTypes {
     | '/admin/emails/waitlist'
     | '/admin/launch-kits/tags'
     | '/admin/news/new'
+    | '/admin/users/$userId'
     | '/api/stripe/webhook'
     | '/learn/$slug'
     | '/learn/$slug/edit'
@@ -774,6 +783,7 @@ export interface FileRouteTypes {
     | '/admin/emails/'
     | '/admin/launch-kits'
     | '/admin/news'
+    | '/admin/users'
     | '/admin/blog/$id/edit'
     | '/admin/launch-kits/edit/$id'
     | '/admin/news/$id/edit'
@@ -810,7 +820,6 @@ export interface FileRouteTypes {
     | '/admin/analytics'
     | '/admin/comments'
     | '/admin/settings'
-    | '/admin/users'
     | '/admin/utm-analytics'
     | '/admin/vector-search'
     | '/admin/vectorization'
@@ -842,6 +851,7 @@ export interface FileRouteTypes {
     | '/admin/emails/waitlist'
     | '/admin/launch-kits/tags'
     | '/admin/news/new'
+    | '/admin/users/$userId'
     | '/api/stripe/webhook'
     | '/learn/$slug/edit'
     | '/admin/blog'
@@ -849,6 +859,7 @@ export interface FileRouteTypes {
     | '/admin/emails'
     | '/admin/launch-kits'
     | '/admin/news'
+    | '/admin/users'
     | '/admin/blog/$id/edit'
     | '/admin/launch-kits/edit/$id'
     | '/admin/news/$id/edit'
@@ -887,7 +898,6 @@ export interface FileRouteTypes {
     | '/admin/analytics'
     | '/admin/comments'
     | '/admin/settings'
-    | '/admin/users'
     | '/admin/utm-analytics'
     | '/admin/vector-search'
     | '/admin/vectorization'
@@ -919,6 +929,7 @@ export interface FileRouteTypes {
     | '/admin/emails/waitlist'
     | '/admin/launch-kits/tags'
     | '/admin/news/new'
+    | '/admin/users/$userId'
     | '/api/stripe/webhook'
     | '/learn/$slug/_layout'
     | '/learn/$slug/edit'
@@ -927,6 +938,7 @@ export interface FileRouteTypes {
     | '/admin/emails/'
     | '/admin/launch-kits/'
     | '/admin/news/'
+    | '/admin/users/'
     | '/admin/blog/$id/edit'
     | '/admin/launch-kits/edit/$id'
     | '/admin/news/$id/edit'
@@ -1280,13 +1292,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUtmAnalyticsRouteImport
       parentRoute: typeof AdminRouteRoute
     }
-    '/admin/users': {
-      id: '/admin/users'
-      path: '/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AdminUsersRouteImport
-      parentRoute: typeof AdminRouteRoute
-    }
     '/admin/settings': {
       id: '/admin/settings'
       path: '/settings'
@@ -1327,6 +1332,13 @@ declare module '@tanstack/react-router' {
       path: '/conversions'
       fullPath: '/admin/conversions'
       preLoaderRoute: typeof AdminConversionsRouteRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/users/': {
+      id: '/admin/users/'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/news/': {
@@ -1384,6 +1396,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/stripe/webhook'
       preLoaderRoute: typeof ApiStripeWebhookRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/users/$userId': {
+      id: '/admin/users/$userId'
+      path: '/users/$userId'
+      fullPath: '/admin/users/$userId'
+      preLoaderRoute: typeof AdminUsersUserIdRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
     '/admin/news/new': {
       id: '/admin/news/new'
@@ -1568,7 +1587,6 @@ interface AdminRouteRouteChildren {
   AdminAnalyticsRoute: typeof AdminAnalyticsRoute
   AdminCommentsRoute: typeof AdminCommentsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
-  AdminUsersRoute: typeof AdminUsersRoute
   AdminUtmAnalyticsRoute: typeof AdminUtmAnalyticsRoute
   AdminVectorSearchRoute: typeof AdminVectorSearchRoute
   AdminVectorizationRoute: typeof AdminVectorizationRoute
@@ -1576,9 +1594,11 @@ interface AdminRouteRouteChildren {
   AdminBlogNewRoute: typeof AdminBlogNewRoute
   AdminLaunchKitsTagsRoute: typeof AdminLaunchKitsTagsRoute
   AdminNewsNewRoute: typeof AdminNewsNewRoute
+  AdminUsersUserIdRoute: typeof AdminUsersUserIdRoute
   AdminBlogIndexRoute: typeof AdminBlogIndexRoute
   AdminLaunchKitsIndexRoute: typeof AdminLaunchKitsIndexRoute
   AdminNewsIndexRoute: typeof AdminNewsIndexRoute
+  AdminUsersIndexRoute: typeof AdminUsersIndexRoute
   AdminBlogIdEditRoute: typeof AdminBlogIdEditRoute
   AdminLaunchKitsEditIdRoute: typeof AdminLaunchKitsEditIdRoute
   AdminNewsIdEditRoute: typeof AdminNewsIdEditRoute
@@ -1592,7 +1612,6 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminAnalyticsRoute: AdminAnalyticsRoute,
   AdminCommentsRoute: AdminCommentsRoute,
   AdminSettingsRoute: AdminSettingsRoute,
-  AdminUsersRoute: AdminUsersRoute,
   AdminUtmAnalyticsRoute: AdminUtmAnalyticsRoute,
   AdminVectorSearchRoute: AdminVectorSearchRoute,
   AdminVectorizationRoute: AdminVectorizationRoute,
@@ -1600,9 +1619,11 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminBlogNewRoute: AdminBlogNewRoute,
   AdminLaunchKitsTagsRoute: AdminLaunchKitsTagsRoute,
   AdminNewsNewRoute: AdminNewsNewRoute,
+  AdminUsersUserIdRoute: AdminUsersUserIdRoute,
   AdminBlogIndexRoute: AdminBlogIndexRoute,
   AdminLaunchKitsIndexRoute: AdminLaunchKitsIndexRoute,
   AdminNewsIndexRoute: AdminNewsIndexRoute,
+  AdminUsersIndexRoute: AdminUsersIndexRoute,
   AdminBlogIdEditRoute: AdminBlogIdEditRoute,
   AdminLaunchKitsEditIdRoute: AdminLaunchKitsEditIdRoute,
   AdminNewsIdEditRoute: AdminNewsIdEditRoute,

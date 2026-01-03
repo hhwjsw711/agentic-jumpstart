@@ -183,6 +183,16 @@ export async function getAllUsersWithProfiles() {
   return usersWithProfiles;
 }
 
+// Get a single user with profile for admin detail view
+export async function getUserWithProfileById(userId: UserId) {
+  return database.query.users.findFirst({
+    where: eq(users.id, userId),
+    with: {
+      profile: true,
+    },
+  });
+}
+
 // Get combined count of all users + newsletter/waitlist subscribers (deduplicated by email)
 export async function getEveryoneForEmailingCount(): Promise<number> {
   const recipients = new Set<string>();
