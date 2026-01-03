@@ -838,6 +838,17 @@ export const attachmentsRelations = relations(attachments, ({ one }) => ({
   }),
 }));
 
+export const progressRelations = relations(progress, ({ one }) => ({
+  user: one(users, {
+    fields: [progress.userId],
+    references: [users.id],
+  }),
+  segment: one(segments, {
+    fields: [progress.segmentId],
+    references: [segments.id],
+  }),
+}));
+
 export const affiliatesRelations = relations(affiliates, ({ one, many }) => ({
   user: one(users, {
     fields: [affiliates.userId],
@@ -1008,6 +1019,28 @@ export const blogPostViews = tableCreator(
   ]
 );
 
+export const videoDownloads = tableCreator(
+  "video_download",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    segmentId: integer("segmentId")
+      .notNull()
+      .references(() => segments.id, { onDelete: "cascade" }),
+    ipAddressHash: text("ipAddressHash"),
+    userAgent: text("userAgent"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("video_downloads_user_idx").on(table.userId),
+    index("video_downloads_segment_idx").on(table.segmentId),
+    index("video_downloads_created_idx").on(table.createdAt),
+    index("video_downloads_user_segment_idx").on(table.userId, table.segmentId),
+  ]
+);
+
 export const unsubscribeTokensRelations = relations(
   unsubscribeTokens,
   ({ one }) => ({
@@ -1131,6 +1164,17 @@ export const appLaunchKitCategories = relations(
   })
 );
 
+export const videoDownloadsRelations = relations(videoDownloads, ({ one }) => ({
+  user: one(users, {
+    fields: [videoDownloads.userId],
+    references: [users.id],
+  }),
+  segment: one(segments, {
+    fields: [videoDownloads.segmentId],
+    references: [segments.id],
+  }),
+}));
+
 export type User = typeof users.$inferSelect;
 export type Profile = typeof profiles.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
@@ -1206,3 +1250,5 @@ export type LaunchKitAnalytics = typeof launchKitAnalytics.$inferSelect;
 export type LaunchKitAnalyticsCreate = typeof launchKitAnalytics.$inferInsert;
 export type TranscriptChunk = typeof transcriptChunks.$inferSelect;
 export type TranscriptChunkCreate = typeof transcriptChunks.$inferInsert;
+export type VideoDownload = typeof videoDownloads.$inferSelect;
+export type VideoDownloadCreate = typeof videoDownloads.$inferInsert;

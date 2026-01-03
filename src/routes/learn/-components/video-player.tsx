@@ -7,12 +7,13 @@ import { getSegmentByIdUseCase } from "~/use-cases/segments";
 import { getAuthenticatedUser } from "~/utils/auth";
 import { getStorage } from "~/utils/storage";
 import type { IStorage } from "~/utils/storage/storage.interface";
-import { Play, Loader2, Settings } from "lucide-react";
+import { Play, Loader2, Settings, Download } from "lucide-react";
 import ReactPlayer from "react-player";
 import {
   getAvailableQualitiesFn,
   getThumbnailUrlFn,
 } from "~/fn/video-transcoding";
+import { trackVideoDownloadFn } from "~/fn/video-downloads";
 import { unauthenticatedMiddleware } from "~/lib/auth";
 import {
   DropdownMenu,
@@ -139,6 +140,7 @@ interface VideoPlayerProps {
   videoKey: string;
   initialThumbnailUrl?: string | null;
   onAutoComplete?: () => void;
+  autoPlay?: boolean;
 }
 
 export function VideoPlayer({
@@ -146,6 +148,7 @@ export function VideoPlayer({
   videoKey,
   initialThumbnailUrl,
   onAutoComplete,
+  autoPlay = false,
 }: VideoPlayerProps) {
   const [isClient, setIsClient] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -155,15 +158,17 @@ export function VideoPlayer({
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(
     initialThumbnailUrl || null
   );
-  const [playing, setPlaying] = useState(false);
+  const [playing, setPlaying] = useState(autoPlay);
   const [isReady, setIsReady] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [volume, setVolume] = useState(() => getStoredVolume());
   const [muted, setMuted] = useState(() => getStoredMuted());
   const [hasAutoCompleted, setHasAutoCompleted] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const getAvailableQualities = useServerFn(getAvailableQualitiesFn);
   const getThumbnailUrl = useServerFn(getThumbnailUrlFn);
+  const trackDownload = useServerFn(trackVideoDownloadFn);
 
   const getVideoElement = () => {
     const container = containerRef.current;
@@ -343,6 +348,17 @@ export function VideoPlayer({
     };
   }, [isReady, volume, muted]);
 
+  // Disable native download option in video controls
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || !isReady) return;
+
+    const videoElement = container.querySelector("video") as HTMLVideoElement | null;
+    if (!videoElement) return;
+
+    videoElement.setAttribute("controlsList", "nodownload");
+  }, [isReady]);
+
   // Handle space bar to toggle play/pause when video player has focus
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -459,6 +475,43 @@ export function VideoPlayer({
     containerRef.current?.focus();
   };
 
+  const handleDownload = async () => {
+    if (isDownloading || !currentVideoUrl) return;
+
+    setIsDownloading(true);
+    console.log("[VideoPlayer] Download button clicked for segment:", segmentId);
+
+    try {
+      // Track the download first
+      const result = await trackDownload({ data: { segmentId } });
+      console.log("[VideoPlayer] Download tracked successfully:", result);
+    } catch (error) {
+      console.error("[VideoPlayer] Failed to track download:", error);
+      // Continue with download even if tracking fails
+    }
+
+    try {
+      // Fetch the video as a blob to bypass cross-origin download restrictions
+      const response = await fetch(currentVideoUrl);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = `video-${segmentId}.mp4`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Clean up the blob URL
+      URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("[VideoPlayer] Failed to download video:", error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
     // Focus container when clicked (but not if clicking on interactive elements)
     const target = e.target as HTMLElement;
@@ -563,8 +616,26 @@ export function VideoPlayer({
           </div>
         </div>
       )}
-      {qualityOptions.length > 1 && (
-        <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+        {/* Download button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDownload();
+          }}
+          disabled={isDownloading}
+          className="flex items-center gap-2 px-3 py-2 bg-background/90 backdrop-blur-sm border border-border/50 rounded-md text-sm hover:bg-background transition-colors disabled:opacity-50"
+          aria-label="Download video"
+        >
+          {isDownloading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Download className="h-4 w-4" />
+          )}
+        </button>
+
+        {/* Quality selector */}
+        {qualityOptions.length > 1 && (
           <DropdownMenu
             open={showQualityMenu}
             onOpenChange={setShowQualityMenu}
@@ -597,8 +668,8 @@ export function VideoPlayer({
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

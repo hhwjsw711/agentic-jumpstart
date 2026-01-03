@@ -1,7 +1,11 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, desc } from "drizzle-orm";
 import { progress, Progress } from "~/db/schema";
 import { UserId } from "~/use-cases/types";
 import { database } from "~/db";
+
+export type ProgressWithDetails = Awaited<
+  ReturnType<typeof getProgressWithDetailsForUser>
+>[number];
 
 export async function getProgress(
   userId: UserId,
@@ -33,4 +37,30 @@ export async function unmarkAsWatched(
   await database
     .delete(progress)
     .where(and(eq(progress.segmentId, segmentId), eq(progress.userId, userId)));
+}
+
+export async function getProgressWithDetailsForUser(userId: UserId) {
+  return database.query.progress.findMany({
+    where: eq(progress.userId, userId),
+    with: {
+      segment: {
+        columns: {
+          id: true,
+          title: true,
+          slug: true,
+          isPremium: true,
+          length: true,
+        },
+        with: {
+          module: {
+            columns: {
+              id: true,
+              title: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: [desc(progress.createdAt)],
+  });
 }

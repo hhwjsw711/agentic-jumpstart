@@ -6,11 +6,11 @@ interface NewsletterFormProps {
 }
 
 export function NewsletterForm({ showStats = true }: NewsletterFormProps) {
-  const { email, setEmail, isSubmitted, isLoading, handleSubmit } =
+  const { email, setEmail, isSubmitted, isLoading, handleSubmit, containerRef } =
     useNewsletterSubscription();
 
   return (
-    <>
+    <div ref={containerRef}>
       {isSubmitted ? (
         <div className="relative">
             {/* Success card with glass morphism */}
@@ -172,6 +172,6 @@ export function NewsletterForm({ showStats = true }: NewsletterFormProps) {
             </div>
           </div>
       )}
-    </>
+    </div>
   );
 }

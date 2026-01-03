@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { publicEnv } from "~/utils/env-public";
 import { subscribeToNewsletterFn } from "~/fn/newsletter";
 
@@ -13,17 +13,37 @@ export function useNewsletterSubscription() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scriptRef = useRef<HTMLScriptElement | null>(null);
 
+  // Lazy load reCAPTCHA when element scrolls into view
   useEffect(() => {
-    const script = document.createElement("script");
-    script.src = `https://www.google.com/recaptcha/api.js?render=${publicEnv.VITE_RECAPTCHA_KEY}`;
-    script.async = true;
-    document.head.appendChild(script);
+    const container = containerRef.current;
+    if (!container || recaptchaLoaded) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && !scriptRef.current) {
+          const script = document.createElement("script");
+          script.src = `https://www.google.com/recaptcha/api.js?render=${publicEnv.VITE_RECAPTCHA_KEY}`;
+          script.async = true;
+          script.onload = () => setRecaptchaLoaded(true);
+          document.head.appendChild(script);
+          scriptRef.current = script;
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" } // Start loading slightly before it's visible
+    );
+
+    observer.observe(container);
 
     return () => {
-      document.head.removeChild(script);
+      observer.disconnect();
     };
-  }, []);
+  }, [recaptchaLoaded]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,5 +89,6 @@ export function useNewsletterSubscription() {
     isLoading,
     error,
     handleSubmit,
+    containerRef,
   };
 }

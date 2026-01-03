@@ -123,3 +123,30 @@ export async function deleteCommentAsAdmin(commentId: number) {
   await database.delete(comments).where(eq(comments.id, commentId));
   return { success: true };
 }
+
+export type UserCommentsWithDetails = Awaited<
+  ReturnType<typeof getCommentsForUser>
+>;
+
+export async function getCommentsForUser(userId: number) {
+  const results = await database.query.comments.findMany({
+    where: eq(comments.userId, userId),
+    with: {
+      segment: {
+        columns: {
+          id: true,
+          title: true,
+          slug: true,
+        },
+      },
+      children: {
+        with: {
+          profile: true,
+        },
+      },
+    },
+    orderBy: [desc(comments.createdAt)],
+  });
+
+  return results;
+}

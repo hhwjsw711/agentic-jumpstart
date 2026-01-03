@@ -4,7 +4,7 @@ import { cn } from "~/lib/utils";
 
 interface HeaderStatCardProps {
   icon: LucideIcon;
-  iconColor?: "blue" | "yellow" | "green" | "purple" | "orange" | "theme";
+  iconColor?: "blue" | "yellow" | "green" | "purple" | "orange" | "theme" | "red" | "cyan";
   value: ReactNode;
   label: string;
   subValue?: ReactNode;
@@ -31,6 +31,8 @@ export function HeaderStatCard({
       "bg-orange-500/10 dark:bg-orange-400/20 text-orange-500 dark:text-orange-400",
     theme:
       "bg-theme-500/10 dark:bg-theme-400/20 text-theme-500 dark:text-theme-400",
+    red: "bg-red-500/10 dark:bg-red-400/20 text-red-500 dark:text-red-400",
+    cyan: "bg-cyan-500/10 dark:bg-cyan-400/20 text-cyan-500 dark:text-cyan-400",
   };
 
   const textColorClasses = {
@@ -40,6 +42,8 @@ export function HeaderStatCard({
     purple: "text-purple-500 dark:text-purple-400",
     orange: "text-orange-500 dark:text-orange-400",
     theme: "text-theme-500 dark:text-theme-400",
+    red: "text-red-500 dark:text-red-400",
+    cyan: "text-cyan-500 dark:text-cyan-400",
   };
 
   return (

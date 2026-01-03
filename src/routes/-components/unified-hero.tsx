@@ -2,7 +2,7 @@ import { Button, buttonVariants } from "~/components/ui/button";
 import { Link } from "@tanstack/react-router";
 import { useContinueSlug } from "~/hooks/use-continue-slug";
 import { createServerFn } from "@tanstack/react-start";
-import { VideoPlayer } from "~/routes/learn/-components/video-player";
+import { LazyVideoPlayer } from "./lazy-video-player";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, ShoppingCart, CheckCircle2 } from "lucide-react";
 import { NewsletterForm } from "./newsletter-form";
@@ -207,10 +207,10 @@ export function UnifiedHero({
                   >
                     <div className="video-wrapper aspect-video relative rounded-xl overflow-hidden">
                       {firstVideoSegment ? (
-                        <VideoPlayer
+                        <LazyVideoPlayer
                           segmentId={firstVideoSegment.id}
                           videoKey={firstVideoSegment.videoKey!}
-                          initialThumbnailUrl={thumbnailUrl}
+                          thumbnailUrl={thumbnailUrl}
                         />
                       ) : (
                         /* Placeholder that matches video dimensions to prevent layout shift */

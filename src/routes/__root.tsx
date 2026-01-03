@@ -79,6 +79,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         }),
       ],
       links: [
+        // Preconnect to Google Fonts for faster font loading
+        { rel: "preconnect", href: "https://fonts.googleapis.com" },
+        {
+          rel: "preconnect",
+          href: "https://fonts.gstatic.com",
+          crossOrigin: "anonymous",
+        },
+        // Preload CSS for faster discovery
+        { rel: "preload", href: appCss, as: "style" },
         { rel: "stylesheet", href: appCss },
         {
           rel: "apple-touch-icon",
@@ -186,6 +195,25 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     <html className="font-inter" suppressHydrationWarning>
       <head>
         <HeadContent />
+        {/* Non-blocking font loading - loads fonts after initial render */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                var fonts = [
+                  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
+                  'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap'
+                ];
+                fonts.forEach(function(href) {
+                  var link = document.createElement('link');
+                  link.rel = 'stylesheet';
+                  link.href = href;
+                  document.head.appendChild(link);
+                });
+              })();
+            `,
+          }}
+        />
         {/* Google tag (gtag.js) */}
         <script
           dangerouslySetInnerHTML={{
