@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { ragChatFn } from "~/fn/rag-chat";
 import type { VideoSource, ConversationMessage } from "~/use-cases/rag-chat";
@@ -56,6 +56,11 @@ export function useRagChat(): UseRagChatReturn {
   const [currentSources, setCurrentSources] = useState<VideoSource[]>(() =>
     loadFromStorage<VideoSource[]>(SOURCES_STORAGE_KEY, [])
   );
+  const messagesRef = useRef<ConversationMessage[]>(messages);
+
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
 
   useEffect(() => {
     saveToStorage(STORAGE_KEY, messages);
@@ -70,7 +75,7 @@ export function useRagChat(): UseRagChatReturn {
       const result = await ragChatFn({
         data: {
           userMessage,
-          conversationHistory: messages,
+          conversationHistory: messagesRef.current,
         },
       });
       return result;
@@ -82,7 +87,11 @@ export function useRagChat(): UseRagChatReturn {
         content: userMessage,
         timestamp: new Date().toISOString(),
       };
-      setMessages((prev) => [...prev, userMsg]);
+      setMessages((prev) => {
+        const newMessages = [...prev, userMsg];
+        messagesRef.current = newMessages;
+        return newMessages;
+      });
       setCurrentSources([]);
     },
     onSuccess: (result) => {
