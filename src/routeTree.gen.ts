@@ -20,6 +20,7 @@ import { Route as PurchaseRouteImport } from './routes/purchase'
 import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as MembersRouteImport } from './routes/members'
+import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HealthRouteImport } from './routes/health'
 import { Route as DevLoginRouteImport } from './routes/dev-login'
@@ -140,6 +141,11 @@ const NewsRoute = NewsRouteImport.update({
 const MembersRoute = MembersRouteImport.update({
   id: '/members',
   path: '/members',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketplaceRoute = MarketplaceRouteImport.update({
+  id: '/marketplace',
+  path: '/marketplace',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -489,6 +495,7 @@ export interface FileRoutesByFullPath {
   '/dev-login': typeof DevLoginRoute
   '/health': typeof HealthRoute
   '/login': typeof LoginRoute
+  '/marketplace': typeof MarketplaceRoute
   '/members': typeof MembersRoute
   '/news': typeof NewsRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
@@ -568,6 +575,7 @@ export interface FileRoutesByTo {
   '/dev-login': typeof DevLoginRoute
   '/health': typeof HealthRoute
   '/login': typeof LoginRoute
+  '/marketplace': typeof MarketplaceRoute
   '/members': typeof MembersRoute
   '/news': typeof NewsRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
@@ -645,6 +653,7 @@ export interface FileRoutesById {
   '/dev-login': typeof DevLoginRoute
   '/health': typeof HealthRoute
   '/login': typeof LoginRoute
+  '/marketplace': typeof MarketplaceRoute
   '/members': typeof MembersRoute
   '/news': typeof NewsRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
@@ -726,6 +735,7 @@ export interface FileRouteTypes {
     | '/dev-login'
     | '/health'
     | '/login'
+    | '/marketplace'
     | '/members'
     | '/news'
     | '/privacy-policy'
@@ -805,6 +815,7 @@ export interface FileRouteTypes {
     | '/dev-login'
     | '/health'
     | '/login'
+    | '/marketplace'
     | '/members'
     | '/news'
     | '/privacy-policy'
@@ -881,6 +892,7 @@ export interface FileRouteTypes {
     | '/dev-login'
     | '/health'
     | '/login'
+    | '/marketplace'
     | '/members'
     | '/news'
     | '/privacy-policy'
@@ -961,6 +973,7 @@ export interface RootRouteChildren {
   DevLoginRoute: typeof DevLoginRoute
   HealthRoute: typeof HealthRoute
   LoginRoute: typeof LoginRoute
+  MarketplaceRoute: typeof MarketplaceRoute
   MembersRoute: typeof MembersRoute
   NewsRoute: typeof NewsRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
@@ -1073,6 +1086,13 @@ declare module '@tanstack/react-router' {
       path: '/members'
       fullPath: '/members'
       preLoaderRoute: typeof MembersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketplace': {
+      id: '/marketplace'
+      path: '/marketplace'
+      fullPath: '/marketplace'
+      preLoaderRoute: typeof MarketplaceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1658,6 +1678,7 @@ const rootRouteChildren: RootRouteChildren = {
   DevLoginRoute: DevLoginRoute,
   HealthRoute: HealthRoute,
   LoginRoute: LoginRoute,
+  MarketplaceRoute: MarketplaceRoute,
   MembersRoute: MembersRoute,
   NewsRoute: NewsRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
