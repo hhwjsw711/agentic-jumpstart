@@ -22,6 +22,7 @@ import {
   MessageSquare,
   Link2,
   ShieldCheck,
+  Store,
 } from "lucide-react";
 import {
   Sheet,
@@ -177,6 +178,12 @@ const NAVIGATION_LINKS: NavLink[] = [
       !user.isAdmin &&
       !affiliateStatus?.isAffiliate &&
       !!affiliatesFeatureEnabled,
+    category: "resources",
+  },
+  {
+    to: "/marketplace",
+    label: "Marketplace",
+    icon: Store,
     category: "resources",
   },
 ];
