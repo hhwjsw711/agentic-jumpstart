@@ -24,6 +24,7 @@ import { VideoContentTabsPanel } from "./-components/video-content-tabs-panel";
 import { UpgradePlaceholder } from "./-components/upgrade-placeholder";
 import { isFeatureEnabledForUserFn } from "~/fn/app-settings";
 import { GlassPanel } from "~/components/ui/glass-panel";
+import { getAuthenticatedUser } from "~/utils/auth";
 
 export const Route = createFileRoute("/learn/$slug/_layout/")({
   component: RouteComponent,
@@ -80,15 +81,47 @@ export const Route = createFileRoute("/learn/$slug/_layout/")({
   },
 });
 
+/**
+ * Helper function to strip premium content from a segment.
+ * This protects paid content (transcripts, summary, content) from being
+ * exposed to users who haven't purchased access.
+ */
+function stripPremiumContent(segment: Segment): Segment {
+  return {
+    ...segment,
+    content: null,
+    transcripts: null,
+    summary: null,
+  };
+}
+
 export const getSegmentInfoFn = createServerFn()
   .middleware([unauthenticatedMiddleware])
   .inputValidator(z.object({ slug: z.string() }))
   .handler(async ({ data, context }) => {
     const segment = await getSegmentBySlugUseCase(data.slug);
-    const [segments, progress] = await Promise.all([
+    const [allSegments, progress, user] = await Promise.all([
       getSegments(),
       context.userId ? getAllProgressForUserUseCase(context.userId) : [],
+      getAuthenticatedUser(),
     ]);
+
+    // Determine if user has premium access
+    const hasPremiumAccess = user?.isPremium || user?.isAdmin || false;
+
+    // Strip premium content from segments if user doesn't have access
+    // This protects paid transcripts, summaries, and lesson content
+    const segments = allSegments.map((seg) => {
+      if (seg.isPremium && !hasPremiumAccess) {
+        return stripPremiumContent(seg);
+      }
+      return seg;
+    });
+
+    // Also strip content from the current segment if it's premium and user lacks access
+    const processedSegment = segment && segment.isPremium && !hasPremiumAccess
+      ? stripPremiumContent(segment)
+      : segment;
 
     // Get thumbnail URL server-side if available
     let thumbnailUrl: string | null = null;
@@ -104,7 +137,7 @@ export const getSegmentInfoFn = createServerFn()
       }
     }
 
-    return { segment, segments, progress, thumbnailUrl };
+    return { segment: processedSegment, segments, progress, thumbnailUrl };
   });
 
 function ViewSegment({
@@ -265,6 +298,7 @@ function ViewSegment({
             commentId={commentId}
             showContentTabs={showContentTabs}
             isAdmin={isAdmin}
+            isPremiumUser={isPremium}
           />
         )}
       </div>

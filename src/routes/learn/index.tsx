@@ -16,11 +16,41 @@ import {
   Search,
   LayoutGrid,
 } from "lucide-react";
+import { getAuthenticatedUser } from "~/utils/auth";
+import type { Segment } from "~/db/schema";
+
+/**
+ * Helper function to strip premium content from a segment.
+ * This protects paid content (transcripts, summary, content) from being
+ * exposed to users who haven't purchased access.
+ */
+function stripPremiumContent(segment: Segment): Segment {
+  return {
+    ...segment,
+    content: null,
+    transcripts: null,
+    summary: null,
+  };
+}
 
 const getSegmentsFn = createServerFn()
   .middleware([unauthenticatedMiddleware])
   .handler(async () => {
-    return await getSegments();
+    const [segments, user] = await Promise.all([
+      getSegments(),
+      getAuthenticatedUser(),
+    ]);
+
+    // Determine if user has premium access
+    const hasPremiumAccess = user?.isPremium || user?.isAdmin || false;
+
+    // Strip premium content from segments if user doesn't have access
+    return segments.map((segment) => {
+      if (segment.isPremium && !hasPremiumAccess) {
+        return stripPremiumContent(segment);
+      }
+      return segment;
+    });
   });
 
 export const Route = createFileRoute("/learn/")({

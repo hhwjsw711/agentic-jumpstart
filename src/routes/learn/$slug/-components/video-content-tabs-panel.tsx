@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { FileText, MessageSquare, BookOpen } from "lucide-react";
+import { FileText, MessageSquare, BookOpen, Lock, ArrowRight } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { cn } from "~/lib/utils";
 import { type Segment } from "~/db/schema";
 import { ContentPanel } from "./content-panel";
 import { CommentsPanel } from "./comments-panel";
 import { EditableContent } from "./editable-content";
 import { GlassPanel } from "~/components/ui/glass-panel";
+import { buttonVariants } from "~/components/ui/button";
 
 type TabType = "summary" | "content" | "transcripts" | "comments";
 
@@ -16,6 +18,39 @@ interface VideoContentTabsPanelProps {
   commentId?: number;
   isAdmin?: boolean;
   showContentTabs: boolean;
+  isPremiumUser?: boolean;
+}
+
+/**
+ * Placeholder shown when premium content is restricted.
+ * Displays an upgrade prompt for users without premium access.
+ */
+function ContentUpgradePlaceholder({ contentType }: { contentType: string }) {
+  return (
+    <div className="text-center py-12 space-y-6">
+      <div className="flex items-center justify-center">
+        <div className="p-4 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/50 dark:to-orange-900/50">
+          <Lock className="h-8 w-8 text-amber-600 dark:text-amber-400" />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold text-foreground">
+          Premium Content
+        </h3>
+        <p className="text-muted-foreground max-w-md mx-auto">
+          The {contentType} for this lesson is available to premium members.
+          Upgrade to access all course materials including transcripts, summaries, and lesson content.
+        </p>
+      </div>
+      <Link
+        to="/purchase"
+        className={cn(buttonVariants({ variant: "default" }), "w-fit")}
+      >
+        Upgrade to Premium
+        <ArrowRight className="ml-2 h-4 w-4" />
+      </Link>
+    </div>
+  );
 }
 
 export function VideoContentTabsPanel({
@@ -25,7 +60,10 @@ export function VideoContentTabsPanel({
   commentId,
   isAdmin,
   showContentTabs,
+  isPremiumUser,
 }: VideoContentTabsPanelProps) {
+  // Determine if this is a premium segment that the user doesn't have access to
+  const isRestrictedPremiumContent = currentSegment.isPremium && !isPremiumUser && !isAdmin;
   // Default to summary tab, fall back to comments if content tabs are disabled and trying to access content
   const effectiveDefaultTab =
     !showContentTabs && defaultTab === "content"
@@ -105,42 +143,62 @@ export function VideoContentTabsPanel({
       {/* Tab Content */}
       <div className="p-6 min-h-96">
         {activeTab === "summary" && (
-          <EditableContent
-            segmentId={currentSegment.id}
-            field="summary"
-            content={currentSegment.summary}
-            isAdmin={isAdmin ?? false}
-            emptyMessage="No summary available for this segment."
-            emptyIcon={
-              <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            }
-          />
+          // Show upgrade placeholder if user doesn't have premium access to this premium segment
+          isRestrictedPremiumContent ? (
+            <ContentUpgradePlaceholder contentType="summary" />
+          ) : (
+            <EditableContent
+              segmentId={currentSegment.id}
+              field="summary"
+              content={currentSegment.summary}
+              isAdmin={isAdmin ?? false}
+              emptyMessage="No summary available for this segment."
+              emptyIcon={
+                <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              }
+            />
+          )
         )}
 
         {showContentTabs && activeTab === "content" && (
-          <ContentPanel currentSegment={currentSegment} isAdmin={isAdmin} />
+          // Show upgrade placeholder if user doesn't have premium access to this premium segment
+          isRestrictedPremiumContent ? (
+            <ContentUpgradePlaceholder contentType="lesson content" />
+          ) : (
+            <ContentPanel currentSegment={currentSegment} isAdmin={isAdmin} />
+          )
         )}
 
         {activeTab === "transcripts" && (
-          <EditableContent
-            segmentId={currentSegment.id}
-            field="transcripts"
-            content={currentSegment.transcripts}
-            isAdmin={isAdmin ?? false}
-            emptyMessage="No transcripts available for this segment."
-            emptyIcon={
-              <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            }
-          />
+          // Show upgrade placeholder if user doesn't have premium access to this premium segment
+          isRestrictedPremiumContent ? (
+            <ContentUpgradePlaceholder contentType="transcript" />
+          ) : (
+            <EditableContent
+              segmentId={currentSegment.id}
+              field="transcripts"
+              content={currentSegment.transcripts}
+              isAdmin={isAdmin ?? false}
+              emptyMessage="No transcripts available for this segment."
+              emptyIcon={
+                <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              }
+            />
+          )
         )}
 
         {activeTab === "comments" && (
-          <CommentsPanel
-            currentSegmentId={currentSegment.id}
-            isLoggedIn={isLoggedIn}
-            activeTab={activeTab}
-            commentId={commentId}
-          />
+          // Show upgrade placeholder if user doesn't have premium access to this premium segment
+          isRestrictedPremiumContent ? (
+            <ContentUpgradePlaceholder contentType="discussion" />
+          ) : (
+            <CommentsPanel
+              currentSegmentId={currentSegment.id}
+              isLoggedIn={isLoggedIn}
+              activeTab={activeTab}
+              commentId={commentId}
+            />
+          )
         )}
       </div>
     </GlassPanel>
