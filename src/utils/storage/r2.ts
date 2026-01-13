@@ -92,7 +92,7 @@ export class R2Storage implements IStorage {
         Bucket: this.bucket,
         Key: key,
       }),
-      { expiresIn: 60 * 60 } // 1 hour
+      { expiresIn: 60 * 60 * 24 * 2 } // 2 days
     );
   }
 
