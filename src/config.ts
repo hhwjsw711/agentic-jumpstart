@@ -33,6 +33,12 @@ export const APP_SETTING_KEYS = {
   AFFILIATE_COMMISSION_RATE: "AFFILIATE_COMMISSION_RATE",
 } as const;
 
+// Course/product metadata shown on invoices and purchase pages
+export const COURSE_CONFIG = {
+  NAME: "Agentic Coding Mastery Course",
+  DESCRIPTION: "Lifetime access - AI-first development training",
+} as const;
+
 // Company information for marketing emails
 export const COMPANY_ADDRESS = {
   NAME: "Seibert Software Solutions, LLC",

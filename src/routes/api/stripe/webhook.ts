@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { stripe } from "~/lib/stripe";
 import { updateUserToPremiumUseCase } from "~/use-cases/users";
 import { processAffiliateReferralUseCase } from "~/use-cases/affiliates";
+import { recordPurchaseFromSessionUseCase } from "~/use-cases/purchases";
 import { env } from "~/utils/env";
 import { trackAnalyticsEvent } from "~/data-access/analytics";
 
@@ -71,6 +72,24 @@ export const Route = createFileRoute("/api/stripe/webhook")({
               if (userId) {
                 await updateUserToPremiumUseCase(parseInt(userId));
                 console.log(`Updated user ${userId} to premium status`);
+
+                // Record the purchase so the user can view their invoice/receipt
+                try {
+                  const sessionWithLineItems =
+                    await stripe.checkout.sessions.retrieve(session.id, {
+                      expand: ["line_items"],
+                    });
+                  await recordPurchaseFromSessionUseCase(sessionWithLineItems);
+                  console.log(
+                    `Recorded purchase for user ${userId}, session ${session.id}`
+                  );
+                } catch (error) {
+                  console.error(
+                    `Failed to record purchase for user ${userId}, session ${session.id}:`,
+                    error
+                  );
+                  // Don't fail the webhook - upgrade should still succeed
+                }
 
                 // Track purchase completion in analytics
                 if (analyticsSessionId) {

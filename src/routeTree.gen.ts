@@ -22,6 +22,7 @@ import { Route as NewsRouteImport } from './routes/news'
 import { Route as MembersRouteImport } from './routes/members'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as InvoiceRouteImport } from './routes/invoice'
 import { Route as HealthRouteImport } from './routes/health'
 import { Route as DevLoginRouteImport } from './routes/dev-login'
 import { Route as CreateTestimonialRouteImport } from './routes/create-testimonial'
@@ -151,6 +152,11 @@ const MarketplaceRoute = MarketplaceRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvoiceRoute = InvoiceRouteImport.update({
+  id: '/invoice',
+  path: '/invoice',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HealthRoute = HealthRouteImport.update({
@@ -494,6 +500,7 @@ export interface FileRoutesByFullPath {
   '/create-testimonial': typeof CreateTestimonialRoute
   '/dev-login': typeof DevLoginRoute
   '/health': typeof HealthRoute
+  '/invoice': typeof InvoiceRoute
   '/login': typeof LoginRoute
   '/marketplace': typeof MarketplaceRoute
   '/members': typeof MembersRoute
@@ -574,6 +581,7 @@ export interface FileRoutesByTo {
   '/create-testimonial': typeof CreateTestimonialRoute
   '/dev-login': typeof DevLoginRoute
   '/health': typeof HealthRoute
+  '/invoice': typeof InvoiceRoute
   '/login': typeof LoginRoute
   '/marketplace': typeof MarketplaceRoute
   '/members': typeof MembersRoute
@@ -652,6 +660,7 @@ export interface FileRoutesById {
   '/create-testimonial': typeof CreateTestimonialRoute
   '/dev-login': typeof DevLoginRoute
   '/health': typeof HealthRoute
+  '/invoice': typeof InvoiceRoute
   '/login': typeof LoginRoute
   '/marketplace': typeof MarketplaceRoute
   '/members': typeof MembersRoute
@@ -734,6 +743,7 @@ export interface FileRouteTypes {
     | '/create-testimonial'
     | '/dev-login'
     | '/health'
+    | '/invoice'
     | '/login'
     | '/marketplace'
     | '/members'
@@ -814,6 +824,7 @@ export interface FileRouteTypes {
     | '/create-testimonial'
     | '/dev-login'
     | '/health'
+    | '/invoice'
     | '/login'
     | '/marketplace'
     | '/members'
@@ -891,6 +902,7 @@ export interface FileRouteTypes {
     | '/create-testimonial'
     | '/dev-login'
     | '/health'
+    | '/invoice'
     | '/login'
     | '/marketplace'
     | '/members'
@@ -972,6 +984,7 @@ export interface RootRouteChildren {
   CreateTestimonialRoute: typeof CreateTestimonialRoute
   DevLoginRoute: typeof DevLoginRoute
   HealthRoute: typeof HealthRoute
+  InvoiceRoute: typeof InvoiceRoute
   LoginRoute: typeof LoginRoute
   MarketplaceRoute: typeof MarketplaceRoute
   MembersRoute: typeof MembersRoute
@@ -1100,6 +1113,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invoice': {
+      id: '/invoice'
+      path: '/invoice'
+      fullPath: '/invoice'
+      preLoaderRoute: typeof InvoiceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/health': {
@@ -1677,6 +1697,7 @@ const rootRouteChildren: RootRouteChildren = {
   CreateTestimonialRoute: CreateTestimonialRoute,
   DevLoginRoute: DevLoginRoute,
   HealthRoute: HealthRoute,
+  InvoiceRoute: InvoiceRoute,
   LoginRoute: LoginRoute,
   MarketplaceRoute: MarketplaceRoute,
   MembersRoute: MembersRoute,

@@ -357,6 +357,29 @@ export const affiliatePayouts = tableCreator(
   ]
 );
 
+export const purchases = tableCreator(
+  "purchase",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    stripeSessionId: text("stripeSessionId").notNull(),
+    stripePaymentIntentId: text("stripePaymentIntentId"),
+    amountSubtotal: integer("amountSubtotal").notNull(),
+    amountTotal: integer("amountTotal").notNull(),
+    amountDiscount: integer("amountDiscount").notNull().default(0),
+    currency: text("currency").notNull().default("usd"),
+    customerEmail: text("customerEmail"),
+    productName: text("productName").notNull(),
+    purchasedAt: timestamp("purchased_at").notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("purchases_stripe_session_unique").on(table.stripeSessionId),
+    index("purchases_user_created_idx").on(table.userId, table.purchasedAt),
+  ]
+);
+
 export const emailBatches = tableCreator(
   "email_batch",
   {
@@ -1198,6 +1221,8 @@ export type AffiliateReferral = typeof affiliateReferrals.$inferSelect;
 export type AffiliateReferralCreate = typeof affiliateReferrals.$inferInsert;
 export type AffiliatePayout = typeof affiliatePayouts.$inferSelect;
 export type AffiliatePayoutCreate = typeof affiliatePayouts.$inferInsert;
+export type Purchase = typeof purchases.$inferSelect;
+export type PurchaseCreate = typeof purchases.$inferInsert;
 export type EmailBatch = typeof emailBatches.$inferSelect;
 export type EmailBatchCreate = typeof emailBatches.$inferInsert;
 export type UserEmailPreference = typeof userEmailPreferences.$inferSelect;

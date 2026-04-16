@@ -128,7 +128,10 @@ export async function isVideoSegmentContentTabsEnabled() {
 export async function isFeatureFlagEnabled(flagKey: FlagKey): Promise<boolean> {
   try {
     const setting = await getAppSetting(flagKey);
-    return setting?.value === "true";
+    if (setting == null) {
+      return FALLBACK_CONFIG[flagKey] ?? false;
+    }
+    return setting.value === "true";
   } catch (error) {
     console.error(`Error checking feature flag ${flagKey}:`, error);
     return FALLBACK_CONFIG[flagKey] ?? false;
@@ -141,7 +144,10 @@ export async function isFeatureEnabledForUser(
 ): Promise<boolean> {
   try {
     const setting = await getAppSetting(flagKey);
-    const baseEnabled = setting?.value === "true";
+    const baseEnabled =
+      setting == null
+        ? (FALLBACK_CONFIG[flagKey] ?? false)
+        : setting.value === "true";
 
     if (!userId) return baseEnabled;
 
@@ -175,6 +181,6 @@ export async function isFeatureEnabledForUser(
     return baseEnabled;
   } catch (error) {
     console.error(`Error checking feature ${flagKey} for user ${userId}:`, error);
-    return false;
+    return FALLBACK_CONFIG[flagKey] ?? false;
   }
 }

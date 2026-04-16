@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   useSuspenseQuery,
   useMutation,
@@ -24,7 +24,16 @@ import {
   FormItem,
   FormLabel,
 } from "~/components/ui/form";
-import { Settings, Mail, Bell, Save, Loader2, Check } from "lucide-react";
+import {
+  Settings,
+  Mail,
+  Bell,
+  Save,
+  Loader2,
+  Check,
+  Receipt,
+  ArrowRight,
+} from "lucide-react";
 import { toast } from "sonner";
 import { authenticatedMiddleware } from "~/lib/auth";
 import { queryOptions } from "@tanstack/react-query";
@@ -33,6 +42,7 @@ import {
   updateEmailPreferencesFn,
 } from "~/fn/user-settings";
 import { assertAuthenticatedFn } from "~/fn/auth";
+import { useAuth } from "~/hooks/use-auth";
 
 // Form validation schema
 const emailPreferencesSchema = z.object({
@@ -62,6 +72,7 @@ export const Route = createFileRoute("/settings")({
 
 function SettingsPage() {
   const queryClient = useQueryClient();
+  const user = useAuth();
   const { data: emailPreferences } = useSuspenseQuery(
     emailPreferencesQueryOptions
   );
@@ -199,6 +210,37 @@ function SettingsPage() {
             </Form>
           </CardContent>
         </Card>
+
+        {/* Purchase Receipt */}
+        {user?.isPremium ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Receipt className="h-5 w-5" />
+                Purchase Receipt
+              </CardTitle>
+              <CardDescription>
+                View or download a PDF copy of your course invoice
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between gap-4 rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <p className="font-medium">Course invoice</p>
+                  <p className="text-sm text-muted-foreground">
+                    Itemized receipt with business details for your records.
+                  </p>
+                </div>
+                <Button asChild className="flex items-center gap-2">
+                  <Link to="/invoice">
+                    View Invoice
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ) : null}
 
         {/* Additional Settings Card */}
         <Card>

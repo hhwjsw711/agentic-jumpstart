@@ -379,6 +379,13 @@
       "when": 1767406220493,
       "tag": "0053_colorful_captain_midlands",
       "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "7",
+      "when": 1776370102269,
+      "tag": "0054_dark_lethal_legion",
+      "breakpoints": true
     }
   ]
 }

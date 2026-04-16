@@ -85,6 +85,13 @@ function RouteComponent() {
                 <a href={`/learn/${firstSegment.slug}`}>Start Learning</a>
               )}
             </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="w-full mt-3 border-theme-400/40 hover:bg-theme-400/10"
+            >
+              <a href="/invoice">View Receipt</a>
+            </Button>
           </div>
         </div>
       </div>

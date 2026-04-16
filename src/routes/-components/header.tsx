@@ -23,6 +23,7 @@ import {
   Link2,
   ShieldCheck,
   Store,
+  Receipt,
 } from "lucide-react";
 import {
   Sheet,
@@ -653,6 +654,14 @@ export function Header({ hasBanner = false }: { hasBanner?: boolean }) {
                             </div>
                           )
                         )}
+                        {user.isPremium && (
+                          <DropdownMenuItem asChild>
+                            <Link to="/invoice" className="flex items-center">
+                              <Receipt className="mr-2 h-4 w-4" />
+                              Invoice
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
                           <a href="/api/logout" className="flex items-center">
@@ -698,6 +707,14 @@ export function Header({ hasBanner = false }: { hasBanner?: boolean }) {
                             Settings
                           </Link>
                         </DropdownMenuItem>
+                        {user.isPremium && (
+                          <DropdownMenuItem asChild>
+                            <Link to="/invoice" className="flex items-center">
+                              <Receipt className="mr-2 h-4 w-4" />
+                              Invoice
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
 
                         <DropdownMenuItem asChild>
                           <Link
@@ -753,6 +770,14 @@ export function Header({ hasBanner = false }: { hasBanner?: boolean }) {
                             Settings
                           </Link>
                         </DropdownMenuItem>
+                        {user.isPremium && (
+                          <DropdownMenuItem asChild>
+                            <Link to="/invoice" className="flex items-center">
+                              <Receipt className="mr-2 h-4 w-4" />
+                              Invoice
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
                           <a href="/api/logout" className="flex items-center">
@@ -885,6 +910,19 @@ export function Header({ hasBanner = false }: { hasBanner?: boolean }) {
 
                         {user ? (
                           <div className="border-t border-border pt-4">
+                            {user.isPremium && (
+                              <Link
+                                to="/invoice"
+                                className={buttonVariants({
+                                  variant: "ghost",
+                                  className: "w-full justify-start mb-2",
+                                })}
+                                onClick={() => setIsOpen(false)}
+                              >
+                                <Receipt className="mr-2 h-4 w-4" />
+                                Invoice
+                              </Link>
+                            )}
                             {!user.isAdmin && !affiliateStatus?.isAffiliate && (
                               <>
                                 <Link
